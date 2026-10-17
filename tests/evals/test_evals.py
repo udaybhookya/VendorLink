@@ -179,8 +179,11 @@ async def test_onboarding_verifier(mocks_online: None) -> None:
             )
         )
         codes = {c.doc_type: c.code for c in out.checks}
-        return out.passed == case["passed"] and all(
-            codes.get(k) == v for k, v in case["codes"].items()
+        asks = {r.field for r in out.requests}  # what she is asked to send or fix
+        return (
+            out.passed == case["passed"]
+            and all(codes.get(k) == v for k, v in case["codes"].items())
+            and asks == set(case.get("asks", asks))
         )
 
     await score("onboarding_verifier", cases("onboarding_verifier")["cases"], check)

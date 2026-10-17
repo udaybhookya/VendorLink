@@ -43,8 +43,16 @@ from vl_core.schemas.control import Scalar
 from vl_core.settings import Settings, get_settings
 
 log = get_logger("agents")
-# Routine reads (the background loop, the screens' polling): logged at DEBUG, not INFO.
+# Routine reads (the background loop, the screens' polling): logged at DEBUG, not INFO, not
+# counted against the agent's rate limit, and not reported as events unless they used a model.
+# A console re-reads tasks on every event, so a reset's burst of events must not block the
+# Liaison's real work (asking, answering) or flood the gateway under the host's credential.
 ROUTINE_CAPABILITIES = ("human.tick", "human.list", "channel.*.poll", "guardian.mandate")
+
+
+def is_routine(capability: str) -> bool:
+    return any(fnmatchcase(capability, p) for p in ROUTINE_CAPABILITIES)
+
 
 HOST_TENANT = {"vendor-svc": "vendor", "retailer-svc": "retailer"}
 STANDALONE = "standalone"
@@ -318,13 +326,15 @@ class AgentRegistry:
             raise AgentBlocked(gid, entry.effective)
         if entry.permissions and capability not in entry.permissions:
             raise AgentBlocked(gid, f"no permission for {capability}")
+        if is_routine(capability):
+            return
         now = time.monotonic()
         calls = self._calls[gid]
         while calls and calls[0] < now - 60:
             calls.popleft()
+        if entry.rate_limit_per_min and len(calls) >= entry.rate_limit_per_min:
+            raise AgentBlocked(gid, "rate limit")  # a refused call does not count
         calls.append(now)
-        if entry.rate_limit_per_min and len(calls) > entry.rate_limit_per_min:
-            raise AgentBlocked(gid, "rate limit")
 
     async def _report(
         self,
@@ -405,13 +415,15 @@ class AgentRegistry:
                 raise
             kind, attrs = event_attrs(result)
             attrs = {**attrs, **usage.attrs()}
-            routine = any(fnmatchcase(capability, p) for p in ROUTINE_CAPABILITIES)
+            routine = is_routine(capability)
             log.log(
                 logging.DEBUG if routine else logging.INFO,
                 f"{card.agent_id} {capability}",
                 ms=round((time.perf_counter() - started) * 1000),
                 fields=attrs,
             )
+            if routine and not usage.attrs():
+                return result
             await self._report(
                 card,
                 capability,

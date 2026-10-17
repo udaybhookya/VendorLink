@@ -268,6 +268,31 @@ async def test_demo_scenes_leave_work_waiting_on_people(stack: Settings) -> None
     assert "MISSING_REGISTRATION_PIRT" in codes
 
 
+async def test_screens_rereading_tasks_never_block_the_liaison(stack: Settings) -> None:
+    """A console re-reads tasks on every event. A burst of reads (a reset, a batch run) must not
+    block the Liaison's real work or get the retailer service's host credential revoked."""
+    from scripts._demo import SCENES
+
+    await reset(stack, "A")
+    await SCENES["waiting"][1](stack)
+    for _ in range(200):
+        await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/tasks")
+    tasks = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/tasks")
+    task = next(t for t in tasks if t["status"] == "open" and t["role"] == "buyer")
+    answered = await call(
+        stack.retailer_svc_url,
+        "POST",
+        f"/retailers/{RETAILER}/tasks/{task['id']}/answer",
+        json={"text": "approve", "by": "console"},
+    )
+    assert answered["status"] == "answered"
+    await tick(stack)
+    [run] = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/jobs")
+    assert run["status"] == "done"
+    creds = await call(stack.trust_gateway_url, "GET", "/agents")
+    assert all(c["status"] == "active" for c in creds if c["agent_id"].startswith("host:"))
+
+
 async def test_english_by_default_and_she_can_switch_language(stack: Settings) -> None:
     await reset(stack, "A")
     me = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/me")

@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel, Field
 
 from vl_core.a2a import agent_id_for
+from vl_core.crypto import hash_obj
 from vl_core.errors import Problem
 from vl_core.obs import get_logger, trace_id_var
 from vl_core.readback import party_name
@@ -199,13 +200,18 @@ class VendorHumanLoop:
         )
 
     async def ask_docs(self, vendor: Vendor, retailer: str, requests: list[InfoRequest]) -> None:
+        numbers = {d.doc_type: d.number or "" for d in vendor.docs}
         for r in requests:
+            # one question per number checked: applying again with the same number does not ask
+            # twice, but a new number that fails again is asked about again (a closed task with
+            # the same id would otherwise swallow the new question)
+            checked = numbers.get(r.field.removeprefix("doc:"), "")
             await self.ask(
                 vendor,
                 r,
                 subject_ref=f"onboarding:{retailer}",
                 resume=f"doc:{retailer}|{r.field}",
-                task_id=f"{vendor.id}-{r.field}",
+                task_id=f"{vendor.id}-{r.field}-{hash_obj({'number': checked})[:8]}",
             )
 
     async def on_info_request(self, env: A2AEnvelope) -> Ack:

@@ -21,7 +21,7 @@ const ICONS: Record<Kind, IconName> = {
 };
 
 /** Decisions waiting on people, built from the approval queue and the open tasks. */
-function decisions(queue: QueueItem[], tasks: HumanTask[]): Item[] {
+export function decisions(queue: QueueItem[], tasks: HumanTask[]): Item[] {
   const byId = new Map(tasks.map((t) => [t.id, t]));
   const fromQueue: Item[] = queue.filter((q) => q.status === "pending").map((q) => ({
     id: q.id, kind: q.kind, ref: q.ref_id, created: q.created_at, queue: q, task: q.task_id ? byId.get(q.task_id) : undefined,
@@ -33,17 +33,19 @@ function decisions(queue: QueueItem[], tasks: HumanTask[]): Item[] {
   return [...fromQueue, ...questions].sort((a, b) => a.created.localeCompare(b.created));
 }
 
-/** The number on the Inbox badge. */
-export function useInboxCount(retailer: Retailer | null, tick: number): number {
-  const [count, setCount] = useState(0);
+/** The approval queue and the open tasks: read once per refresh, for the badge and the Inbox. */
+export type Work = { queue: QueueItem[]; tasks: HumanTask[] };
+
+export function useWork(retailer: Retailer | null, tick: number): Work {
+  const [work, setWork] = useState<Work>({ queue: [], tasks: [] });
   useEffect(() => {
     if (!retailer) return;
     const base = `/retailers/${retailer.id}`;
     Promise.all([api<QueueItem[]>(RETAILER_URL, `${base}/queue`), api<HumanTask[]>(RETAILER_URL, `${base}/tasks`)])
-      .then(([q, t]) => setCount(decisions(q, t).length))
-      .catch(() => setCount(0));
+      .then(([queue, tasks]) => setWork({ queue, tasks }))
+      .catch(() => setWork({ queue: [], tasks: [] }));
   }, [retailer, tick]);
-  return count;
+  return work;
 }
 
 const ago = (iso: string) => {
@@ -51,10 +53,9 @@ const ago = (iso: string) => {
   return c("inbox.ago", { t: m < 60 ? `${m}m` : m < 1440 ? `${Math.round(m / 60)}h` : `${Math.round(m / 1440)}d` });
 };
 
-export function Inbox({ retailer, active, tick, refresh }: PageProps) {
+export function Inbox({ retailer, active, tick, refresh, work }: PageProps & { work: Work }) {
   const base = `/retailers/${retailer.id}`;
-  const [queue] = useLoad(() => api<QueueItem[]>(RETAILER_URL, `${base}/queue`), [tick], []);
-  const [tasks] = useLoad(() => api<HumanTask[]>(RETAILER_URL, `${base}/tasks`), [tick], []);
+  const { queue, tasks } = work;
   const [listings] = useLoad(() => api<Listing[]>(RETAILER_URL, `${base}/listings`), [tick], []);
   const [orders] = useLoad(() => api<RetailerOrder[]>(RETAILER_URL, `${base}/orders`), [tick], []);
   const [vendors] = useLoad(() => api<RetailerVendor[]>(RETAILER_URL, `${base}/vendors`), [tick], []);

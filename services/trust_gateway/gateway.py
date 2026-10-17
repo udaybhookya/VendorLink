@@ -141,8 +141,10 @@ class RateLimiter:
         hits = self._hits[key]
         while hits and hits[0] < now - 60:
             hits.popleft()
+        if len(hits) >= min(self.per_minute, limit if limit is not None else self.per_minute):
+            return False  # a refused request does not count, so a host recovers within a minute
         hits.append(now)
-        return len(hits) <= min(self.per_minute, limit if limit is not None else self.per_minute)
+        return True
 
 
 class Gateway:
@@ -338,7 +340,11 @@ class Gateway:
             raise Denied(401, "replay", "request id already used", event="bad_token")
         await self.store.used_jti.put(jti, UsedJti(jti=jti, ts=self.clock()))
         if not self.rate.allow(agent_id, cred.rate_limit_per_min):
-            raise Denied(429, "rate", "rate limit exceeded", event="rate", revoke=True)
+            # A party agent flooding the network is revoked. A host only reports telemetry and
+            # registers its agents: over the limit it is refused, never revoked, or a burst of
+            # events would cut a whole service off until the next reset.
+            revoke = cred.kind != "host"
+            raise Denied(429, "rate", "rate limit exceeded", event="rate", revoke=revoke)
         await self.control.touch(cred)
         return cred
 

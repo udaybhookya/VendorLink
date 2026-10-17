@@ -1,15 +1,15 @@
 {
   "note": "Simulated registries (services/mocks/fixtures). Expect per-document codes.",
   "cases": [
-    {"name": "maya_ok", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": true, "codes": {"aadhaar": "OK", "ifsc_account": "OK"}},
-    {"name": "spaces_in_aadhaar", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "2345 6789 0123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": true, "codes": {"aadhaar": "OK"}},
-    {"name": "name_mismatch", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Rao", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": false, "codes": {"aadhaar": "NAME_MISMATCH"}},
-    {"name": "unknown_aadhaar", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "999999999999", "ifsc_account": "SBIN0001234:123456789012"}, "passed": false, "codes": {"aadhaar": "NOT_FOUND"}},
-    {"name": "bad_ifsc_format", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN123"}, "passed": false, "codes": {"ifsc_account": "BAD_FORMAT"}},
-    {"name": "missing_bank", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123"}, "passed": false, "codes": {"role:bank_account": "MISSING_DOCUMENT"}},
-    {"name": "expired_fssai", "country": "IN", "bp": "packaged_food", "name_given": "Sam Daniel", "docs": {"aadhaar": "345678901234", "ifsc_account": "HDFC0004321:987654321098", "fssai": "10019022000999"}, "passed": false, "codes": {"fssai": "EXPIRED"}},
-    {"name": "bank_name_differs", "country": "IN", "bp": "fresh_produce", "name_given": "Sam Daniel", "docs": {"aadhaar": "345678901234", "ifsc_account": "HDFC0004321:987654321098"}, "passed": false, "codes": {"ifsc_account": "NAME_MISMATCH"}},
-    {"name": "sara_ok", "country": "ID", "bp": "packaged_food", "name_given": "Sara Rahman", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "206320101014925"}, "passed": true, "codes": {"nik": "OK", "pirt": "OK"}},
-    {"name": "unknown_pirt", "country": "ID", "bp": "packaged_food", "name_given": "Sara Rahman", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "999999999999999"}, "passed": false, "codes": {"pirt": "NOT_FOUND"}}
+    {"name": "maya_ok", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": true, "codes": {"aadhaar": "OK", "ifsc_account": "OK"}, "asks": []},
+    {"name": "spaces_in_aadhaar", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "2345 6789 0123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": true, "codes": {"aadhaar": "OK"}, "asks": []},
+    {"name": "name_mismatch", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Rao", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "passed": false, "codes": {"aadhaar": "NAME_MISMATCH"}, "asks": ["doc:aadhaar", "doc:ifsc_account"]},
+    {"name": "unknown_aadhaar", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "999999999999", "ifsc_account": "SBIN0001234:123456789012"}, "passed": false, "codes": {"aadhaar": "NOT_FOUND"}, "asks": ["doc:aadhaar"]},
+    {"name": "bad_ifsc_format", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN123"}, "passed": false, "codes": {"ifsc_account": "BAD_FORMAT"}, "asks": ["doc:ifsc_account"]},
+    {"name": "missing_bank", "country": "IN", "bp": "fresh_produce", "name_given": "Maya Thomas", "docs": {"aadhaar": "234567890123"}, "passed": false, "codes": {"role:bank_account": "MISSING_DOCUMENT"}, "asks": ["doc:ifsc_account"]},
+    {"name": "expired_fssai", "country": "IN", "bp": "packaged_food", "name_given": "Sam Daniel", "docs": {"aadhaar": "345678901234", "ifsc_account": "HDFC0004321:987654321098", "fssai": "10019022000999"}, "passed": false, "codes": {"fssai": "EXPIRED"}, "asks": ["doc:fssai", "doc:ifsc_account"]},
+    {"name": "bank_name_differs", "country": "IN", "bp": "fresh_produce", "name_given": "Sam Daniel", "docs": {"aadhaar": "345678901234", "ifsc_account": "HDFC0004321:987654321098"}, "passed": false, "codes": {"ifsc_account": "NAME_MISMATCH"}, "asks": ["doc:ifsc_account"]},
+    {"name": "sara_ok", "country": "ID", "bp": "packaged_food", "name_given": "Sara Rahman", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "206320101014925"}, "passed": true, "codes": {"nik": "OK", "pirt": "OK"}, "asks": []},
+    {"name": "unknown_pirt", "country": "ID", "bp": "packaged_food", "name_given": "Sara Rahman", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "999999999999999"}, "passed": false, "codes": {"pirt": "NOT_FOUND"}, "asks": ["doc:pirt"]}
   ]
 }

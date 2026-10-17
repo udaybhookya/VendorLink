@@ -85,9 +85,10 @@ uv run python scripts/demo_reset.py --scene waiting
 
 *"Retailers have catalogue standards. Small makers have phone photos."*
 
-1. Maya → **Chat** → **Add a product**: she sends a phone photo of a candle on a cluttered table,
-   then says (or types) "40 lavender candles at 220 rupees, 250 grams". The listing comes back
-   into the chat as a card.
+1. Maya → **Chat** → **Add a product**: she sends a phone photo of a candle on a cluttered table
+   (`seed/photos/demo/p2_cluttered.jpeg`; what each demo photo shows is in that folder's
+   README), then says (or types) "40 lavender candles at 220 rupees, 250 grams". The listing
+   comes back into the chat as a card.
 2. The retailer's agents flag the photo (`IMAGE_CLUTTERED_BACKGROUND`, measured and described),
    prepare **an auto-enhanced version (code, not AI) and two AI-regenerated versions of her own
    photo** (the AI ones with `IMAGE_MODEL` set; otherwise retake tips in her language). Allow
@@ -99,7 +100,9 @@ uv run python scripts/demo_reset.py --scene waiting
    (Outbox in local mode), replies **approve**, and the listing is **published** with the AI photo
    disclosed. Or in console → **Inbox**: her photo beside the AI photo, the copy, each fact's
    source and the flags in words, then **Approve and publish**.
-5. Show the same with a clean photo: her Guardian approves it on her behalf, no question asked.
+5. Show the same with a clean photo (`p1_clean_large.jpeg`; the small `p1_clean.jpeg` is under
+   the 600×600 minimum and gets asked about): her Guardian approves it on her behalf, no
+   question asked.
 6. Console → **Catalogue**: the product with its photos (her original, the auto-enhanced and AI
    versions, which one is in use), the copy, each fact's source, its history and its orders.
    From **Orders**, *View product* opens the product an order is for.
@@ -136,7 +139,8 @@ Console → **Studio** → activate preset **B** live (or `demo_reset.py --scene
    uv run python scripts/attack_injected_doc.py --live  # INJECTED DOCUMENT BLOCKED
    ```
    **Overview** counts the authentication failures; **Safety** shows the denials and the
-   quarantined uploader. The victim's trust score is unaffected.
+   quarantined uploader. The victim's trust score is unaffected. The injected document is
+   uploaded as Sam, so Sam stays quarantined: run `demo_reset.py` before showing his onboarding.
 
 ## If something goes wrong
 
@@ -146,6 +150,7 @@ Console → **Studio** → activate preset **B** live (or `demo_reset.py --scene
 | The job does not resume after a Slack reply | `curl -X POST localhost:8002/dev/tick` (and `:8001` for vendor nudges) |
 | Anything else | `uv run python scripts/demo_reset.py [--scene …]`. It takes about a second |
 | A service died | `make dev` again. With `VL_STORE=sqlite`, state survives a restart |
+| A supplier is not in the Inbox after **Apply** | Only suppliers whose checks all pass go there; a failed document (e.g. Sam's bank `NAME_MISMATCH`) keeps them *verifying* and asks them, in their app, to fix it |
 
 ## Lines to have ready
 

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import type { ActiveConfig, Retailer } from "../types/generated";
-import { api, GATEWAY_URL, RETAILER_URL, shortHash, subscribe } from "../lib/api";
+import { api, coalesce, GATEWAY_URL, RETAILER_URL, shortHash, subscribe } from "../lib/api";
 import { c } from "../lib/i18n";
 import { Icon, type IconName, Logo } from "../lib/icons";
 import { Today } from "./Today";
@@ -9,7 +9,7 @@ import { Studio } from "./Studio";
 import { Suppliers } from "./Suppliers";
 import { Observability } from "./Observability";
 import { Outbox } from "./Outbox";
-import { Inbox, useInboxCount } from "./Inbox";
+import { decisions, Inbox, useWork } from "./Inbox";
 import { Orders } from "./Orders";
 import { Trust } from "./Trust";
 import { Catalogue } from "./Catalogue";
@@ -29,7 +29,7 @@ export function Console() {
   const [active, setActive] = useState<ActiveConfig | null>(null);
   const [tick, setTick] = useState(0);
   const [error, setError] = useState("");
-  const refresh = useCallback(() => setTick((n) => n + 1), []);
+  const refresh = useMemo(() => coalesce(() => setTick((n) => n + 1)), []);
 
   useEffect(() => {
     api<Retailer[]>(RETAILER_URL, "/retailers")
@@ -53,7 +53,9 @@ export function Console() {
   }, [retailer, refresh]);
 
   const props = retailer ? { retailer, active, tick, refresh } : null;
-  const waiting = useInboxCount(retailer, tick);
+  // read once per refresh for both the badge and the Inbox page
+  const work = useWork(retailer, tick);
+  const waiting = decisions(work.queue, work.tasks).length;
   const link = ([k, icon]: [string, IconName]) => (
     <NavLink key={k} to={`/retailer/${k}`}>
       <Icon name={icon} size={18} /> {c(`nav.${k}`)}
@@ -84,7 +86,7 @@ export function Console() {
             <Route path="studio" element={<Studio {...props} />} />
             <Route path="suppliers" element={<Suppliers {...props} />} />
             <Route path="observability" element={<Observability {...props} />} />
-            <Route path="inbox" element={<Inbox {...props} />} />
+            <Route path="inbox" element={<Inbox {...props} work={work} />} />
             <Route path="tasks" element={<Navigate to="../inbox" replace />} />
             <Route path="queue" element={<Navigate to="../inbox" replace />} />
             <Route path="catalogue" element={<Catalogue {...props} />} />

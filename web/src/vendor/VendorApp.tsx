@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { Vendor, VendorOptions } from "../types/generated";
-import { api, subscribe, VENDOR_URL } from "../lib/api";
+import { api, coalesce, subscribe, VENDOR_URL } from "../lib/api";
 import { languageName, strings } from "../lib/i18n";
 import { useWide } from "../lib/useWide";
 import { Icon, type IconName, Logo } from "../lib/icons";
@@ -53,7 +53,7 @@ export function VendorApp() {
     }
   }
   const t = useMemo(() => strings(vendor?.language ?? "en"), [vendor?.language]);
-  const refresh = useCallback(() => setTick((n) => n + 1), []);
+  const refresh = useMemo(() => coalesce(() => setTick((n) => n + 1)), []);
   const inbox = useInbox(vendor, tick);
   const addProduct = () => {
     setTab("talk");

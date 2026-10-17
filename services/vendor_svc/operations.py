@@ -694,8 +694,12 @@ class VendorOperations:
         application = VendorApplication(
             vendor=vendor,
             legal_name=vendor.legal_name or vendor.display_name,
+            # a number that failed a registry check is checked again, so she sees why (not
+            # "missing"); a document the gateway blocked in screening is never sent on
             doc_numbers={
-                d.doc_type: d.number for d in vendor.docs if d.number and d.status != "failed"
+                d.doc_type: d.number
+                for d in vendor.docs
+                if d.number and d.failure_reason != "BLOCKED_BY_SCREENING"
             },
         )
         result = await self.gateway(vendor_id).relay(

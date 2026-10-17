@@ -262,6 +262,12 @@
       "qty": "How many {unit} of {sku} can you supply?",
       "describe": "What are you selling, how many, and at what price?",
       "doc": "Please send your {doc} number.",
+      "doc_failed": {
+        "NAME_MISMATCH": "Your {doc} is registered under a different name. Please send the number of a {doc} in your legal name.",
+        "NOT_FOUND": "We could not find your {doc} number in the registry. Please check it and send it again.",
+        "BAD_FORMAT": "Your {doc} number does not look right. Please check it and send it again.",
+        "EXPIRED": "Your {doc} has expired. Please send the number of a valid one."
+      },
       "supply": "{retailer} asks: can you supply {sku} ({qty} {unit}) on {date}? Reply with your price per {unit}, or no.",
       "consent": "{retailer} is waiting for your OK on order {order}. Open VendorLink to hear the terms and say yes or no.",
       "counter_approval": "{vendor} countered order {order}: {summary}. The change is {delta}, over the auto-accept limit. Approve the counter?",

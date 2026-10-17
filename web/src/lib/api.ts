@@ -44,4 +44,18 @@ export function subscribe(url: string, onEvent: (type: string, data: unknown) =>
   return () => source.close();
 }
 
-export const shortHash = (h?: string | null) => (h ? `${h.slice(0, 8)}…` : "–");
+/** Run `fn` at most once per `ms`, after the first of a burst of calls: a reset or a batch run
+ *  sends dozens of events, and each refresh re-reads every list on screen. */
+export function coalesce(fn: () => void, ms = 300): () => void {
+  let pending = false;
+  return () => {
+    if (pending) return;
+    pending = true;
+    setTimeout(() => {
+      pending = false;
+      fn();
+    }, ms);
+  };
+}
+
+export const shortHash =(h?: string | null) => (h ? `${h.slice(0, 8)}…` : "–");

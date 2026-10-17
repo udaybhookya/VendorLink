@@ -254,6 +254,12 @@
       "qty": "Berapa {unit} {sku} yang bisa Anda kirim?",
       "describe": "Apa yang Anda jual, berapa banyak, dan berapa harganya?",
       "doc": "Mohon kirim nomor {doc} Anda.",
+      "doc_failed": {
+        "NAME_MISMATCH": "{doc} Anda terdaftar atas nama lain. Mohon kirim nomor {doc} atas nama resmi Anda.",
+        "NOT_FOUND": "Nomor {doc} Anda tidak ditemukan di registri. Mohon periksa dan kirim lagi.",
+        "BAD_FORMAT": "Nomor {doc} Anda sepertinya tidak benar. Mohon periksa dan kirim lagi.",
+        "EXPIRED": "{doc} Anda sudah kedaluwarsa. Mohon kirim nomor yang masih berlaku."
+      },
       "supply": "{retailer} bertanya: bisakah Anda mengirim {sku} ({qty} {unit}) pada {date}? Balas dengan harga per {unit}, atau tidak.",
       "consent": "{retailer} menunggu persetujuan Anda untuk pesanan {order}. Buka VendorLink untuk mendengar ketentuannya lalu jawab ya atau tidak.",
       "counter_approval": "{vendor} memberi tawaran balik untuk pesanan {order}: {summary}. Perubahannya {delta}. Setujui?",

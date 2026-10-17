@@ -168,6 +168,35 @@ async def test_rate_limit_revokes(env: Env) -> None:
     assert cred is not None and cred.status == "revoked"
 
 
+def test_refused_requests_do_not_count_against_the_rate() -> None:
+    """Retrying while refused must not keep a caller locked out past the one-minute window."""
+    from trust_gateway.gateway import RateLimiter
+
+    now = [0.0]
+    rate = RateLimiter(2, lambda: now[0])
+    assert rate.allow("a") and rate.allow("a")
+    for _ in range(50):
+        now[0] += 1
+        assert not rate.allow("a")
+    now[0] = 61
+    assert rate.allow("a")
+
+
+async def test_rate_limit_refuses_a_host_but_never_revokes_it(env: Env) -> None:
+    """A host only reports telemetry: a burst of events is refused, not a security incident."""
+    cred = await env.gateway.store.credentials.get(FRESHCART)
+    assert cred is not None
+    await env.gateway.store.credentials.put(FRESHCART, cred.model_copy(update={"kind": "host"}))
+    env.gateway.rate.per_minute = 2
+    await env.retailer.token("order.propose", MAYA)
+    await env.retailer.token("order.propose", MAYA)
+    with pytest.raises(GatewayError) as err:
+        await env.retailer.token("order.propose", MAYA)
+    assert err.value.code == "rate"
+    after = await env.gateway.store.credentials.get(FRESHCART)
+    assert after is not None and after.status == "active"
+
+
 async def test_credentials_need_admin_token(env: Env) -> None:
     async with make_client(GW) as client:
         r = await client.post(
