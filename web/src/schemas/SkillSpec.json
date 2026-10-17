@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "capability": {
+      "description": "e.g. grade.produce, guardian.evaluate",
+      "title": "Capability",
+      "type": "string"
+    },
+    "input_schema": {
+      "description": "Name of a vl_core.schemas model",
+      "title": "Input Schema",
+      "type": "string"
+    },
+    "output_schema": {
+      "description": "Name of a vl_core.schemas model",
+      "title": "Output Schema",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "internal": {
+      "default": false,
+      "description": "Callable in-process only; never exposed by a standalone host or over A2A",
+      "title": "Internal",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "capability",
+    "input_schema",
+    "output_schema"
+  ],
+  "title": "SkillSpec",
+  "type": "object"
+}

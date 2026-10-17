@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "description": "Wrapper for every cross-tenant message relayed by the trust gateway.\n\n`body` holds a dumped vl_core schema model; the receiver validates it per `skill`.",
+  "properties": {
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "jti": {
+      "description": "Unique id; also bound into the request signature",
+      "title": "Jti",
+      "type": "string"
+    },
+    "skill": {
+      "title": "Skill",
+      "type": "string"
+    },
+    "from_agent": {
+      "title": "From Agent",
+      "type": "string"
+    },
+    "to_agent": {
+      "title": "To Agent",
+      "type": "string"
+    },
+    "on_behalf_of": {
+      "title": "On Behalf Of",
+      "type": "string"
+    },
+    "sent_at": {
+      "format": "date-time",
+      "title": "Sent At",
+      "type": "string"
+    },
+    "body": {
+      "additionalProperties": true,
+      "title": "Body",
+      "type": "object"
+    }
+  },
+  "required": [
+    "trace_id",
+    "jti",
+    "skill",
+    "from_agent",
+    "to_agent",
+    "on_behalf_of",
+    "sent_at",
+    "body"
+  ],
+  "title": "A2AEnvelope",
+  "type": "object"
+}

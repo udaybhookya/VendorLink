@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "doc_type": {
+      "description": "DocSpec id, e.g. aadhaar, fssai, pirt",
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "number": {
+      "title": "Number",
+      "type": "string"
+    },
+    "name": {
+      "description": "Name the vendor gave, to match against the registry",
+      "title": "Name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_type",
+    "number",
+    "name"
+  ],
+  "title": "RegistryCheckRequest",
+  "type": "object"
+}

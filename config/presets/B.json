@@ -1,0 +1,10 @@
+{
+  "id": "B",
+  "label": "Packaged food · Indonesia · grocery chain",
+  "refs": {
+    "business_profile": {"id": "packaged_food"},
+    "retailer_profile": {"id": "grocery_chain"},
+    "country_pack": {"id": "ID"},
+    "retailer_policy": {"id": "default_grocery"}
+  }
+}

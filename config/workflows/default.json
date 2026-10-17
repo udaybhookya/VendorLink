@@ -1,0 +1,10 @@
+{
+  "id": "default",
+  "version": 1,
+  "workflows": [
+    {"job_type": "onboard_vendor", "steps": [{"capability": "vendor.verify"}, {"capability": "compliance.check", "optional": true}]},
+    {"job_type": "build_listing", "steps": [{"capability": "catalogue.build"}, {"capability": "grade.*"}]},
+    {"job_type": "propose_terms", "steps": [{"capability": "terms.propose"}]},
+    {"job_type": "place_order", "steps": [{"capability": "order.replenish"}]}
+  ]
+}

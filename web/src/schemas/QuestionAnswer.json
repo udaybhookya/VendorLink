@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "by": {
+      "default": "",
+      "title": "By",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "QuestionAnswer",
+  "type": "object"
+}

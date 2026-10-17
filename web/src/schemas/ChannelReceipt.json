@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "channel": {
+      "enum": [
+        "inapp",
+        "slack",
+        "gmail"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "thread_id": {
+      "default": "",
+      "title": "Thread Id",
+      "type": "string"
+    },
+    "simulated": {
+      "default": false,
+      "title": "Simulated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "channel",
+    "message_id"
+  ],
+  "title": "ChannelReceipt",
+  "type": "object"
+}

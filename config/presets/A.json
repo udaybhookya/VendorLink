@@ -1,0 +1,10 @@
+{
+  "id": "A",
+  "label": "Fresh produce · India · quick commerce",
+  "refs": {
+    "business_profile": {"id": "fresh_produce"},
+    "retailer_profile": {"id": "quick_commerce"},
+    "country_pack": {"id": "IN"},
+    "retailer_policy": {"id": "default_qc"}
+  }
+}

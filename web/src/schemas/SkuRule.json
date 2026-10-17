@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "sku": {
+      "title": "Sku",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "price_floor": {
+      "description": "Minimum price per unit",
+      "title": "Price Floor",
+      "type": "string"
+    },
+    "max_qty_per_day": {
+      "title": "Max Qty Per Day",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sku",
+    "unit",
+    "price_floor",
+    "max_qty_per_day"
+  ],
+  "title": "SkuRule",
+  "type": "object"
+}

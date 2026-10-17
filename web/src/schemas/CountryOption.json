@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "title": "Code",
+      "type": "string"
+    },
+    "name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Name",
+      "type": "object"
+    },
+    "languages": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Languages",
+      "type": "array"
+    },
+    "default_language": {
+      "title": "Default Language",
+      "type": "string"
+    },
+    "currency": {
+      "title": "Currency",
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "languages",
+    "default_language",
+    "currency"
+  ],
+  "title": "CountryOption",
+  "type": "object"
+}

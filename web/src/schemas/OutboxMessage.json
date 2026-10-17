@@ -1,0 +1,123 @@
+{
+  "$defs": {
+    "ChannelMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "enum": [
+            "inapp",
+            "slack",
+            "gmail"
+          ],
+          "title": "Channel",
+          "type": "string"
+        },
+        "to": {
+          "description": "Slack channel/user id, email address, or party id for in-app",
+          "title": "To",
+          "type": "string"
+        },
+        "subject": {
+          "default": "",
+          "title": "Subject",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "thread_id": {
+          "default": "",
+          "description": "Reply in this thread (Slack ts, mail thread)",
+          "title": "Thread Id",
+          "type": "string"
+        },
+        "token": {
+          "default": "",
+          "description": "Task token, embedded so replies can be matched",
+          "title": "Token",
+          "type": "string"
+        },
+        "link": {
+          "default": "",
+          "title": "Link",
+          "type": "string"
+        }
+      },
+      "required": [
+        "channel",
+        "to",
+        "text"
+      ],
+      "title": "ChannelMessage",
+      "type": "object"
+    },
+    "ChannelReply": {
+      "additionalProperties": false,
+      "properties": {
+        "message_id": {
+          "title": "Message Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "by": {
+          "title": "By",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        }
+      },
+      "required": [
+        "message_id",
+        "text",
+        "by"
+      ],
+      "title": "ChannelReply",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Local channel fallback: what would have gone to Slack / Gmail, and replies typed back.",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "message": {
+      "$ref": "#/$defs/ChannelMessage"
+    },
+    "sent_at": {
+      "format": "date-time",
+      "title": "Sent At",
+      "type": "string"
+    },
+    "replies": {
+      "items": {
+        "$ref": "#/$defs/ChannelReply"
+      },
+      "title": "Replies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "message",
+    "sent_at"
+  ],
+  "title": "OutboxMessage",
+  "type": "object"
+}

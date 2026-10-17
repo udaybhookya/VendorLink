@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "security_events": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Security Events",
+      "type": "object"
+    },
+    "screening_blocked": {
+      "title": "Screening Blocked",
+      "type": "integer"
+    },
+    "quarantined_subjects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Quarantined Subjects",
+      "type": "array"
+    },
+    "frozen": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Frozen",
+      "type": "array"
+    },
+    "agents_by_status": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Agents By Status",
+      "type": "object"
+    }
+  },
+  "required": [
+    "security_events",
+    "screening_blocked",
+    "quarantined_subjects",
+    "frozen",
+    "agents_by_status"
+  ],
+  "title": "SafetySummary",
+  "type": "object"
+}

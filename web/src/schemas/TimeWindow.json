@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "description": "Local wall-clock window in the mandate's timezone.",
+  "properties": {
+    "start": {
+      "format": "time",
+      "title": "Start",
+      "type": "string"
+    },
+    "end": {
+      "format": "time",
+      "title": "End",
+      "type": "string"
+    }
+  },
+  "required": [
+    "start",
+    "end"
+  ],
+  "title": "TimeWindow",
+  "type": "object"
+}

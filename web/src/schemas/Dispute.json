@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "DisputeEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "ts": {
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "actor": {
+          "title": "Actor",
+          "type": "string"
+        },
+        "note": {
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ts",
+        "actor",
+        "note"
+      ],
+      "title": "DisputeEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "order_id": {
+      "title": "Order Id",
+      "type": "string"
+    },
+    "received_qty": {
+      "title": "Received Qty",
+      "type": "string"
+    },
+    "rejected_qty": {
+      "title": "Rejected Qty",
+      "type": "string"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "photos": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Photos",
+      "type": "array"
+    },
+    "timeline": {
+      "items": {
+        "$ref": "#/$defs/DisputeEvent"
+      },
+      "title": "Timeline",
+      "type": "array"
+    }
+  },
+  "required": [
+    "order_id",
+    "received_qty",
+    "rejected_qty"
+  ],
+  "title": "Dispute",
+  "type": "object"
+}

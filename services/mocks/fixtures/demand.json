@@ -1,0 +1,41 @@
+{
+  "_note": "Synthetic demand feed. Times are local to the store.",
+  "store:hub-4": [
+    {
+      "sku": "spinach",
+      "qty": 350,
+      "unit": "bunch",
+      "pickup_local": "05:30"
+    }
+  ],
+  "store:hub-7": [
+    {
+      "sku": "spinach",
+      "qty": 100,
+      "unit": "bunch",
+      "pickup_local": "07:00"
+    }
+  ],
+  "store:hub-9": [
+    {
+      "sku": "spinach",
+      "qty": 280,
+      "unit": "bunch",
+      "pickup_local": "06:30"
+    }
+  ],
+  "store:hub-12": [
+    {
+      "sku": "mint",
+      "qty": 40,
+      "unit": "bunch",
+      "pickup_local": "07:00"
+    },
+    {
+      "sku": "tomato",
+      "qty": 20,
+      "unit": "kg",
+      "pickup_local": "07:00"
+    }
+  ]
+}

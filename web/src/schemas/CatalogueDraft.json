@@ -1,0 +1,64 @@
+{
+  "additionalProperties": false,
+  "description": "What a vision + language model returns for a photo and the vendor's words.",
+  "properties": {
+    "sku_name": {
+      "title": "Sku Name",
+      "type": "string"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "price": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Price"
+    },
+    "qty": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Qty"
+    },
+    "claims": {
+      "description": "e.g. organic, homemade",
+      "items": {
+        "type": "string"
+      },
+      "title": "Claims",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    }
+  },
+  "required": [
+    "sku_name",
+    "category",
+    "unit",
+    "confidence"
+  ],
+  "title": "CatalogueDraft",
+  "type": "object"
+}

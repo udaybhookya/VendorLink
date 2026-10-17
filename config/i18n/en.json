@@ -1,0 +1,267 @@
+{
+  "affirmatives": [
+    "yes",
+    "yeah",
+    "yep",
+    "ok",
+    "okay",
+    "agree",
+    "i agree",
+    "sure",
+    "confirm",
+    "go ahead"
+  ],
+  "negatives": [
+    "no",
+    "not",
+    "don't",
+    "dont",
+    "cancel",
+    "reject",
+    "stop",
+    "wait"
+  ],
+  "decision": {
+    "green": "Accepted within your rules",
+    "amber": "Needs your OK",
+    "red": "Outside your rules — counter sent",
+    "decline": "Declined"
+  },
+  "deal_status": {
+    "open": "New",
+    "countered": "Counter sent",
+    "awaiting_consent": "Waiting for your yes",
+    "signed": "Signed",
+    "declined": "Declined",
+    "rejected": "Retailer said no"
+  },
+  "reasons": {
+    "QTY_OVER_DAILY_MAX": "They asked for {requested} of {sku}; your daily limit leaves {allowed}.",
+    "DAILY_MAX_REACHED": "You have already committed your daily limit of {sku}.",
+    "PICKUP_BEFORE_WINDOW": "Pickup at {requested} is before your earliest time; I offered {earliest}.",
+    "PICKUP_AFTER_WINDOW": "Pickup at {requested} is after your last time; I offered {earliest} the next day.",
+    "PRICE_BELOW_FLOOR": "They offered {offered} for {sku}; your lowest price is {floor}.",
+    "PAYMENT_TOO_LATE": "They want to pay in {requested_days} days; you allow {max_days}.",
+    "BUYER_NOT_APPROVED": "{buyer} is not on your list of buyers.",
+    "VALUE_OVER_AUTO_ACCEPT": "The total {value} is above {max_value}, so I need your OK.",
+    "SKU_NOT_IN_MANDATE": "{sku} ({unit}) is not in your rules.",
+    "CURRENCY_MISMATCH": "They offered payment in {offered}, not {expected}.",
+    "NO_STANDING_MANDATE": "You have not set your rules yet, so I need your OK."
+  },
+  "readback": {
+    "deal": "{retailer} wants {lines}, pickup {pickup}, paid within {payment_days} days. Total {value}.",
+    "line": "{qty} {unit} of {sku} at {price} each",
+    "rules": "Your rules: {skus}; pickup between {windows}; payment within {payment_days} days; I accept on my own up to {auto_accept}.",
+    "rule_sku": "{sku}: at least {price_floor} per {unit}, at most {max_qty} {unit} a day",
+    "listing": "{sku_name}, {qty} {unit} at {price} each, grade {grade}.",
+    "consent_question": "Should your Guardian sign this? Say yes or no."
+  },
+  "activity": {
+    "guardian.decide": "I checked an order against your rules",
+    "guardian.sign_order": "I signed an order for you",
+    "consent.register": "I recorded your yes",
+    "mandate.standing": "Your rules were signed and filed",
+    "mandate.order": "An order was signed by both sides",
+    "relay.order.propose": "A retailer sent you an order",
+    "relay.order.counter_response": "The retailer answered your counter",
+    "relay.listing.submit": "I sent your product to the retailer",
+    "relay.listing.confirm": "I confirmed your product listing",
+    "relay.vendor.onboard": "I sent your documents for checks",
+    "token.issue": "A secure pass was issued",
+    "credential.issue": "Your agent got its identity",
+    "credential.revoke": "An agent identity was blocked",
+    "screen.vendor_document": "A document was safety-checked",
+    "human.ask": "I asked someone a question",
+    "human.answer": "An answer came back"
+  },
+  "chat": {
+    "greeting": "Hello {name}. I can tell you about your deals, your rules, or what I did today.",
+    "no_deals": "You have no deals waiting.",
+    "deals_summary": "You have {count} deals. {details}",
+    "nothing_to_confirm": "There is nothing waiting for your yes right now.",
+    "signed": "Done. Your Guardian signed it and the retailer has been told.",
+    "not_signed": "I did not sign. {reason}",
+    "not_understood": "Sorry, I did not catch that. You can ask about deals, rules, or today.",
+    "cancelled": "Okay, I will not sign it.",
+    "rules_none": "You have not set rules yet.",
+    "today_none": "Nothing has happened today yet.",
+    "today": "Today: {items}.",
+    "no_questions": "Nobody is waiting on you for anything right now.",
+    "answered": "Thank you, I passed your answer on.",
+    "unclear_answer": "Sorry, I could not use that answer ({reason}). Please say it again."
+  },
+  "intents": {
+    "deals": [
+      "deal",
+      "deals",
+      "order",
+      "orders"
+    ],
+    "rules": [
+      "rule",
+      "rules"
+    ],
+    "today": [
+      "today",
+      "what did you do",
+      "activity"
+    ],
+    "questions": [
+      "question",
+      "questions",
+      "asked me",
+      "anything for me"
+    ]
+  },
+  "ui": {
+    "tabs": {
+      "talk": "Chat",
+      "deals": "Deals",
+      "rules": "My rules",
+      "activity": "Activity",
+      "products": "Products",
+      "setup": "Setup"
+    },
+    "simulated": "Prototype — all vendors, retailers and registries are simulated",
+    "hold_to_talk": "Hold to talk",
+    "listening": "Listening…",
+    "type_here": "Type a message",
+    "send": "Send",
+    "photo": "Photo",
+    "photo_added": "Photo added. Now say what it is.",
+    "yes_sign": "Yes, sign",
+    "no": "No",
+    "signed_badge": "Signed by your Guardian",
+    "not_signed": "Not signed yet",
+    "per_day": "per day max",
+    "min_price": "lowest price",
+    "pickup": "Pickup",
+    "payment": "Paid within",
+    "days": "days",
+    "buyers": "Buyers",
+    "auto_accept": "I accept on my own up to",
+    "no_rules": "No rules yet",
+    "no_deals": "No deals yet",
+    "no_activity": "Nothing yet",
+    "version": "Version",
+    "voice_off": "Voice model not configured: using your phone's speech instead.",
+    "who": "Who acted for me",
+    "new_supplier": "+ New supplier",
+    "register": {
+      "title": "Join as a supplier",
+      "intro": "Tell us who you are. We will create your own agent: it works for you, within the rules you set.",
+      "display_name": "Your shop or trading name",
+      "legal_name": "Name on your ID",
+      "country": "Country",
+      "language": "Language",
+      "business": "What do you sell?",
+      "create": "Create my agent",
+      "agent_ready": "Your agent is ready",
+      "agent_id": "Agent",
+      "fingerprint": "Key fingerprint",
+      "status": "Status",
+      "start": "Set up my shop"
+    },
+    "setup": {
+      "documents": "1 · Documents",
+      "number": "Number",
+      "photo_optional": "Photo (optional)",
+      "save": "Save",
+      "rules_title": "2 · My selling rules",
+      "sku": "Product",
+      "unit": "Unit",
+      "max_per_day": "Max per day",
+      "add_sku": "+ Add product",
+      "pickup_from": "Pickup from",
+      "pickup_to": "until",
+      "payment_days": "Paid within (days)",
+      "auto_accept": "Accept on my own up to",
+      "buyers": "Who may buy",
+      "preview": "Read my rules back",
+      "consent_yes": "Yes, sign my rules",
+      "retailers": "3 · Retailers",
+      "invited_by": "invited you",
+      "apply": "Apply",
+      "applied": "Applied",
+      "checks": "Checks",
+      "done": "Done",
+      "status": "Status"
+    },
+    "products": {
+      "add": "Add a product",
+      "describe": "Say or type what it is, how many and the price",
+      "label_text": "Label text (packaged food)",
+      "draft": "Make my listing",
+      "confirm": "Yes, list it",
+      "needs_review": "A person will check this first",
+      "none": "No products yet",
+      "flags": "Needs attention"
+    },
+    "questions": "Questions for you",
+    "answer": "Answer",
+    "no_questions": "No questions right now",
+    "terms": {
+      "title": "Terms offered",
+      "paid_within": "Paid within {days} days",
+      "accept": "Accept",
+      "decline": "Decline",
+      "outside_rules": "Outside your rules: payment is later than you allow",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "no_rules": "Set your rules first"
+    },
+    "language": "Language",
+    "assistant": "Assistant"
+  },
+  "hitl": {
+    "q": {
+      "price": "What is your price per {unit} for {sku}?",
+      "qty": "How many {unit} of {sku} can you supply?",
+      "describe": "What are you selling, how many, and at what price?",
+      "doc": "Please send your {doc} number.",
+      "supply": "{retailer} asks: can you supply {sku} ({qty} {unit}) on {date}? Reply with your price per {unit}, or no.",
+      "consent": "{retailer} is waiting for your OK on order {order}. Open VendorLink to hear the terms and say yes or no.",
+      "counter_approval": "{vendor} countered order {order}: {summary}. The change is {delta}, over the auto-accept limit. Approve the counter?",
+      "order_over_limit": "Order {order} for {store} is {value}, over the auto-order limit {limit}. Send it to {vendor}?",
+      "vendor_approval": "New supplier {vendor} passed checks ({checks}). Approve them?",
+      "listing_review": "Listing \"{sku}\" from {vendor} needs a review: {reasons}. Publish it?",
+      "run_done": "Replenishment run for {date}: {sent} sent, {waiting} waiting, {skipped} need the vendor.",
+      "info_answer": "{vendor} answered \"{answer}\" about {subject}."
+    },
+    "msg": {
+      "reply_hint": "Reply here with: {choices}.",
+      "open_link": "Or open: {link}",
+      "reminder": "Reminder",
+      "subject": "[{token}] {title}",
+      "thanks": "Thank you, recorded.",
+      "unclear": "Sorry, I could not read that. Please reply with: {choices}."
+    },
+    "choice": {
+      "approve": "approve",
+      "reject": "reject",
+      "yes": "yes",
+      "no": "no"
+    },
+    "choice_words": {
+      "approve": [
+        "yes",
+        "ok",
+        "okay",
+        "approved",
+        "go ahead",
+        "send",
+        "👍",
+        "✅"
+      ],
+      "reject": [
+        "no",
+        "decline",
+        "stop",
+        "👎",
+        "❌"
+      ]
+    }
+  },
+  "language_name": "English",
+  "language_short": "English"
+}

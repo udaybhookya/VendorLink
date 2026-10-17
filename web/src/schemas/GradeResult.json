@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "What a vision model returns for a produce photo.",
+  "properties": {
+    "grade": {
+      "title": "Grade",
+      "type": "string"
+    },
+    "freshness": {
+      "enum": [
+        "fresh",
+        "ok",
+        "wilting",
+        "spoiled"
+      ],
+      "title": "Freshness",
+      "type": "string"
+    },
+    "shelf_life_days": {
+      "minimum": 0,
+      "title": "Shelf Life Days",
+      "type": "integer"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    }
+  },
+  "required": [
+    "grade",
+    "freshness",
+    "shelf_life_days",
+    "confidence"
+  ],
+  "title": "GradeResult",
+  "type": "object"
+}

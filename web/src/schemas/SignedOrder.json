@@ -1,0 +1,130 @@
+{
+  "$defs": {
+    "OrderLine": {
+      "additionalProperties": false,
+      "properties": {
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "description": "Per unit",
+          "title": "Price",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "qty",
+        "unit",
+        "price"
+      ],
+      "title": "OrderLine",
+      "type": "object"
+    },
+    "OrderProposal": {
+      "additionalProperties": false,
+      "description": "One immutable version of an order. A counter is a new version (see `next_version`).",
+      "properties": {
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "retailer_id": {
+          "title": "Retailer Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "store_id": {
+          "title": "Store Id",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/OrderLine"
+          },
+          "minItems": 1,
+          "title": "Lines",
+          "type": "array"
+        },
+        "pickup_at": {
+          "format": "date-time",
+          "title": "Pickup At",
+          "type": "string"
+        },
+        "payment_days": {
+          "minimum": 0,
+          "title": "Payment Days",
+          "type": "integer"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "terms_version": {
+          "title": "Terms Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "order_id",
+        "version",
+        "retailer_id",
+        "vendor_id",
+        "store_id",
+        "lines",
+        "pickup_at",
+        "payment_days",
+        "currency",
+        "terms_version"
+      ],
+      "title": "OrderProposal",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The vendor's signature over one exact order version.",
+  "properties": {
+    "proposal": {
+      "$ref": "#/$defs/OrderProposal"
+    },
+    "vendor_sig": {
+      "title": "Vendor Sig",
+      "type": "string"
+    },
+    "consent_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Consent Ref"
+    }
+  },
+  "required": [
+    "proposal",
+    "vendor_sig"
+  ],
+  "title": "SignedOrder",
+  "type": "object"
+}

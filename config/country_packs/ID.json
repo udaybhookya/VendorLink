@@ -1,0 +1,92 @@
+{
+  "code": "ID",
+  "version": 1,
+  "name": {
+    "en": "Indonesia",
+    "id": "Indonesia"
+  },
+  "languages": [
+    "id",
+    "en"
+  ],
+  "default_language": "id",
+  "currency": "IDR",
+  "timezone": "Asia/Jakarta",
+  "local_units": [
+    "pack",
+    "karton",
+    "kg",
+    "buah"
+  ],
+  "id_docs": [
+    {
+      "id": "nik",
+      "role": "identity",
+      "name": {
+        "en": "NIK (KTP)",
+        "id": "NIK (KTP)"
+      },
+      "regex": "^\\d{16}$",
+      "registry": "id"
+    },
+    {
+      "id": "bank_account",
+      "role": "bank_account",
+      "name": {
+        "en": "Bank account",
+        "id": "Rekening bank"
+      },
+      "regex": "^\\d{10,16}$",
+      "registry": "bank"
+    }
+  ],
+  "food_safety_regs": [
+    {
+      "id": "pirt",
+      "role": "food_safety_registration",
+      "name": {
+        "en": "P-IRT number",
+        "id": "Nomor P-IRT"
+      },
+      "regex": "^\\d{15}(-\\d{2})?$",
+      "registry": "pirt"
+    },
+    {
+      "id": "halal",
+      "role": "halal_certificate",
+      "name": {
+        "en": "Halal certificate",
+        "id": "Sertifikat halal"
+      },
+      "regex": "^ID\\d{14,20}$",
+      "registry": null
+    }
+  ],
+  "consent_wording": {
+    "en": "Do you agree to these terms: {summary}? Say yes to confirm.",
+    "id": "Apakah Anda setuju dengan ketentuan ini: {summary}? Ucapkan 'ya' untuk mengonfirmasi."
+  },
+  "label_keywords": {
+    "ingredients": [
+      "komposisi",
+      "bahan"
+    ],
+    "expiry_date": [
+      "kedaluwarsa",
+      "baik digunakan sebelum",
+      "exp"
+    ],
+    "net_weight": [
+      "berat bersih",
+      "netto"
+    ],
+    "allergens": [
+      "alergen",
+      "mengandung"
+    ],
+    "halal": [
+      "halal",
+      "حلال"
+    ]
+  }
+}

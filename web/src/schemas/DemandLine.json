@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "sku": {
+      "title": "Sku",
+      "type": "string"
+    },
+    "qty": {
+      "exclusiveMinimum": 0,
+      "title": "Qty",
+      "type": "integer"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "pickup_local": {
+      "pattern": "^\\d{2}:\\d{2}$",
+      "title": "Pickup Local",
+      "type": "string"
+    }
+  },
+  "required": [
+    "sku",
+    "qty",
+    "unit",
+    "pickup_local"
+  ],
+  "title": "DemandLine",
+  "type": "object"
+}

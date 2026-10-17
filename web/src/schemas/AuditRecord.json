@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "description": "One link in the append-only, hash-chained audit log.",
+  "properties": {
+    "seq": {
+      "minimum": 0,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "actor_agent_id": {
+      "title": "Actor Agent Id",
+      "type": "string"
+    },
+    "on_behalf_of": {
+      "title": "On Behalf Of",
+      "type": "string"
+    },
+    "action": {
+      "title": "Action",
+      "type": "string"
+    },
+    "target": {
+      "title": "Target",
+      "type": "string"
+    },
+    "payload_hash": {
+      "title": "Payload Hash",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "outcome": {
+      "enum": [
+        "ok",
+        "denied",
+        "error"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "prev_hash": {
+      "title": "Prev Hash",
+      "type": "string"
+    },
+    "hash": {
+      "title": "Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "seq",
+    "ts",
+    "actor_agent_id",
+    "on_behalf_of",
+    "action",
+    "target",
+    "payload_hash",
+    "config_hash",
+    "outcome",
+    "prev_hash",
+    "hash"
+  ],
+  "title": "AuditRecord",
+  "type": "object"
+}

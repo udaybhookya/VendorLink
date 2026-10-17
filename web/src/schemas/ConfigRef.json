@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "None = latest",
+      "title": "Version"
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "ConfigRef",
+  "type": "object"
+}

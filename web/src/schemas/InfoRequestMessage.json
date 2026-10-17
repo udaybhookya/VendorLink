@@ -1,0 +1,139 @@
+{
+  "$defs": {
+    "Choice": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Machine value, e.g. approve",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "words": {
+          "description": "Extra words that mean this choice",
+          "items": {
+            "type": "string"
+          },
+          "title": "Words",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Choice",
+      "type": "object"
+    },
+    "InfoRequest": {
+      "additionalProperties": false,
+      "description": "What an agent needs from a person to continue. Emitted by specialists and jobs.",
+      "properties": {
+        "field": {
+          "description": "What is missing, e.g. price, qty, doc:aadhaar",
+          "title": "Field",
+          "type": "string"
+        },
+        "ask": {
+          "description": "Role to ask: vendor, buyer, category_manager, ops",
+          "title": "Ask",
+          "type": "string"
+        },
+        "kind": {
+          "default": "missing_info",
+          "enum": [
+            "missing_info",
+            "approval",
+            "consent",
+            "review",
+            "notice"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "answer_type": {
+          "default": "text",
+          "enum": [
+            "choice",
+            "number",
+            "text",
+            "date"
+          ],
+          "title": "Answer Type",
+          "type": "string"
+        },
+        "question_key": {
+          "description": "i18n key for the question, e.g. hitl.q.price",
+          "title": "Question Key",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "choices": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Choices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "ask",
+        "question_key"
+      ],
+      "title": "InfoRequest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Retailer → vendor (gateway skill info.request): please ask your vendor this.",
+  "properties": {
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/InfoRequest"
+    },
+    "subject_ref": {
+      "title": "Subject Ref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "retailer_id",
+    "vendor_id",
+    "request",
+    "subject_ref"
+  ],
+  "title": "InfoRequestMessage",
+  "type": "object"
+}

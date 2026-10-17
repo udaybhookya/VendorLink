@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "calls": {
+      "default": 0,
+      "title": "Calls",
+      "type": "integer"
+    },
+    "errors": {
+      "default": 0,
+      "title": "Errors",
+      "type": "integer"
+    },
+    "denied": {
+      "default": 0,
+      "title": "Denied",
+      "type": "integer"
+    },
+    "success_rate": {
+      "default": 1.0,
+      "title": "Success Rate",
+      "type": "number"
+    },
+    "p50_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P50 Ms"
+    },
+    "p95_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P95 Ms"
+    },
+    "calls_last_5m": {
+      "default": 0,
+      "title": "Calls Last 5M",
+      "type": "integer"
+    },
+    "needs_review_rate": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Needs Review Rate"
+    },
+    "decisions": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Decisions",
+      "type": "object"
+    }
+  },
+  "title": "AgentMetrics",
+  "type": "object"
+}

@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "impact": {
+      "description": "Points added (+) or removed (-) from 100",
+      "title": "Impact",
+      "type": "number"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "impact"
+  ],
+  "title": "TrustFactor",
+  "type": "object"
+}

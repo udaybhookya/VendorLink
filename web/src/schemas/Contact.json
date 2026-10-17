@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "Where one role at one party can be reached. Addresses may use ${ENV} placeholders.",
+  "properties": {
+    "role": {
+      "title": "Role",
+      "type": "string"
+    },
+    "name": {
+      "default": "",
+      "title": "Name",
+      "type": "string"
+    },
+    "slack": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Slack"
+    },
+    "email": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Email"
+    },
+    "inapp": {
+      "default": false,
+      "title": "Inapp",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "role"
+  ],
+  "title": "Contact",
+  "type": "object"
+}

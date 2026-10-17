@@ -1,0 +1,142 @@
+{
+  "_note": "Synthetic vendors for the demo. No real people.",
+  "vendors": [
+    {
+      "vendor": {
+        "id": "vendor:maya",
+        "display_name": "Maya",
+        "legal_name": "Maya Thomas",
+        "business_profile": "fresh_produce",
+        "country": "IN",
+        "language": "en",
+        "status": "active",
+        "retailers": [
+          "retailer:freshcart"
+        ],
+        "docs": [
+          {
+            "doc_type": "aadhaar",
+            "number": "234567890123",
+            "uri": "",
+            "status": "verified"
+          },
+          {
+            "doc_type": "ifsc_account",
+            "number": "SBIN0001234:123456789012",
+            "uri": "",
+            "status": "verified"
+          }
+        ]
+      },
+      "rules": {
+        "skus": [
+          {
+            "sku": "spinach",
+            "unit": "bunch",
+            "price_floor": "35",
+            "max_qty_per_day": "300"
+          },
+          {
+            "sku": "tomato",
+            "unit": "kg",
+            "price_floor": "60",
+            "max_qty_per_day": "100"
+          }
+        ],
+        "pickup_windows": [
+          {
+            "start": "06:00",
+            "end": "10:00"
+          }
+        ],
+        "payment_days_max": 7,
+        "approved_buyers": [
+          "retailer:freshcart"
+        ],
+        "auto_accept_max_value": "10000"
+      },
+      "consent": {
+        "transcript": "yes, okay",
+        "language": "en"
+      },
+      "listings": [
+        {
+          "id": "lst-maya-spinach",
+          "vendor_id": "vendor:maya",
+          "sku_name": "spinach",
+          "category": "leafy_greens",
+          "unit": "bunch",
+          "price": "40",
+          "currency": "INR",
+          "qty": "300",
+          "grade": "A",
+          "shelf_life_days": 2,
+          "confidence": 0.92,
+          "status": "published"
+        },
+        {
+          "id": "lst-maya-tomato",
+          "vendor_id": "vendor:maya",
+          "sku_name": "tomato",
+          "category": "vegetables",
+          "unit": "kg",
+          "price": "70",
+          "currency": "INR",
+          "qty": "100",
+          "grade": "A",
+          "shelf_life_days": 3,
+          "confidence": 0.9,
+          "status": "published"
+        }
+      ]
+    },
+    {
+      "vendor": {
+        "id": "vendor:sara",
+        "display_name": "Sara",
+        "legal_name": "Sara Rahman",
+        "business_profile": "packaged_food",
+        "country": "ID",
+        "language": "en",
+        "status": "pending_approval",
+        "retailers": [
+          "retailer:freshcart"
+        ],
+        "docs": [
+          {
+            "doc_type": "nik",
+            "number": "3174012345670001",
+            "uri": "",
+            "status": "submitted"
+          },
+          {
+            "doc_type": "bank_account",
+            "number": "1234567890",
+            "uri": "",
+            "status": "submitted"
+          },
+          {
+            "doc_type": "pirt",
+            "number": "206320101014925",
+            "uri": "",
+            "status": "submitted"
+          }
+        ]
+      }
+    },
+    {
+      "vendor": {
+        "id": "vendor:sam",
+        "display_name": "Sam",
+        "legal_name": "Sam Daniel",
+        "business_profile": "fresh_produce",
+        "country": "IN",
+        "language": "en",
+        "status": "draft",
+        "retailers": [
+          "retailer:freshcart"
+        ]
+      }
+    }
+  ]
+}

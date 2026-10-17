@@ -1,0 +1,58 @@
+{
+  "id": "quick_commerce",
+  "version": 1,
+  "retailer_type": "quick_commerce",
+  "ordering_mode": "auto_replenish",
+  "categories": [
+    {
+      "id": "leafy_greens",
+      "name": {
+        "en": "Leafy greens and herbs",
+        "te": "ఆకుకూరలు"
+      },
+      "units": [
+        "bunch",
+        "kg"
+      ]
+    },
+    {
+      "id": "vegetables",
+      "name": {
+        "en": "Vegetables",
+        "te": "కూరగాయలు"
+      },
+      "units": [
+        "kg",
+        "piece",
+        "bunch"
+      ]
+    }
+  ],
+  "quality_thresholds": {
+    "min_grade": "B",
+    "min_shelf_life_days": 1,
+    "max_reject_fraction": 0.1
+  },
+  "term_templates": [
+    {
+      "id": "qc-standard-v1",
+      "payment_days": 7,
+      "description": {
+        "en": "Daily pickup from vendor, paid within 7 days",
+        "te": "విక్రేత దగ్గర నుంచి రోజూ పికప్, 7 రోజుల్లో చెల్లింపు",
+        "id": "Penjemputan harian dari pemasok, dibayar dalam 7 hari"
+      }
+    }
+  ],
+  "specialists": [
+    "onboarding-verifier",
+    "catalogue-builder",
+    "terms-agent",
+    "replenishment-planner"
+  ],
+  "claims_requiring_proof": [
+    "organic",
+    "chemical-free",
+    "pesticide-free"
+  ]
+}

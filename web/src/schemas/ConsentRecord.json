@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "subject_hash": {
+      "description": "sha256(canonical_json(subject)) of what was agreed",
+      "title": "Subject Hash",
+      "type": "string"
+    },
+    "audio_uri": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Audio Uri"
+    },
+    "transcript": {
+      "title": "Transcript",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "captured_at": {
+      "format": "date-time",
+      "title": "Captured At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "vendor_id",
+    "subject_hash",
+    "transcript",
+    "language",
+    "captured_at"
+  ],
+  "title": "ConsentRecord",
+  "type": "object"
+}

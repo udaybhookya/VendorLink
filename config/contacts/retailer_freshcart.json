@@ -1,0 +1,25 @@
+{
+  "party": "retailer:freshcart",
+  "note": "Real Slack ids and emails come from the environment; the defaults route to the local outbox.",
+  "language": "en",
+  "contacts": [
+    {
+      "role": "buyer",
+      "name": "Buyer on duty",
+      "slack": "${FRESHCART_BUYER_SLACK:-#freshcart-buying}",
+      "email": "${FRESHCART_BUYER_EMAIL:-buyer@freshcart.example}"
+    },
+    {
+      "role": "category_manager",
+      "name": "Category manager",
+      "slack": "${FRESHCART_CATEGORY_SLACK:-#freshcart-catalogue}",
+      "email": "${FRESHCART_CATEGORY_EMAIL:-category@freshcart.example}"
+    },
+    {
+      "role": "ops",
+      "name": "Operations",
+      "slack": "${FRESHCART_OPS_SLACK:-#freshcart-ops}",
+      "email": "${FRESHCART_OPS_EMAIL:-ops@freshcart.example}"
+    }
+  ]
+}

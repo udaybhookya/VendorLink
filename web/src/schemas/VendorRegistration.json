@@ -1,0 +1,55 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "display_name": {
+      "minLength": 1,
+      "title": "Display Name",
+      "type": "string"
+    },
+    "legal_name": {
+      "minLength": 1,
+      "title": "Legal Name",
+      "type": "string"
+    },
+    "business_profile": {
+      "title": "Business Profile",
+      "type": "string"
+    },
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "retailers": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Retailers",
+      "type": "array"
+    },
+    "email": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Email"
+    }
+  },
+  "required": [
+    "display_name",
+    "legal_name",
+    "business_profile",
+    "country",
+    "language"
+  ],
+  "title": "VendorRegistration",
+  "type": "object"
+}

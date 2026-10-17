@@ -1,0 +1,19 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "scale": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Scale",
+      "type": "array"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    }
+  },
+  "title": "GradingRules",
+  "type": "object"
+}

@@ -1,0 +1,18 @@
+{
+  "country": "IN",
+  "business_profile": "fresh_produce",
+  "retailer_profile": "quick_commerce",
+  "note": "Offline (no model) path: explicit parse + claim flags. With FLASH_MODEL set, the same cases check the model path.",
+  "cases": [
+    {"name": "spinach", "transcript": "300 bunch of spinach at 40", "expect": {"sku_name": "spinach", "unit": "bunch", "qty": "300", "price": "40", "category": "leafy_greens"}},
+    {"name": "tomato_kg", "transcript": "100 kg tomato at 70", "expect": {"sku_name": "tomato", "unit": "kg", "qty": "100", "price": "70"}},
+    {"name": "rupee_sign", "transcript": "50 bunch of mint at ₹25", "expect": {"sku_name": "mint", "unit": "bunch", "price": "25"}},
+    {"name": "rs_prefix", "transcript": "20 kg tomato at rs 30", "expect": {"sku_name": "tomato", "unit": "kg", "price": "30", "category": "vegetables"}},
+    {"name": "at_symbol", "transcript": "10 piece of coconut @ 35", "expect": {"sku_name": "coconut", "unit": "piece", "qty": "10"}},
+    {"name": "organic_claim", "transcript": "organic 40 kg spinach for 20", "expect": {"sku_name": "spinach", "flags": ["UNSUPPORTED_CLAIM_ORGANIC"]}},
+    {"name": "pesticide_free_claim", "transcript": "30 bunch of coriander at 10, pesticide-free", "expect": {"flags": ["UNSUPPORTED_CLAIM_PESTICIDE_FREE"]}},
+    {"name": "decimal_price", "transcript": "12 kg of okra at 42.5", "expect": {"price": "42.5", "qty": "12"}},
+    {"name": "unknown_unit", "transcript": "5 crate of mango at 900", "expect": {"flags": ["UNIT_NOT_ACCEPTED"]}},
+    {"name": "no_numbers", "transcript": "I have some flowers today", "expect": {"needs_review": true, "listing": null}}
+  ]
+}

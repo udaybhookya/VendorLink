@@ -1,0 +1,19 @@
+{
+  "agent_id": "compliance-auditor",
+  "name": "Supplier Compliance Auditor",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Checks vendor documents and listings against the chain's supplier standards. No LLM.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "compliance.check",
+      "input_schema": "VendorCheckIn",
+      "output_schema": "VendorCheckOut",
+      "description": "Audit a vendor for the chain"
+    }
+  ],
+  "permissions": [],
+  "transport": "local",
+  "entrypoint": "agents.specialists.compliance_auditor.agent:ComplianceAuditor"
+}

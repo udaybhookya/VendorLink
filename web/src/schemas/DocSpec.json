@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "description": "An identity document or food-safety registration, with its number format.",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "role": {
+      "description": "Generic role a Business Profile requires, e.g. 'identity'",
+      "title": "Role",
+      "type": "string"
+    },
+    "name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Name",
+      "type": "object"
+    },
+    "regex": {
+      "title": "Regex",
+      "type": "string"
+    },
+    "registry": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Mock registry key, e.g. 'fssai'",
+      "title": "Registry"
+    }
+  },
+  "required": [
+    "id",
+    "role",
+    "name",
+    "regex"
+  ],
+  "title": "DocSpec",
+  "type": "object"
+}

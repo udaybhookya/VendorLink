@@ -1,0 +1,22 @@
+{
+  "agent_id": "produce-grader",
+  "name": "Produce Grader",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Grades a produce photo on the business profile's scale with freshness, shelf life and confidence.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "grade.produce",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "Grade fresh produce from a photo"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.produce_grader.agent:ProduceGrader"
+}

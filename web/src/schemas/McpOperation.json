@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "description": "One channel operation expressed as an MCP tool call. Strings in `args` may use\n{to} {text} {subject} {thread_id} {token} placeholders.",
+  "properties": {
+    "tool": {
+      "title": "Tool",
+      "type": "string"
+    },
+    "args": {
+      "additionalProperties": true,
+      "title": "Args",
+      "type": "object"
+    },
+    "returns": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "our field → result path",
+      "title": "Returns",
+      "type": "object"
+    },
+    "items": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Path to the list of messages (read)",
+      "title": "Items"
+    },
+    "item": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "our field → item path",
+      "title": "Item",
+      "type": "object"
+    },
+    "skip_if": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Skip items with this path",
+      "title": "Skip If",
+      "type": "object"
+    }
+  },
+  "required": [
+    "tool"
+  ],
+  "title": "McpOperation",
+  "type": "object"
+}

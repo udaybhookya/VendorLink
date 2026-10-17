@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id"
+  ],
+  "title": "MandateQuery",
+  "type": "object"
+}

@@ -1,0 +1,58 @@
+{
+  "_note": "Synthetic retailer, stores and catalogue for the demo.",
+  "retailer": {
+    "id": "retailer:freshcart",
+    "display_name": "FreshCart (simulated)",
+    "stores": [
+      {
+        "id": "store:hub-4",
+        "name": "Hub 4 · North"
+      },
+      {
+        "id": "store:hub-7",
+        "name": "Hub 7 · Central"
+      },
+      {
+        "id": "store:hub-9",
+        "name": "Hub 9 · East"
+      },
+      {
+        "id": "store:hub-12",
+        "name": "Hub 12 · West"
+      }
+    ]
+  },
+  "approved_vendors": [
+    "vendor:maya"
+  ],
+  "listings": [
+    {
+      "id": "lst-maya-spinach",
+      "vendor_id": "vendor:maya",
+      "sku_name": "spinach",
+      "category": "leafy_greens",
+      "unit": "bunch",
+      "price": "40",
+      "currency": "INR",
+      "qty": "300",
+      "grade": "A",
+      "shelf_life_days": 2,
+      "confidence": 0.92,
+      "status": "published"
+    },
+    {
+      "id": "lst-maya-tomato",
+      "vendor_id": "vendor:maya",
+      "sku_name": "tomato",
+      "category": "vegetables",
+      "unit": "kg",
+      "price": "70",
+      "currency": "INR",
+      "qty": "100",
+      "grade": "A",
+      "shelf_life_days": 3,
+      "confidence": 0.9,
+      "status": "published"
+    }
+  ]
+}

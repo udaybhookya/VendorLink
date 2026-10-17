@@ -1,0 +1,25 @@
+{
+  "agent_id": "inapp",
+  "name": "In-app channel",
+  "kind": "channel",
+  "tenant": "any",
+  "description": "Shows questions in the vendor app and the retailer console; answers come through the apps.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "channel.inapp.send",
+      "input_schema": "ChannelMessage",
+      "output_schema": "ChannelReceipt",
+      "description": "Send one message"
+    },
+    {
+      "capability": "channel.inapp.poll",
+      "input_schema": "PollRequest",
+      "output_schema": "ChannelReplies",
+      "description": "Read replies to a message"
+    }
+  ],
+  "permissions": [],
+  "transport": "local",
+  "entrypoint": "agents.channels.inapp.agent:InAppChannel"
+}

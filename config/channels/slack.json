@@ -1,0 +1,47 @@
+{
+  "id": "slack",
+  "version": 1,
+  "server": "SLACK",
+  "note": "Tool names match @zencoderai/slack-mcp-server (derived from the reference Slack MCP server): slack_post_message, slack_reply_to_thread, slack_get_thread_replies. Check yours with: uv run python -m agents mcp-tools SLACK",
+  "operations": {
+    "send": {
+      "tool": "slack_post_message",
+      "args": {
+        "channel_id": "{to}",
+        "text": "{text}"
+      },
+      "returns": {
+        "message_id": "ts",
+        "thread_id": "ts"
+      }
+    },
+    "reply": {
+      "tool": "slack_reply_to_thread",
+      "args": {
+        "channel_id": "{to}",
+        "thread_ts": "{thread_id}",
+        "text": "{text}"
+      },
+      "returns": {
+        "message_id": "ts",
+        "thread_id": "thread_ts"
+      }
+    },
+    "read": {
+      "tool": "slack_get_thread_replies",
+      "args": {
+        "channel_id": "{to}",
+        "thread_ts": "{thread_id}"
+      },
+      "items": "messages",
+      "item": {
+        "message_id": "ts",
+        "text": "text",
+        "by": "user"
+      },
+      "skip_if": {
+        "bot_id": "*"
+      }
+    }
+  }
+}

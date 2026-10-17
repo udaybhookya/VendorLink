@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "description": "Poll channels for replies, send reminders, escalate, expire.",
+  "properties": {
+    "party": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Party"
+    }
+  },
+  "title": "TickIn",
+  "type": "object"
+}

@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "description": "Vendor → retailer: she said no to this exact version.",
+  "properties": {
+    "order_id": {
+      "title": "Order Id",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "integer"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "reason": {
+      "default": "VENDOR_DECLINED",
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "version",
+    "vendor_id",
+    "retailer_id"
+  ],
+  "title": "VendorDeclined",
+  "type": "object"
+}

@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "token": {
+      "title": "Token",
+      "type": "string"
+    },
+    "jti": {
+      "title": "Jti",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "title": "Expires At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "token",
+    "jti",
+    "expires_at"
+  ],
+  "title": "TokenResponse",
+  "type": "object"
+}

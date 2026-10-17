@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "answered": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Answered",
+      "type": "array"
+    },
+    "reminded": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reminded",
+      "type": "array"
+    },
+    "escalated": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Escalated",
+      "type": "array"
+    },
+    "expired": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Expired",
+      "type": "array"
+    }
+  },
+  "title": "TickOut",
+  "type": "object"
+}

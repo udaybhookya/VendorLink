@@ -1,0 +1,16 @@
+{
+  "id": "fresh_produce",
+  "version": 1,
+  "name": {"en": "Fresh produce and flowers", "te": "తాజా ఉత్పత్తులు మరియు పూలు", "id": "Produk segar dan bunga"},
+  "attributes": [
+    {"key": "variety", "label": {"en": "Variety", "te": "రకం", "id": "Varietas"}, "type": "str", "required": true},
+    {"key": "harvested_at", "label": {"en": "Harvest time", "te": "కోత సమయం", "id": "Waktu panen"}, "type": "str"}
+  ],
+  "units": ["bunch", "kg", "piece"],
+  "grading_rules": {
+    "scale": ["A", "B", "C"],
+    "params": {"shelf_life_days_by_grade": {"A": 2, "B": 1, "C": 1}}
+  },
+  "required_docs": ["identity", "bank_account"],
+  "specialists": ["produce-grader"]
+}

@@ -1,0 +1,65 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "doc_type": {
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "code": {
+      "description": "OK, NOT_FOUND, NAME_MISMATCH, EXPIRED, ...",
+      "title": "Code",
+      "type": "string"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    },
+    "registered_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Registered Name"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    },
+    "simulated": {
+      "const": true,
+      "default": true,
+      "title": "Simulated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "doc_type",
+    "status",
+    "code"
+  ],
+  "title": "RegistryCheckResult",
+  "type": "object"
+}

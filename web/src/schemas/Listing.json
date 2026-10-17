@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "ListingFlag": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "Machine code, e.g. UNSUPPORTED_CLAIM_ORGANIC",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "ListingFlag",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "sku_name": {
+      "title": "Sku Name",
+      "type": "string"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "price": {
+      "title": "Price",
+      "type": "string"
+    },
+    "currency": {
+      "title": "Currency",
+      "type": "string"
+    },
+    "qty": {
+      "title": "Qty",
+      "type": "string"
+    },
+    "grade": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Grade"
+    },
+    "shelf_life_days": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Shelf Life Days"
+    },
+    "attributes": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Attributes",
+      "type": "object"
+    },
+    "photos": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Photos",
+      "type": "array"
+    },
+    "flags": {
+      "items": {
+        "$ref": "#/$defs/ListingFlag"
+      },
+      "title": "Flags",
+      "type": "array"
+    },
+    "confidence": {
+      "default": 0.0,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "status": {
+      "default": "draft",
+      "enum": [
+        "draft",
+        "needs_review",
+        "published",
+        "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "vendor_id",
+    "sku_name",
+    "category",
+    "unit",
+    "price",
+    "currency",
+    "qty"
+  ],
+  "title": "Listing",
+  "type": "object"
+}

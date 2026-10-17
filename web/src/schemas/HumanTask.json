@@ -1,0 +1,329 @@
+{
+  "$defs": {
+    "Choice": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Machine value, e.g. approve",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "words": {
+          "description": "Extra words that mean this choice",
+          "items": {
+            "type": "string"
+          },
+          "title": "Words",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Choice",
+      "type": "object"
+    },
+    "Delivery": {
+      "additionalProperties": false,
+      "properties": {
+        "channel": {
+          "enum": [
+            "inapp",
+            "slack",
+            "gmail"
+          ],
+          "title": "Channel",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        },
+        "message_id": {
+          "default": "",
+          "title": "Message Id",
+          "type": "string"
+        },
+        "thread_id": {
+          "default": "",
+          "title": "Thread Id",
+          "type": "string"
+        },
+        "sent_at": {
+          "format": "date-time",
+          "title": "Sent At",
+          "type": "string"
+        },
+        "reminder": {
+          "default": 0,
+          "title": "Reminder",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "channel",
+        "to",
+        "sent_at"
+      ],
+      "title": "Delivery",
+      "type": "object"
+    },
+    "InfoRequest": {
+      "additionalProperties": false,
+      "description": "What an agent needs from a person to continue. Emitted by specialists and jobs.",
+      "properties": {
+        "field": {
+          "description": "What is missing, e.g. price, qty, doc:aadhaar",
+          "title": "Field",
+          "type": "string"
+        },
+        "ask": {
+          "description": "Role to ask: vendor, buyer, category_manager, ops",
+          "title": "Ask",
+          "type": "string"
+        },
+        "kind": {
+          "default": "missing_info",
+          "enum": [
+            "missing_info",
+            "approval",
+            "consent",
+            "review",
+            "notice"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "answer_type": {
+          "default": "text",
+          "enum": [
+            "choice",
+            "number",
+            "text",
+            "date"
+          ],
+          "title": "Answer Type",
+          "type": "string"
+        },
+        "question_key": {
+          "description": "i18n key for the question, e.g. hitl.q.price",
+          "title": "Question Key",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "choices": {
+          "items": {
+            "$ref": "#/$defs/Choice"
+          },
+          "title": "Choices",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "ask",
+        "question_key"
+      ],
+      "title": "InfoRequest",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "token": {
+      "description": "Short code that ties a reply to this task, e.g. VL-7KQ2",
+      "title": "Token",
+      "type": "string"
+    },
+    "party": {
+      "title": "Party",
+      "type": "string"
+    },
+    "role": {
+      "title": "Role",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "missing_info",
+        "approval",
+        "consent",
+        "review",
+        "notice"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/InfoRequest"
+    },
+    "question": {
+      "description": "Rendered in the recipient's language",
+      "title": "Question",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "subject_ref": {
+      "title": "Subject Ref",
+      "type": "string"
+    },
+    "resume": {
+      "title": "Resume",
+      "type": "string"
+    },
+    "status": {
+      "default": "open",
+      "enum": [
+        "open",
+        "answered",
+        "expired",
+        "cancelled"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "deliveries": {
+      "items": {
+        "$ref": "#/$defs/Delivery"
+      },
+      "title": "Deliveries",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "deadline": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Deadline"
+    },
+    "escalation_level": {
+      "default": 0,
+      "title": "Escalation Level",
+      "type": "integer"
+    },
+    "answer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Answer"
+    },
+    "answer_value": {
+      "default": null,
+      "title": "Answer Value"
+    },
+    "answered_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Answered By"
+    },
+    "answered_via": {
+      "anyOf": [
+        {
+          "enum": [
+            "inapp",
+            "slack",
+            "gmail"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Answered Via"
+    },
+    "answered_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Answered At"
+    },
+    "trace_id": {
+      "default": "",
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "seen_replies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Seen Replies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "token",
+    "party",
+    "role",
+    "kind",
+    "request",
+    "question",
+    "language",
+    "subject_ref",
+    "resume",
+    "created_at"
+  ],
+  "title": "HumanTask",
+  "type": "object"
+}

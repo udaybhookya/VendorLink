@@ -1,0 +1,47 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "channel": {
+      "enum": [
+        "inapp",
+        "slack",
+        "gmail"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "to": {
+      "title": "To",
+      "type": "string"
+    },
+    "thread_id": {
+      "default": "",
+      "title": "Thread Id",
+      "type": "string"
+    },
+    "token": {
+      "default": "",
+      "title": "Token",
+      "type": "string"
+    },
+    "since": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Since"
+    }
+  },
+  "required": [
+    "channel",
+    "to"
+  ],
+  "title": "PollRequest",
+  "type": "object"
+}

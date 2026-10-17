@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "calls": {
+      "title": "Calls",
+      "type": "integer"
+    },
+    "needs_review_rate": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Needs Review Rate"
+    },
+    "error_rate": {
+      "title": "Error Rate",
+      "type": "number"
+    },
+    "top_flags": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Top Flags",
+      "type": "object"
+    },
+    "quality_score": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Quality Score"
+    }
+  },
+  "required": [
+    "agent_id",
+    "calls",
+    "needs_review_rate",
+    "error_rate",
+    "top_flags",
+    "quality_score"
+  ],
+  "title": "QualityRow",
+  "type": "object"
+}

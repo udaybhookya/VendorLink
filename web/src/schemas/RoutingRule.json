@@ -1,0 +1,101 @@
+{
+  "$defs": {
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "after_minutes": {
+          "minimum": 0,
+          "title": "After Minutes",
+          "type": "integer"
+        },
+        "channels": {
+          "items": {
+            "enum": [
+              "inapp",
+              "slack",
+              "gmail"
+            ],
+            "type": "string"
+          },
+          "title": "Channels",
+          "type": "array"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Escalate to another role",
+          "title": "Role"
+        }
+      },
+      "required": [
+        "after_minutes",
+        "channels"
+      ],
+      "title": "Step",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "missing_info",
+        "approval",
+        "consent",
+        "review",
+        "notice"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "role": {
+      "title": "Role",
+      "type": "string"
+    },
+    "steps": {
+      "description": "First step is the initial delivery",
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    },
+    "expire_after_minutes": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expire After Minutes"
+    },
+    "on_expire": {
+      "default": "cancel",
+      "enum": [
+        "cancel",
+        "reject",
+        "keep"
+      ],
+      "title": "On Expire",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kind",
+    "role",
+    "steps"
+  ],
+  "title": "RoutingRule",
+  "type": "object"
+}

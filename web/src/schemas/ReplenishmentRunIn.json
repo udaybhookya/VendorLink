@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "for_date": {
+      "description": "ISO date, or 'today' / 'tomorrow' (retailer's timezone)",
+      "title": "For Date",
+      "type": "string"
+    },
+    "stores": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stores"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "for_date",
+    "vendor_id"
+  ],
+  "title": "ReplenishmentRunIn",
+  "type": "object"
+}

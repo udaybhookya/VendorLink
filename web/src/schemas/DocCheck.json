@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "doc_type": {
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail",
+        "needs_review"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "code": {
+      "description": "Machine code, e.g. NAME_MISMATCH, LICENCE_EXPIRED",
+      "title": "Code",
+      "type": "string"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_type",
+    "status",
+    "code"
+  ],
+  "title": "DocCheck",
+  "type": "object"
+}

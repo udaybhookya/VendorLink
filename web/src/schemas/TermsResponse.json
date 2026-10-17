@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "Vendor → retailer (gateway skill terms.response).",
+  "properties": {
+    "terms_id": {
+      "title": "Terms Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "accepted": {
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "reason": {
+      "default": "",
+      "title": "Reason",
+      "type": "string"
+    },
+    "answered_at": {
+      "format": "date-time",
+      "title": "Answered At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "terms_id",
+    "retailer_id",
+    "vendor_id",
+    "accepted",
+    "answered_at"
+  ],
+  "title": "TermsResponse",
+  "type": "object"
+}

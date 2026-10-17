@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "key": {
+      "title": "Key",
+      "type": "string"
+    },
+    "label": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Label",
+      "type": "object"
+    },
+    "type": {
+      "enum": [
+        "str",
+        "int",
+        "decimal",
+        "bool",
+        "enum"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "required": {
+      "default": false,
+      "title": "Required",
+      "type": "boolean"
+    },
+    "options": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Options",
+      "type": "array"
+    }
+  },
+  "required": [
+    "key",
+    "label",
+    "type"
+  ],
+  "title": "AttributeSpec",
+  "type": "object"
+}

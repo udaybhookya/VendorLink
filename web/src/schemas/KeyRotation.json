@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "public_key": {
+      "title": "Public Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "public_key"
+  ],
+  "title": "KeyRotation",
+  "type": "object"
+}

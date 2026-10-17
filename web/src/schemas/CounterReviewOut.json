@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "accept": {
+      "title": "Accept",
+      "type": "boolean"
+    },
+    "delta": {
+      "description": "Relative change in order value",
+      "title": "Delta",
+      "type": "number"
+    },
+    "reason": {
+      "default": "",
+      "title": "Reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "accept",
+    "delta"
+  ],
+  "title": "CounterReviewOut",
+  "type": "object"
+}

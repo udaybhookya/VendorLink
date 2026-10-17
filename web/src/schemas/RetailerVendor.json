@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "DocCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_type": {
+          "title": "Doc Type",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "needs_review"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "code": {
+          "description": "Machine code, e.g. NAME_MISMATCH, LICENCE_EXPIRED",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_type",
+        "status",
+        "code"
+      ],
+      "title": "DocCheck",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "business_profile": {
+      "title": "Business Profile",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "applied",
+        "checks_failed",
+        "pending_approval",
+        "approved",
+        "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/DocCheck"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "display_name",
+    "country",
+    "business_profile",
+    "status",
+    "updated_at"
+  ],
+  "title": "RetailerVendor",
+  "type": "object"
+}

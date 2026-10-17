@@ -1,0 +1,75 @@
+{
+  "$defs": {
+    "HostedAgent": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "core",
+            "specialist",
+            "channel"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "tenant": {
+          "enum": [
+            "vendor",
+            "retailer"
+          ],
+          "title": "Tenant",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "permissions": {
+          "description": "Its skills",
+          "items": {
+            "type": "string"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "display_name": {
+          "default": "",
+          "title": "Display Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "kind",
+        "tenant",
+        "on_behalf_of"
+      ],
+      "title": "HostedAgent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "host": {
+      "title": "Host",
+      "type": "string"
+    },
+    "agents": {
+      "items": {
+        "$ref": "#/$defs/HostedAgent"
+      },
+      "title": "Agents",
+      "type": "array"
+    }
+  },
+  "required": [
+    "host",
+    "agents"
+  ],
+  "title": "HostedAgentsRegistration",
+  "type": "object"
+}

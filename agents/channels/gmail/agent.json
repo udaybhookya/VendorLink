@@ -1,0 +1,27 @@
+{
+  "agent_id": "gmail",
+  "name": "Gmail channel",
+  "kind": "channel",
+  "tenant": "any",
+  "description": "Sends questions and notices by email through the configured Gmail MCP server, and finds replies by their [VL-xxxx] token.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "channel.gmail.send",
+      "input_schema": "ChannelMessage",
+      "output_schema": "ChannelReceipt",
+      "description": "Send one message"
+    },
+    {
+      "capability": "channel.gmail.poll",
+      "input_schema": "PollRequest",
+      "output_schema": "ChannelReplies",
+      "description": "Read replies to a message"
+    }
+  ],
+  "permissions": [
+    "mcp"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.channels.gmail.agent:GmailChannel"
+}

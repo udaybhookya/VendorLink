@@ -1,0 +1,19 @@
+{
+  "id": "packaged_food",
+  "version": 1,
+  "name": {"en": "Packaged food", "te": "ప్యాక్ చేసిన ఆహారం", "id": "Makanan kemasan"},
+  "attributes": [
+    {"key": "ingredients", "label": {"en": "Ingredients", "id": "Komposisi"}, "type": "str", "required": true},
+    {"key": "allergens", "label": {"en": "Allergens", "id": "Alergen"}, "type": "str"},
+    {"key": "expiry_date", "label": {"en": "Expiry date", "id": "Tanggal kedaluwarsa"}, "type": "str", "required": true},
+    {"key": "net_weight", "label": {"en": "Net weight", "id": "Berat bersih"}, "type": "str", "required": true},
+    {"key": "halal", "label": {"en": "Halal certified", "id": "Bersertifikat halal"}, "type": "bool"}
+  ],
+  "units": ["pack", "carton", "kg"],
+  "grading_rules": {
+    "scale": [],
+    "params": {"label_required_fields": ["ingredients", "expiry_date", "net_weight", "food_safety_registration"]}
+  },
+  "required_docs": ["identity", "bank_account", "food_safety_registration"],
+  "specialists": ["label-checker"]
+}

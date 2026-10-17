@@ -1,0 +1,161 @@
+{
+  "$defs": {
+    "VendorDoc": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_type": {
+          "description": "A DocSpec id from the Country Pack",
+          "title": "Doc Type",
+          "type": "string"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        },
+        "status": {
+          "default": "submitted",
+          "enum": [
+            "submitted",
+            "verified",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "failure_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Reason"
+        }
+      },
+      "required": [
+        "doc_type",
+        "uri"
+      ],
+      "title": "VendorDoc",
+      "type": "object"
+    },
+    "VendorStatus": {
+      "enum": [
+        "draft",
+        "verifying",
+        "pending_approval",
+        "active"
+      ],
+      "title": "VendorStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "legal_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Legal Name"
+    },
+    "business_profile": {
+      "title": "Business Profile",
+      "type": "string"
+    },
+    "country": {
+      "title": "Country",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/VendorStatus",
+      "default": "draft"
+    },
+    "docs": {
+      "items": {
+        "$ref": "#/$defs/VendorDoc"
+      },
+      "title": "Docs",
+      "type": "array"
+    },
+    "agent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Agent Id"
+    },
+    "retailers": {
+      "description": "Retailers she works with",
+      "items": {
+        "type": "string"
+      },
+      "title": "Retailers",
+      "type": "array"
+    },
+    "email": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional: for nudges back to the app",
+      "title": "Email"
+    },
+    "synthetic": {
+      "default": true,
+      "title": "Synthetic",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "display_name",
+    "business_profile",
+    "country",
+    "language"
+  ],
+  "title": "Vendor",
+  "type": "object"
+}

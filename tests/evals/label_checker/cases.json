@@ -1,0 +1,16 @@
+{
+  "country": "ID",
+  "business_profile": "packaged_food",
+  "cases": [
+    {"name": "sara_missing_pirt", "label": "Cassava Chips\nKomposisi: singkong, minyak\nBerat bersih 100 g\nBaik digunakan sebelum 12/2026", "expect": ["MISSING_REGISTRATION_PIRT"]},
+    {"name": "complete_label", "label": "Cassava Chips\nKomposisi: singkong\nBerat bersih 100 g\nExp 12/2026\nP-IRT No. 206320101014925", "expect": []},
+    {"name": "pirt_with_year_suffix", "label": "Tapioca Crackers\nKomposisi: tapioka\nNetto 250 g\nKedaluwarsa 01/2027\nPIRT 2063201010149-25", "expect": ["MISSING_REGISTRATION_PIRT"]},
+    {"name": "pirt_15_digits_suffix", "label": "Tapioca Crackers\nKomposisi: tapioka\nNetto 250 g\nKedaluwarsa 01/2027\nPIRT 206320101014925-27", "expect": []},
+    {"name": "missing_ingredients", "label": "Chili Sauce\nBerat bersih 200 g\nExp 03/2027\nP-IRT 306320101014925", "expect": ["MISSING_LABEL_FIELD_INGREDIENTS"]},
+    {"name": "missing_expiry", "label": "Chili Sauce\nKomposisi: cabai, garam\nBerat bersih 200 g\nP-IRT 306320101014925", "expect": ["MISSING_LABEL_FIELD_EXPIRY_DATE"]},
+    {"name": "missing_weight_and_pirt", "label": "Dodol\nKomposisi: ketan, gula\nExp 06/2027", "expect": ["MISSING_LABEL_FIELD_NET_WEIGHT", "MISSING_REGISTRATION_PIRT"]},
+    {"name": "halal_without_certificate", "label": "Rendang kering HALAL\nKomposisi: daging\nBerat bersih 100 g\nExp 06/2027\nP-IRT 206320101014925", "expect": ["HALAL_UNVERIFIED"]},
+    {"name": "halal_with_certificate", "label": "Rendang kering HALAL ID00110000123450224\nKomposisi: daging\nBerat bersih 100 g\nExp 06/2027\nP-IRT 206320101014925", "expect": []},
+    {"name": "pirt_too_short", "label": "Banana Chips\nKomposisi: pisang\nBerat bersih 80 g\nExp 12/2026\nP-IRT 20632010101", "expect": ["MISSING_REGISTRATION_PIRT"]}
+  ]
+}

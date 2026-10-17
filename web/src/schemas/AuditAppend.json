@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "description": "A state change reported by a service. Actor and on_behalf_of come from the signature.",
+  "properties": {
+    "action": {
+      "title": "Action",
+      "type": "string"
+    },
+    "target": {
+      "title": "Target",
+      "type": "string"
+    },
+    "payload_hash": {
+      "title": "Payload Hash",
+      "type": "string"
+    },
+    "outcome": {
+      "default": "ok",
+      "enum": [
+        "ok",
+        "denied",
+        "error"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "retailer_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Selects the config_hash recorded",
+      "title": "Retailer Id"
+    }
+  },
+  "required": [
+    "action",
+    "target",
+    "payload_hash"
+  ],
+  "title": "AuditAppend",
+  "type": "object"
+}

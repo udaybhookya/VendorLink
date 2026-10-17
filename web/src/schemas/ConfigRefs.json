@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "ConfigRef": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "None = latest",
+          "title": "Version"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "ConfigRef",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "business_profile": {
+      "$ref": "#/$defs/ConfigRef"
+    },
+    "retailer_profile": {
+      "$ref": "#/$defs/ConfigRef"
+    },
+    "country_pack": {
+      "$ref": "#/$defs/ConfigRef"
+    },
+    "retailer_policy": {
+      "$ref": "#/$defs/ConfigRef"
+    },
+    "workflows": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ConfigRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "None = profile's set"
+    }
+  },
+  "required": [
+    "business_profile",
+    "retailer_profile",
+    "country_pack",
+    "retailer_policy"
+  ],
+  "title": "ConfigRefs",
+  "type": "object"
+}

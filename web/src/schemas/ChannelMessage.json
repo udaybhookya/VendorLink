@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "channel": {
+      "enum": [
+        "inapp",
+        "slack",
+        "gmail"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "to": {
+      "description": "Slack channel/user id, email address, or party id for in-app",
+      "title": "To",
+      "type": "string"
+    },
+    "subject": {
+      "default": "",
+      "title": "Subject",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "thread_id": {
+      "default": "",
+      "description": "Reply in this thread (Slack ts, mail thread)",
+      "title": "Thread Id",
+      "type": "string"
+    },
+    "token": {
+      "default": "",
+      "description": "Task token, embedded so replies can be matched",
+      "title": "Token",
+      "type": "string"
+    },
+    "link": {
+      "default": "",
+      "title": "Link",
+      "type": "string"
+    }
+  },
+  "required": [
+    "channel",
+    "to",
+    "text"
+  ],
+  "title": "ChannelMessage",
+  "type": "object"
+}

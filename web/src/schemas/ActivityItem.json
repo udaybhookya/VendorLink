@@ -1,0 +1,35 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "action": {
+      "title": "Action",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "outcome": {
+      "title": "Outcome",
+      "type": "string"
+    },
+    "actor": {
+      "title": "Actor",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "action",
+    "text",
+    "outcome",
+    "actor"
+  ],
+  "title": "ActivityItem",
+  "type": "object"
+}

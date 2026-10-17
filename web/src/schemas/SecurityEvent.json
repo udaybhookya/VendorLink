@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "type": {
+      "enum": [
+        "bad_token",
+        "bad_signature",
+        "out_of_scope",
+        "injection",
+        "rate"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Session Id"
+    },
+    "evidence": {
+      "description": "Summary or hash only; never raw documents",
+      "title": "Evidence",
+      "type": "string"
+    },
+    "action_taken": {
+      "title": "Action Taken",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "ts",
+    "type",
+    "agent_id",
+    "evidence",
+    "action_taken"
+  ],
+  "title": "SecurityEvent",
+  "type": "object"
+}

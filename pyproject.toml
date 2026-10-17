@@ -1,0 +1,98 @@
+[project]
+name = "vendorlink"
+version = "0.1.0"
+description = "VendorLink: configurable multi-agent layer for small vendors selling to retailers"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "pydantic>=2.9",
+    "pydantic-settings>=2.5",
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.27",
+    "cryptography>=43",
+    "pypdf>=5.0",
+    "opentelemetry-api>=1.27",
+    "opentelemetry-sdk>=1.27",
+    "google-adk>=2.11.0",
+    "langgraph>=1.2.14",
+    "langgraph-checkpoint-sqlite>=3.1.1",
+    "mcp>=2.3.0",
+    "aiosqlite>=0.22.1",
+    "python-dotenv>=1.2.4",
+]
+
+[project.optional-dependencies]
+# Cloud backends. Only imported lazily behind vl_core interfaces (CLAUDE.md rule 8).
+gcp = [
+    "google-genai>=1.0",
+    "google-cloud-firestore>=2.19",
+    "google-cloud-kms>=3.0",
+    "google-cloud-modelarmor>=0.2",
+    "google-cloud-storage>=2.18",
+    "opentelemetry-exporter-gcp-trace>=1.7",
+    "langgraph-checkpoint-postgres>=3.1",
+    "psycopg[binary]>=3.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.115",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "playwright>=1.64.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# One installable project; each top-level import package keeps the path CLAUDE.md documents.
+[tool.hatch.build.targets.wheel]
+packages = [
+    "packages/vl_core",
+    "agents",
+    "services/vendor_svc",
+    "services/retailer_svc",
+    "services/trust_gateway",
+    "services/mocks",
+    "scripts",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["web"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["vl_core", "agents", "vendor_svc", "retailer_svc", "trust_gateway", "mocks", "scripts", "tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ASYNC240"]  # blocking pathlib in tests is fine
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # non-ASCII text is expected (Telugu, Bahasa)
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+mypy_path = ["packages", "services"]
+explicit_package_bases = true
+files = ["packages/vl_core", "agents", "services", "scripts"]
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["vl_core.*", "agents.base", "agents.registry", "agents.host"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["google.*", "opentelemetry.exporter.*", "langgraph.checkpoint.postgres.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra"

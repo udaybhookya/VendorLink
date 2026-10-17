@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "channel": {
+      "enum": [
+        "inapp",
+        "slack",
+        "gmail"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "to": {
+      "title": "To",
+      "type": "string"
+    },
+    "message_id": {
+      "default": "",
+      "title": "Message Id",
+      "type": "string"
+    },
+    "thread_id": {
+      "default": "",
+      "title": "Thread Id",
+      "type": "string"
+    },
+    "sent_at": {
+      "format": "date-time",
+      "title": "Sent At",
+      "type": "string"
+    },
+    "reminder": {
+      "default": 0,
+      "title": "Reminder",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "channel",
+    "to",
+    "sent_at"
+  ],
+  "title": "Delivery",
+  "type": "object"
+}

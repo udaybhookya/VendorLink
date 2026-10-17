@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "description": "Machine code, e.g. UNSUPPORTED_CLAIM_ORGANIC",
+      "title": "Code",
+      "type": "string"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    }
+  },
+  "required": [
+    "code"
+  ],
+  "title": "ListingFlag",
+  "type": "object"
+}

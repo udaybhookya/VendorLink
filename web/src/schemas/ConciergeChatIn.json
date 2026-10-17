@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "language": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "text"
+  ],
+  "title": "ConciergeChatIn",
+  "type": "object"
+}

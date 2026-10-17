@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "max_value": {
+      "title": "Max Value",
+      "type": "string"
+    }
+  },
+  "required": [
+    "max_value"
+  ],
+  "title": "AutoAccept",
+  "type": "object"
+}

@@ -1,0 +1,177 @@
+{
+  "$defs": {
+    "Category": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Name",
+          "type": "object"
+        },
+        "units": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Units",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ],
+      "title": "Category",
+      "type": "object"
+    },
+    "QualityThresholds": {
+      "additionalProperties": false,
+      "properties": {
+        "min_grade": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Grade"
+        },
+        "min_shelf_life_days": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Shelf Life Days"
+        },
+        "max_reject_fraction": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Reject Fraction"
+        }
+      },
+      "title": "QualityThresholds",
+      "type": "object"
+    },
+    "TermTemplate": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "payment_days": {
+          "minimum": 0,
+          "title": "Payment Days",
+          "type": "integer"
+        },
+        "description": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Description",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "payment_days"
+      ],
+      "title": "TermTemplate",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "retailer_type": {
+      "title": "Retailer Type",
+      "type": "string"
+    },
+    "ordering_mode": {
+      "enum": [
+        "auto_replenish",
+        "manual",
+        "standing_order"
+      ],
+      "title": "Ordering Mode",
+      "type": "string"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/Category"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "quality_thresholds": {
+      "$ref": "#/$defs/QualityThresholds"
+    },
+    "term_templates": {
+      "items": {
+        "$ref": "#/$defs/TermTemplate"
+      },
+      "title": "Term Templates",
+      "type": "array"
+    },
+    "specialists": {
+      "description": "Agent ids to load",
+      "items": {
+        "type": "string"
+      },
+      "title": "Specialists",
+      "type": "array"
+    },
+    "workflow_set": {
+      "default": "default",
+      "title": "Workflow Set",
+      "type": "string"
+    },
+    "claims_requiring_proof": {
+      "description": "Product claims flagged for review, e.g. organic",
+      "items": {
+        "type": "string"
+      },
+      "title": "Claims Requiring Proof",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "retailer_type",
+    "ordering_mode"
+  ],
+  "title": "RetailerProfile",
+  "type": "object"
+}

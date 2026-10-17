@@ -1,0 +1,59 @@
+{
+  "id": "grocery_chain",
+  "version": 1,
+  "retailer_type": "grocery_chain",
+  "ordering_mode": "manual",
+  "categories": [
+    {
+      "id": "snacks",
+      "name": {
+        "en": "Snacks",
+        "id": "Makanan ringan"
+      },
+      "units": [
+        "pack",
+        "carton"
+      ]
+    },
+    {
+      "id": "spices",
+      "name": {
+        "en": "Spices and condiments",
+        "id": "Bumbu"
+      },
+      "units": [
+        "pack",
+        "carton",
+        "kg"
+      ]
+    }
+  ],
+  "quality_thresholds": {
+    "min_shelf_life_days": 90,
+    "max_reject_fraction": 0.05
+  },
+  "term_templates": [
+    {
+      "id": "grocery-standard-v1",
+      "payment_days": 30,
+      "description": {
+        "en": "Delivered to DC, paid within 30 days",
+        "te": "పంపిణీ కేంద్రానికి డెలివరీ, 30 రోజుల్లో చెల్లింపు",
+        "id": "Dikirim ke pusat distribusi, dibayar dalam 30 hari"
+      }
+    }
+  ],
+  "specialists": [
+    "onboarding-verifier",
+    "catalogue-builder",
+    "terms-agent",
+    "compliance-auditor"
+  ],
+  "claims_requiring_proof": [
+    "organic",
+    "halal",
+    "sugar-free",
+    "no preservatives",
+    "homemade"
+  ]
+}

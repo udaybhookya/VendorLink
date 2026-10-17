@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "capability": {
+      "description": "Capability or wildcard, e.g. 'grade.*'",
+      "title": "Capability",
+      "type": "string"
+    },
+    "optional": {
+      "default": false,
+      "description": "Skip when no loaded specialist offers it",
+      "title": "Optional",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "capability"
+  ],
+  "title": "WorkflowStep",
+  "type": "object"
+}

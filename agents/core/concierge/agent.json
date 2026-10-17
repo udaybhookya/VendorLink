@@ -1,0 +1,17 @@
+{
+  "agent_id": "concierge",
+  "name": "Vendor Concierge",
+  "kind": "core",
+  "tenant": "vendor",
+  "description": "The vendor's only interface: talks in her language, reads terms back, asks for consent. Has no signing ability.",
+  "version": "0.2.0",
+  "skills": [
+    {"capability": "concierge.chat", "input_schema": "ConciergeChatIn", "output_schema": "ChatReply",
+     "description": "One conversational turn (text). Voice uses the same tools."},
+    {"capability": "concierge.attach_photo", "input_schema": "ConciergePhotoIn", "output_schema": "Ack",
+     "description": "Attach a photo for the next listing or document tool."}
+  ],
+  "permissions": ["vendor.tools", "llm"],
+  "transport": "local",
+  "entrypoint": "agents.core.concierge.agent:Concierge"
+}

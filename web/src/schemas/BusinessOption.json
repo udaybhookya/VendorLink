@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Name",
+      "type": "object"
+    },
+    "units": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Units",
+      "type": "array"
+    },
+    "required_docs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Docs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "units",
+    "required_docs"
+  ],
+  "title": "BusinessOption",
+  "type": "object"
+}

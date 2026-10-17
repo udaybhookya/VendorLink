@@ -1,0 +1,19 @@
+{
+  "agent_id": "terms-agent",
+  "name": "Terms",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Fills the retailer's term template for a vendor. No LLM.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "terms.propose",
+      "input_schema": "TermsIn",
+      "output_schema": "TermsOut",
+      "description": "Draft terms for a vendor"
+    }
+  ],
+  "permissions": [],
+  "transport": "local",
+  "entrypoint": "agents.specialists.terms_agent.agent:TermsAgent"
+}

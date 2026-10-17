@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "trace_id": {
+      "title": "Trace Id",
+      "type": "string"
+    },
+    "started": {
+      "format": "date-time",
+      "title": "Started",
+      "type": "string"
+    },
+    "duration_ms": {
+      "title": "Duration Ms",
+      "type": "number"
+    },
+    "agents": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Agents",
+      "type": "array"
+    },
+    "actions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Actions",
+      "type": "array"
+    },
+    "outcome": {
+      "enum": [
+        "ok",
+        "denied",
+        "error"
+      ],
+      "title": "Outcome",
+      "type": "string"
+    },
+    "events": {
+      "title": "Events",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "trace_id",
+    "started",
+    "duration_ms",
+    "agents",
+    "actions",
+    "outcome",
+    "events"
+  ],
+  "title": "TraceSummary",
+  "type": "object"
+}

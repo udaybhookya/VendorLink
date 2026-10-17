@@ -1,0 +1,28 @@
+{
+  "_note": "All records are synthetic. No real people, licences or accounts.",
+  "id": {
+    "aadhaar": {
+      "234567890123": {"name": "Maya Thomas"},
+      "345678901234": {"name": "Sam Daniel"}
+    },
+    "nik": {
+      "3174012345670001": {"name": "Sara Rahman"}
+    }
+  },
+  "bank": {
+    "ifsc_account": {
+      "SBIN0001234:123456789012": {"name": "Maya Thomas"},
+      "HDFC0004321:987654321098": {"name": "S Daniel Traders"}
+    },
+    "bank_account": {
+      "1234567890": {"name": "Sara Rahman"}
+    }
+  },
+  "fssai": {
+    "10019022000123": {"name": "Maya Thomas", "valid_until": "2027-03-31"},
+    "10019022000999": {"name": "Sam Daniel", "valid_until": "2025-06-30"}
+  },
+  "pirt": {
+    "206320101014925": {"name": "Sara Rahman", "valid_until": "2030-01-31"}
+  }
+}

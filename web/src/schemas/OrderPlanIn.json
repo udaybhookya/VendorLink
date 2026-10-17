@@ -1,0 +1,388 @@
+{
+  "$defs": {
+    "CountryPack": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "pattern": "^[A-Z]{2}$",
+          "title": "Code",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Name",
+          "type": "object"
+        },
+        "languages": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Languages",
+          "type": "array"
+        },
+        "default_language": {
+          "title": "Default Language",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        },
+        "timezone": {
+          "title": "Timezone",
+          "type": "string"
+        },
+        "local_units": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Local Units",
+          "type": "array"
+        },
+        "id_docs": {
+          "items": {
+            "$ref": "#/$defs/DocSpec"
+          },
+          "title": "Id Docs",
+          "type": "array"
+        },
+        "food_safety_regs": {
+          "items": {
+            "$ref": "#/$defs/DocSpec"
+          },
+          "title": "Food Safety Regs",
+          "type": "array"
+        },
+        "consent_wording": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Consent Wording",
+          "type": "object"
+        },
+        "label_keywords": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": "Label field → words that introduce it on a label; `halal` → halal marks",
+          "title": "Label Keywords",
+          "type": "object"
+        }
+      },
+      "required": [
+        "code",
+        "version",
+        "name",
+        "languages",
+        "default_language",
+        "currency",
+        "timezone"
+      ],
+      "title": "CountryPack",
+      "type": "object"
+    },
+    "DemandLine": {
+      "additionalProperties": false,
+      "properties": {
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "qty": {
+          "exclusiveMinimum": 0,
+          "title": "Qty",
+          "type": "integer"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "pickup_local": {
+          "pattern": "^\\d{2}:\\d{2}$",
+          "title": "Pickup Local",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "qty",
+        "unit",
+        "pickup_local"
+      ],
+      "title": "DemandLine",
+      "type": "object"
+    },
+    "DocSpec": {
+      "additionalProperties": false,
+      "description": "An identity document or food-safety registration, with its number format.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "role": {
+          "description": "Generic role a Business Profile requires, e.g. 'identity'",
+          "title": "Role",
+          "type": "string"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Name",
+          "type": "object"
+        },
+        "regex": {
+          "title": "Regex",
+          "type": "string"
+        },
+        "registry": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Mock registry key, e.g. 'fssai'",
+          "title": "Registry"
+        }
+      },
+      "required": [
+        "id",
+        "role",
+        "name",
+        "regex"
+      ],
+      "title": "DocSpec",
+      "type": "object"
+    },
+    "Listing": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "sku_name": {
+          "title": "Sku Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "string"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "grade": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grade"
+        },
+        "shelf_life_days": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Shelf Life Days"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attributes",
+          "type": "object"
+        },
+        "photos": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Photos",
+          "type": "array"
+        },
+        "flags": {
+          "items": {
+            "$ref": "#/$defs/ListingFlag"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "confidence": {
+          "default": 0.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "needs_review",
+            "published",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "vendor_id",
+        "sku_name",
+        "category",
+        "unit",
+        "price",
+        "currency",
+        "qty"
+      ],
+      "title": "Listing",
+      "type": "object"
+    },
+    "ListingFlag": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "Machine code, e.g. UNSUPPORTED_CLAIM_ORGANIC",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "ListingFlag",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Input to order.replenish / order.create.",
+  "properties": {
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "store_id": {
+      "title": "Store Id",
+      "type": "string"
+    },
+    "for_date": {
+      "format": "date",
+      "title": "For Date",
+      "type": "string"
+    },
+    "listings": {
+      "items": {
+        "$ref": "#/$defs/Listing"
+      },
+      "title": "Listings",
+      "type": "array"
+    },
+    "country_pack": {
+      "$ref": "#/$defs/CountryPack"
+    },
+    "terms_version": {
+      "title": "Terms Version",
+      "type": "string"
+    },
+    "payment_days": {
+      "minimum": 0,
+      "title": "Payment Days",
+      "type": "integer"
+    },
+    "demand_override": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/DemandLine"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Demand Override"
+    }
+  },
+  "required": [
+    "retailer_id",
+    "vendor_id",
+    "store_id",
+    "for_date",
+    "listings",
+    "country_pack",
+    "terms_version",
+    "payment_days"
+  ],
+  "title": "OrderPlanIn",
+  "type": "object"
+}

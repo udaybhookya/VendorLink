@@ -1,0 +1,129 @@
+{
+  "$defs": {
+    "AttributeSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "label": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Label",
+          "type": "object"
+        },
+        "type": {
+          "enum": [
+            "str",
+            "int",
+            "decimal",
+            "bool",
+            "enum"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "type"
+      ],
+      "title": "AttributeSpec",
+      "type": "object"
+    },
+    "GradingRules": {
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Scale",
+          "type": "array"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "title": "GradingRules",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Name",
+      "type": "object"
+    },
+    "attributes": {
+      "items": {
+        "$ref": "#/$defs/AttributeSpec"
+      },
+      "title": "Attributes",
+      "type": "array"
+    },
+    "units": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Units",
+      "type": "array"
+    },
+    "grading_rules": {
+      "$ref": "#/$defs/GradingRules"
+    },
+    "required_docs": {
+      "description": "DocSpec roles; the Country Pack names the documents",
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Docs",
+      "type": "array"
+    },
+    "specialists": {
+      "description": "Agent ids to load",
+      "items": {
+        "type": "string"
+      },
+      "title": "Specialists",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "name",
+    "units"
+  ],
+  "title": "BusinessProfile",
+  "type": "object"
+}

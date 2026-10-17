@@ -1,0 +1,330 @@
+{
+  "$defs": {
+    "AgentCredential": {
+      "additionalProperties": false,
+      "description": "The gateway's record of one agent: identity, key, permissions and status.\n\nParty agents (one per vendor or retailer) hold their own key. Agents hosted in-process by a\nservice (Guardian, Orchestrator, specialists) are registered by that host and act under it.",
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "party_type": {
+          "enum": [
+            "vendor",
+            "retailer",
+            "platform"
+          ],
+          "title": "Party Type",
+          "type": "string"
+        },
+        "kind": {
+          "default": "party",
+          "enum": [
+            "party",
+            "core",
+            "specialist",
+            "channel",
+            "host"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "description": "Vendor or retailer id the agent acts for",
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "display_name": {
+          "default": "",
+          "title": "Display Name",
+          "type": "string"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Deployable running it in-process",
+          "title": "Host"
+        },
+        "public_key": {
+          "description": "Raw Ed25519 public key, base64url (host's key if hosted)",
+          "title": "Public Key",
+          "type": "string"
+        },
+        "key_fingerprint": {
+          "default": "",
+          "title": "Key Fingerprint",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A2A base URL the gateway forwards to",
+          "title": "Endpoint"
+        },
+        "permissions": {
+          "description": "Allowed skills/capabilities; empty = policy defaults",
+          "items": {
+            "type": "string"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "rate_limit_per_min": {
+          "default": 120,
+          "minimum": 0,
+          "title": "Rate Limit Per Min",
+          "type": "integer"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "suspended",
+            "quarantined",
+            "revoked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "status_reason": {
+          "default": "",
+          "title": "Status Reason",
+          "type": "string"
+        },
+        "issued_at": {
+          "format": "date-time",
+          "title": "Issued At",
+          "type": "string"
+        },
+        "revoked_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revoked At"
+        },
+        "last_seen": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Seen"
+        },
+        "key_rotation_requested": {
+          "default": false,
+          "title": "Key Rotation Requested",
+          "type": "boolean"
+        },
+        "sessions_valid_after": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tokens issued before this are void (end session)",
+          "title": "Sessions Valid After"
+        }
+      },
+      "required": [
+        "agent_id",
+        "party_type",
+        "on_behalf_of",
+        "public_key",
+        "issued_at"
+      ],
+      "title": "AgentCredential",
+      "type": "object"
+    },
+    "AgentMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "calls": {
+          "default": 0,
+          "title": "Calls",
+          "type": "integer"
+        },
+        "errors": {
+          "default": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "denied": {
+          "default": 0,
+          "title": "Denied",
+          "type": "integer"
+        },
+        "success_rate": {
+          "default": 1.0,
+          "title": "Success Rate",
+          "type": "number"
+        },
+        "p50_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P50 Ms"
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P95 Ms"
+        },
+        "calls_last_5m": {
+          "default": 0,
+          "title": "Calls Last 5M",
+          "type": "integer"
+        },
+        "needs_review_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Needs Review Rate"
+        },
+        "decisions": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Decisions",
+          "type": "object"
+        }
+      },
+      "title": "AgentMetrics",
+      "type": "object"
+    },
+    "TrustFactor": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "impact": {
+          "description": "Points added (+) or removed (-) from 100",
+          "title": "Impact",
+          "type": "number"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "impact"
+      ],
+      "title": "TrustFactor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agent": {
+      "$ref": "#/$defs/AgentCredential"
+    },
+    "effective_status": {
+      "enum": [
+        "active",
+        "suspended",
+        "quarantined",
+        "revoked"
+      ],
+      "title": "Effective Status",
+      "type": "string"
+    },
+    "live": {
+      "title": "Live",
+      "type": "boolean"
+    },
+    "metrics": {
+      "$ref": "#/$defs/AgentMetrics"
+    },
+    "trust_score": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Trust Score",
+      "type": "integer"
+    },
+    "trust_factors": {
+      "items": {
+        "$ref": "#/$defs/TrustFactor"
+      },
+      "title": "Trust Factors",
+      "type": "array"
+    },
+    "quality_score": {
+      "anyOf": [
+        {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quality Score"
+    }
+  },
+  "required": [
+    "agent",
+    "effective_status",
+    "live",
+    "metrics",
+    "trust_score",
+    "trust_factors"
+  ],
+  "title": "AgentObservation",
+  "type": "object"
+}

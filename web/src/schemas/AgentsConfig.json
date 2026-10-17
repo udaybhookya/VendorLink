@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "AgentEntry": {
+      "additionalProperties": false,
+      "description": "One agent registered on the platform.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "card": {
+          "description": "Path to agent.json, relative to the repository root",
+          "title": "Card",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "hosts": {
+          "description": "Deployables that run it in-process, e.g. vendor-svc, retailer-svc",
+          "items": {
+            "type": "string"
+          },
+          "title": "Hosts",
+          "type": "array"
+        },
+        "transport": {
+          "anyOf": [
+            {
+              "enum": [
+                "local",
+                "a2a"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overrides the card",
+          "title": "Transport"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overrides the card; ${ENV} allowed",
+          "title": "Endpoint"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "description": "Agent's own settings",
+          "title": "Settings",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "card"
+      ],
+      "title": "AgentEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "agents": {
+      "items": {
+        "$ref": "#/$defs/AgentEntry"
+      },
+      "title": "Agents",
+      "type": "array"
+    }
+  },
+  "required": [
+    "version",
+    "agents"
+  ],
+  "title": "AgentsConfig",
+  "type": "object"
+}

@@ -1,0 +1,50 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "actor": {
+      "description": "The person taking the action",
+      "minLength": 1,
+      "title": "Actor",
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "permissions": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Permissions"
+    },
+    "rate_limit_per_min": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rate Limit Per Min"
+    }
+  },
+  "required": [
+    "actor",
+    "reason"
+  ],
+  "title": "ControlRequest",
+  "type": "object"
+}

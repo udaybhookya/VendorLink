@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "scope": {
+      "description": "Exactly one skill, e.g. order.propose",
+      "title": "Scope",
+      "type": "string"
+    },
+    "aud": {
+      "description": "Target agent id",
+      "title": "Aud",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scope",
+    "aud"
+  ],
+  "title": "TokenRequest",
+  "type": "object"
+}

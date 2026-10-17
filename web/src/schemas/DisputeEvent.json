@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "actor": {
+      "title": "Actor",
+      "type": "string"
+    },
+    "note": {
+      "title": "Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "actor",
+    "note"
+  ],
+  "title": "DisputeEvent",
+  "type": "object"
+}

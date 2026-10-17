@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "description": "Vendor → retailer (gateway skill info.response): her answer.",
+  "properties": {
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "answer": {
+      "title": "Answer",
+      "type": "string"
+    },
+    "answer_value": {
+      "default": null,
+      "title": "Answer Value"
+    },
+    "status": {
+      "default": "answered",
+      "enum": [
+        "answered",
+        "expired",
+        "cancelled"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "retailer_id",
+    "vendor_id",
+    "answer"
+  ],
+  "title": "InfoResponseMessage",
+  "type": "object"
+}

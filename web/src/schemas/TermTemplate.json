@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "payment_days": {
+      "minimum": 0,
+      "title": "Payment Days",
+      "type": "integer"
+    },
+    "description": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Description",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "payment_days"
+  ],
+  "title": "TermTemplate",
+  "type": "object"
+}

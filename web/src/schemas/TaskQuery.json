@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "party": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Party"
+    },
+    "status": {
+      "anyOf": [
+        {
+          "enum": [
+            "open",
+            "answered",
+            "expired",
+            "cancelled"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
+    },
+    "subject_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Subject Ref"
+    }
+  },
+  "title": "TaskQuery",
+  "type": "object"
+}

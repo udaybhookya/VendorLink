@@ -1,0 +1,79 @@
+{
+  "code": "IN",
+  "version": 1,
+  "name": {
+    "en": "India",
+    "te": "భారతదేశం"
+  },
+  "languages": [
+    "te",
+    "en"
+  ],
+  "default_language": "te",
+  "currency": "INR",
+  "timezone": "Asia/Kolkata",
+  "local_units": [
+    "bunch",
+    "kg",
+    "quintal",
+    "piece"
+  ],
+  "id_docs": [
+    {
+      "id": "aadhaar",
+      "role": "identity",
+      "name": {
+        "en": "Aadhaar",
+        "te": "ఆధార్"
+      },
+      "regex": "^\\d{4}\\s?\\d{4}\\s?\\d{4}$",
+      "registry": "id"
+    },
+    {
+      "id": "ifsc_account",
+      "role": "bank_account",
+      "name": {
+        "en": "Bank account (IFSC:account)",
+        "te": "బ్యాంక్ ఖాతా"
+      },
+      "regex": "^[A-Z]{4}0[A-Z0-9]{6}:\\d{9,18}$",
+      "registry": "bank"
+    }
+  ],
+  "food_safety_regs": [
+    {
+      "id": "fssai",
+      "role": "food_safety_registration",
+      "name": {
+        "en": "FSSAI licence",
+        "te": "FSSAI లైసెన్స్"
+      },
+      "regex": "^\\d{14}$",
+      "registry": "fssai"
+    }
+  ],
+  "consent_wording": {
+    "en": "Do you agree to these terms: {summary}? Say yes to confirm.",
+    "te": "ఈ నిబంధనలకు మీరు అంగీకరిస్తున్నారా: {summary}? నిర్ధారించడానికి 'అవును' అని చెప్పండి."
+  },
+  "label_keywords": {
+    "ingredients": [
+      "ingredients"
+    ],
+    "expiry_date": [
+      "best before",
+      "use by",
+      "exp",
+      "expiry"
+    ],
+    "net_weight": [
+      "net wt",
+      "net weight",
+      "net qty"
+    ],
+    "allergens": [
+      "contains",
+      "allergen"
+    ]
+  }
+}

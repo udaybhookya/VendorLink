@@ -1,0 +1,53 @@
+{
+  "$defs": {
+    "ChannelReply": {
+      "additionalProperties": false,
+      "properties": {
+        "message_id": {
+          "title": "Message Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "by": {
+          "title": "By",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At"
+        }
+      },
+      "required": [
+        "message_id",
+        "text",
+        "by"
+      ],
+      "title": "ChannelReply",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "replies": {
+      "items": {
+        "$ref": "#/$defs/ChannelReply"
+      },
+      "title": "Replies",
+      "type": "array"
+    }
+  },
+  "title": "ChannelReplies",
+  "type": "object"
+}

@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "Machine value, e.g. approve",
+      "title": "Id",
+      "type": "string"
+    },
+    "label": {
+      "title": "Label",
+      "type": "string"
+    },
+    "words": {
+      "description": "Extra words that mean this choice",
+      "items": {
+        "type": "string"
+      },
+      "title": "Words",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "label"
+  ],
+  "title": "Choice",
+  "type": "object"
+}

@@ -1,0 +1,18 @@
+{
+  "agent_id": "liaison",
+  "name": "Human Liaison",
+  "kind": "core",
+  "tenant": "any",
+  "description": "Puts agents' questions to the right person on the right channel (in-app, voice, Slack, Gmail), reminds, escalates and expires per config, reads the answers back, and resumes the waiting work. Deterministic.",
+  "version": "0.1.0",
+  "skills": [
+    {"capability": "human.ask", "input_schema": "AskRequest", "output_schema": "HumanTask", "description": "Ask a person in a role at a party"},
+    {"capability": "human.answer", "input_schema": "AnswerIn", "output_schema": "HumanTask", "description": "Record an answer from any channel"},
+    {"capability": "human.cancel", "input_schema": "TaskRef", "output_schema": "HumanTask", "description": "Close a task without an answer (or as resolved elsewhere)"},
+    {"capability": "human.tick", "input_schema": "TickIn", "output_schema": "TickOut", "description": "Poll replies, remind, escalate, expire"},
+    {"capability": "human.list", "input_schema": "TaskQuery", "output_schema": "TaskList", "description": "Tasks by party, status or subject"}
+  ],
+  "permissions": ["registry.invoke"],
+  "transport": "local",
+  "entrypoint": "agents.core.liaison.agent:Liaison"
+}

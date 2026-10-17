@@ -1,0 +1,22 @@
+{
+  "agent_id": "catalogue-builder",
+  "name": "Catalogue Builder",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Turns a photo and the vendor's words into a Listing draft in the retailer's categories and units; flags claims that need proof.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "catalogue.build",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "Build a listing draft"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.catalogue_builder.agent:CatalogueBuilder"
+}

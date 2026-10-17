@@ -1,0 +1,35 @@
+{
+  "id": "gmail",
+  "version": 1,
+  "server": "GMAIL",
+  "note": "Tool names match @gongrzhe/server-gmail-autoauth-mcp (send_email, search_emails). That server answers in plain text without message bodies, so with it Gmail sends and nudges but replies are not read: people answer on Slack or via the link in the email. Check tools with: uv run python -m agents mcp-tools GMAIL",
+  "operations": {
+    "send": {
+      "tool": "send_email",
+      "args": {
+        "to": [
+          "{to}"
+        ],
+        "subject": "{subject}",
+        "body": "{text}"
+      },
+      "returns": {
+        "message_id": "id",
+        "thread_id": "threadId"
+      }
+    },
+    "read": {
+      "tool": "search_emails",
+      "args": {
+        "query": "subject:\"[{token}]\" -from:me newer_than:14d",
+        "maxResults": 10
+      },
+      "items": "messages",
+      "item": {
+        "message_id": "id",
+        "text": "snippet",
+        "by": "from"
+      }
+    }
+  }
+}

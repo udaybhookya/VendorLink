@@ -1,0 +1,54 @@
+{
+  "additionalProperties": false,
+  "description": "Both parties' signatures over the final order version (AP2 'cart' analogue).",
+  "properties": {
+    "order_id": {
+      "title": "Order Id",
+      "type": "string"
+    },
+    "final_version": {
+      "minimum": 1,
+      "title": "Final Version",
+      "type": "integer"
+    },
+    "terms_hash": {
+      "title": "Terms Hash",
+      "type": "string"
+    },
+    "vendor_sig": {
+      "title": "Vendor Sig",
+      "type": "string"
+    },
+    "retailer_sig": {
+      "title": "Retailer Sig",
+      "type": "string"
+    },
+    "consent_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Consent Ref"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "final_version",
+    "terms_hash",
+    "vendor_sig",
+    "retailer_sig",
+    "created_at"
+  ],
+  "title": "OrderMandate",
+  "type": "object"
+}

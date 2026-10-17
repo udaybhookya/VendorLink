@@ -1,0 +1,36 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "filename": {
+      "title": "Filename",
+      "type": "string"
+    },
+    "content_type": {
+      "title": "Content Type",
+      "type": "string"
+    },
+    "data_b64": {
+      "title": "Data B64",
+      "type": "string"
+    },
+    "purpose": {
+      "description": "e.g. vendor_document, listing_photo",
+      "title": "Purpose",
+      "type": "string"
+    },
+    "subject": {
+      "description": "Vendor id the upload belongs to",
+      "title": "Subject",
+      "type": "string"
+    }
+  },
+  "required": [
+    "filename",
+    "content_type",
+    "data_b64",
+    "purpose",
+    "subject"
+  ],
+  "title": "ScreenRequest",
+  "type": "object"
+}

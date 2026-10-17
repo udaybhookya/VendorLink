@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "min_grade": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Min Grade"
+    },
+    "min_shelf_life_days": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Min Shelf Life Days"
+    },
+    "max_reject_fraction": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Reject Fraction"
+    }
+  },
+  "title": "QualityThresholds",
+  "type": "object"
+}

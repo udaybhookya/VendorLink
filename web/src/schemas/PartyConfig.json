@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "preset": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Preset"
+    }
+  },
+  "required": [
+    "retailer_id",
+    "config_hash"
+  ],
+  "title": "PartyConfig",
+  "type": "object"
+}

@@ -1,0 +1,63 @@
+{
+  "additionalProperties": false,
+  "description": "Vendor → retailer: a photo and the vendor's words; the retailer builds the draft.",
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "transcript": {
+      "default": "",
+      "title": "Transcript",
+      "type": "string"
+    },
+    "photo_b64": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "JPEG/PNG, downscaled to ≤1024 px",
+      "title": "Photo B64"
+    },
+    "photo_mime": {
+      "default": "image/jpeg",
+      "title": "Photo Mime",
+      "type": "string"
+    },
+    "label_text": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Label Text"
+    },
+    "answers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Answers the vendor gave to earlier questions (price …)",
+      "title": "Answers",
+      "type": "object"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "language"
+  ],
+  "title": "ListingSubmission",
+  "type": "object"
+}

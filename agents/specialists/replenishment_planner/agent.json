@@ -1,0 +1,27 @@
+{
+  "agent_id": "replenishment-planner",
+  "name": "Replenishment Planner",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Turns the demand feed and the vendor's published listings into one OrderProposal per store. No LLM.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "order.replenish",
+      "input_schema": "OrderPlanIn",
+      "output_schema": "OrderPlanOut",
+      "description": "Plan replenishment orders"
+    },
+    {
+      "capability": "order.create",
+      "input_schema": "OrderPlanIn",
+      "output_schema": "OrderPlanOut",
+      "description": "Plan a one-off order"
+    }
+  ],
+  "permissions": [
+    "mocks.demand.read"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.replenishment_planner.agent:ReplenishmentPlanner"
+}

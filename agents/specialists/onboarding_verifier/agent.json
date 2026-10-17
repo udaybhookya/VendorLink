@@ -1,0 +1,21 @@
+{
+  "agent_id": "onboarding-verifier",
+  "name": "Onboarding & Verification",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Checks document numbers for format and against the (simulated) registries.",
+  "version": "0.2.0",
+  "skills": [
+    {
+      "capability": "vendor.verify",
+      "input_schema": "VendorCheckIn",
+      "output_schema": "VendorCheckOut",
+      "description": "Verify vendor documents"
+    }
+  ],
+  "permissions": [
+    "mocks.registry.read"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.onboarding_verifier.agent:OnboardingVerifier"
+}

@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {"name": "fresh_complete", "country": "IN", "bp": "fresh_produce", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "listing_flags": [], "passed": true},
+    {"name": "fresh_missing_bank", "country": "IN", "bp": "fresh_produce", "docs": {"aadhaar": "234567890123"}, "listing_flags": [], "passed": false},
+    {"name": "packaged_missing_pirt", "country": "ID", "bp": "packaged_food", "docs": {"nik": "3174012345670001", "bank_account": "1234567890"}, "listing_flags": [], "passed": false},
+    {"name": "packaged_complete", "country": "ID", "bp": "packaged_food", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "206320101014925"}, "listing_flags": [], "passed": true},
+    {"name": "listing_missing_registration", "country": "ID", "bp": "packaged_food", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "206320101014925"}, "listing_flags": ["MISSING_REGISTRATION_PIRT"], "passed": false},
+    {"name": "listing_unsupported_claim", "country": "IN", "bp": "fresh_produce", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "listing_flags": ["UNSUPPORTED_CLAIM_ORGANIC"], "passed": false},
+    {"name": "listing_halal_unverified", "country": "ID", "bp": "packaged_food", "docs": {"nik": "3174012345670001", "bank_account": "1234567890", "pirt": "206320101014925"}, "listing_flags": ["HALAL_UNVERIFIED"], "passed": false},
+    {"name": "harmless_listing_flag", "country": "IN", "bp": "fresh_produce", "docs": {"aadhaar": "234567890123", "ifsc_account": "SBIN0001234:123456789012"}, "listing_flags": ["CATEGORY_GUESSED"], "passed": true},
+    {"name": "bad_nik_format", "country": "ID", "bp": "packaged_food", "docs": {"nik": "31740123", "bank_account": "1234567890", "pirt": "206320101014925"}, "listing_flags": [], "passed": false},
+    {"name": "no_documents", "country": "ID", "bp": "packaged_food", "docs": {}, "listing_flags": [], "passed": false}
+  ]
+}

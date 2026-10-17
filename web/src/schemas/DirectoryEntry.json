@@ -1,0 +1,38 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "party_id": {
+      "title": "Party Id",
+      "type": "string"
+    },
+    "party_type": {
+      "enum": [
+        "vendor",
+        "retailer"
+      ],
+      "title": "Party Type",
+      "type": "string"
+    },
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "party_id",
+    "party_type",
+    "display_name",
+    "agent_id",
+    "status"
+  ],
+  "title": "DirectoryEntry",
+  "type": "object"
+}

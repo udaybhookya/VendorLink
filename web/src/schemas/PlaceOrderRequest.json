@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "store_id": {
+      "title": "Store Id",
+      "type": "string"
+    },
+    "for_date": {
+      "format": "date",
+      "title": "For Date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "store_id",
+    "for_date"
+  ],
+  "title": "PlaceOrderRequest",
+  "type": "object"
+}

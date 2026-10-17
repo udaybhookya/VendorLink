@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "place_order",
+        "handle_counter",
+        "listing",
+        "vendor"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "ref_id": {
+      "title": "Ref Id",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "status": {
+      "default": "pending",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "task_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The human task asking someone",
+      "title": "Task Id"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "retailer_id",
+    "kind",
+    "ref_id",
+    "reason",
+    "created_at"
+  ],
+  "title": "QueueItem",
+  "type": "object"
+}

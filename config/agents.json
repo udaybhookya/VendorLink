@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "agents": [
+    {
+      "id": "guardian",
+      "card": "agents/core/guardian/agent.json",
+      "hosts": [
+        "vendor-svc"
+      ]
+    },
+    {
+      "id": "concierge",
+      "card": "agents/core/concierge/agent.json",
+      "hosts": [
+        "vendor-svc"
+      ],
+      "settings": {
+        "history_turns": 20,
+        "offline_fallback": true
+      }
+    },
+    {
+      "id": "orchestrator",
+      "card": "agents/core/orchestrator/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "liaison",
+      "card": "agents/core/liaison/agent.json",
+      "hosts": [
+        "vendor-svc",
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "catalogue-builder",
+      "card": "agents/specialists/catalogue_builder/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash",
+        "parse_without_model": true
+      }
+    },
+    {
+      "id": "produce-grader",
+      "card": "agents/specialists/produce_grader/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
+    },
+    {
+      "id": "label-checker",
+      "card": "agents/specialists/label_checker/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
+    },
+    {
+      "id": "compliance-auditor",
+      "card": "agents/specialists/compliance_auditor/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "blocking_listing_flags": [
+          "MISSING_REGISTRATION_",
+          "UNSUPPORTED_CLAIM_",
+          "HALAL_UNVERIFIED"
+        ]
+      }
+    },
+    {
+      "id": "onboarding-verifier",
+      "card": "agents/specialists/onboarding_verifier/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "terms-agent",
+      "card": "agents/specialists/terms_agent/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "replenishment-planner",
+      "card": "agents/specialists/replenishment_planner/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "inapp",
+      "card": "agents/channels/inapp/agent.json",
+      "hosts": [
+        "vendor-svc",
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "slack",
+      "card": "agents/channels/slack/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ]
+    },
+    {
+      "id": "gmail",
+      "card": "agents/channels/gmail/agent.json",
+      "hosts": [
+        "vendor-svc",
+        "retailer-svc"
+      ]
+    }
+  ]
+}

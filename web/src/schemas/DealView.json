@@ -1,0 +1,332 @@
+{
+  "$defs": {
+    "Deal": {
+      "additionalProperties": false,
+      "description": "Vendor-side view of one order thread.",
+      "properties": {
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "retailer_id": {
+          "title": "Retailer Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "store_id": {
+          "title": "Store Id",
+          "type": "string"
+        },
+        "versions": {
+          "items": {
+            "$ref": "#/$defs/OrderProposal"
+          },
+          "title": "Versions",
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/Decision"
+          },
+          "title": "Decisions",
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "countered",
+            "awaiting_consent",
+            "signed",
+            "declined",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "vendor_sig": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vendor Sig"
+        },
+        "consent_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent Ref"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "order_id",
+        "retailer_id",
+        "vendor_id",
+        "store_id",
+        "versions",
+        "status",
+        "updated_at"
+      ],
+      "title": "Deal",
+      "type": "object"
+    },
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/$defs/DecisionStatus"
+        },
+        "counter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OrderProposal"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reasons": {
+          "items": {
+            "$ref": "#/$defs/Reason"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "vendor_sig": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Present when the Guardian signed",
+          "title": "Vendor Sig"
+        },
+        "consent_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent Ref"
+        }
+      },
+      "required": [
+        "order_id",
+        "version",
+        "status"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "DecisionStatus": {
+      "enum": [
+        "green",
+        "amber",
+        "red",
+        "decline"
+      ],
+      "title": "DecisionStatus",
+      "type": "string"
+    },
+    "OrderLine": {
+      "additionalProperties": false,
+      "properties": {
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "description": "Per unit",
+          "title": "Price",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "qty",
+        "unit",
+        "price"
+      ],
+      "title": "OrderLine",
+      "type": "object"
+    },
+    "OrderProposal": {
+      "additionalProperties": false,
+      "description": "One immutable version of an order. A counter is a new version (see `next_version`).",
+      "properties": {
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "retailer_id": {
+          "title": "Retailer Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "store_id": {
+          "title": "Store Id",
+          "type": "string"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/OrderLine"
+          },
+          "minItems": 1,
+          "title": "Lines",
+          "type": "array"
+        },
+        "pickup_at": {
+          "format": "date-time",
+          "title": "Pickup At",
+          "type": "string"
+        },
+        "payment_days": {
+          "minimum": 0,
+          "title": "Payment Days",
+          "type": "integer"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "terms_version": {
+          "title": "Terms Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "order_id",
+        "version",
+        "retailer_id",
+        "vendor_id",
+        "store_id",
+        "lines",
+        "pickup_at",
+        "payment_days",
+        "currency",
+        "terms_version"
+      ],
+      "title": "OrderProposal",
+      "type": "object"
+    },
+    "Reason": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ReasonCode"
+        },
+        "params": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "Reason",
+      "type": "object"
+    },
+    "ReasonCode": {
+      "enum": [
+        "QTY_OVER_DAILY_MAX",
+        "PICKUP_BEFORE_WINDOW",
+        "PRICE_BELOW_FLOOR",
+        "BUYER_NOT_APPROVED",
+        "PAYMENT_TOO_LATE",
+        "VALUE_OVER_AUTO_ACCEPT",
+        "PICKUP_AFTER_WINDOW",
+        "SKU_NOT_IN_MANDATE",
+        "CURRENCY_MISMATCH",
+        "NO_STANDING_MANDATE",
+        "DAILY_MAX_REACHED"
+      ],
+      "title": "ReasonCode",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deal": {
+      "$ref": "#/$defs/Deal"
+    },
+    "subject_hash": {
+      "description": "Hash of the latest version; echo it back to consent",
+      "title": "Subject Hash",
+      "type": "string"
+    },
+    "readback": {
+      "title": "Readback",
+      "type": "string"
+    }
+  },
+  "required": [
+    "deal",
+    "subject_hash",
+    "readback"
+  ],
+  "title": "DealView",
+  "type": "object"
+}

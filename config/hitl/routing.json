@@ -1,0 +1,28 @@
+{
+  "id": "default",
+  "version": 1,
+  "rules": [
+    {"kind": "missing_info", "role": "vendor", "expire_after_minutes": 1440, "on_expire": "cancel",
+     "steps": [{"after_minutes": 0, "channels": ["inapp"]},
+               {"after_minutes": 60, "channels": ["inapp", "gmail"]},
+               {"after_minutes": 240, "channels": ["inapp"]}]},
+    {"kind": "consent", "role": "vendor", "expire_after_minutes": 360, "on_expire": "reject",
+     "steps": [{"after_minutes": 0, "channels": ["inapp"]},
+               {"after_minutes": 30, "channels": ["inapp", "gmail"]},
+               {"after_minutes": 120, "channels": ["inapp"]}]},
+    {"kind": "approval", "role": "buyer", "expire_after_minutes": 1440, "on_expire": "keep",
+     "steps": [{"after_minutes": 0, "channels": ["slack"]},
+               {"after_minutes": 60, "channels": ["gmail"]},
+               {"after_minutes": 240, "channels": ["slack"], "role": "ops"}]},
+    {"kind": "approval", "role": "category_manager", "expire_after_minutes": 2880, "on_expire": "keep",
+     "steps": [{"after_minutes": 0, "channels": ["slack"]},
+               {"after_minutes": 240, "channels": ["gmail"]}]},
+    {"kind": "review", "role": "category_manager", "expire_after_minutes": 2880, "on_expire": "keep",
+     "steps": [{"after_minutes": 0, "channels": ["slack"]},
+               {"after_minutes": 1440, "channels": ["gmail"]}]},
+    {"kind": "notice", "role": "*", "expire_after_minutes": 0, "on_expire": "cancel",
+     "steps": [{"after_minutes": 0, "channels": ["slack"]}]},
+    {"kind": "missing_info", "role": "*", "expire_after_minutes": 1440, "on_expire": "cancel",
+     "steps": [{"after_minutes": 0, "channels": ["slack"]}, {"after_minutes": 120, "channels": ["gmail"]}]}
+  ]
+}

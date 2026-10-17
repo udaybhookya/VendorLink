@@ -1,0 +1,25 @@
+{
+  "agent_id": "orchestrator",
+  "name": "Retailer Orchestrator",
+  "kind": "core",
+  "tenant": "retailer",
+  "description": "Plans each job from the active workflow config, calls specialists by capability through the registry, and applies the Retailer Policy gates. Stateless and deterministic.",
+  "version": "0.2.0",
+  "skills": [
+    {"capability": "orchestrator.build_listing", "input_schema": "BuildListingIn", "output_schema": "BuildListingOut",
+     "description": "Run the build_listing workflow (catalogue.build → grade.* …)."},
+    {"capability": "orchestrator.onboard_vendor", "input_schema": "OnboardIn", "output_schema": "OnboardOut",
+     "description": "Run the onboard_vendor workflow and decide approved / pending / failed."},
+    {"capability": "orchestrator.plan_orders", "input_schema": "PlanOrdersIn", "output_schema": "PlanOrdersOut",
+     "description": "Run the place_order workflow and gate each proposal on the auto-order limit."},
+    {"capability": "orchestrator.review_counter", "input_schema": "CounterReviewIn", "output_schema": "CounterReviewOut",
+     "description": "Accept a vendor counter automatically if within the policy delta."},
+    {"capability": "orchestrator.propose_terms", "input_schema": "TermsJobIn", "output_schema": "TermsOut",
+     "description": "Run the propose_terms workflow."},
+    {"capability": "orchestrator.review_listing", "input_schema": "ListingReviewIn", "output_schema": "ListingReviewOut",
+     "description": "Publish a confirmed listing or send it to human review."}
+  ],
+  "permissions": ["registry.invoke"],
+  "transport": "local",
+  "entrypoint": "agents.core.orchestrator.agent:Orchestrator"
+}

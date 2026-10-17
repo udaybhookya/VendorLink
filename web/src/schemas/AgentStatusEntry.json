@@ -1,0 +1,56 @@
+{
+  "additionalProperties": false,
+  "description": "What a host's registry needs to gate in-process calls.",
+  "properties": {
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "active",
+        "suspended",
+        "quarantined",
+        "revoked"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "effective": {
+      "description": "Status after tenant freezes are applied",
+      "enum": [
+        "active",
+        "suspended",
+        "quarantined",
+        "revoked"
+      ],
+      "title": "Effective",
+      "type": "string"
+    },
+    "permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Permissions",
+      "type": "array"
+    },
+    "rate_limit_per_min": {
+      "title": "Rate Limit Per Min",
+      "type": "integer"
+    },
+    "key_rotation_requested": {
+      "title": "Key Rotation Requested",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "agent_id",
+    "status",
+    "effective",
+    "permissions",
+    "rate_limit_per_min",
+    "key_rotation_requested"
+  ],
+  "title": "AgentStatusEntry",
+  "type": "object"
+}

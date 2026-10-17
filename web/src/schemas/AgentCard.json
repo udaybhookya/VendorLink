@@ -1,0 +1,143 @@
+{
+  "$defs": {
+    "SkillSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "description": "e.g. grade.produce, guardian.evaluate",
+          "title": "Capability",
+          "type": "string"
+        },
+        "input_schema": {
+          "description": "Name of a vl_core.schemas model",
+          "title": "Input Schema",
+          "type": "string"
+        },
+        "output_schema": {
+          "description": "Name of a vl_core.schemas model",
+          "title": "Output Schema",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "internal": {
+          "default": false,
+          "description": "Callable in-process only; never exposed by a standalone host or over A2A",
+          "title": "Internal",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "capability",
+        "input_schema",
+        "output_schema"
+      ],
+      "title": "SkillSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What an agent is and what it can do. Lives next to the agent as `agent.json`.",
+  "properties": {
+    "agent_id": {
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "core",
+        "specialist",
+        "channel"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "tenant": {
+      "description": "Which tenant may host it in-process",
+      "enum": [
+        "vendor",
+        "retailer",
+        "any"
+      ],
+      "title": "Tenant",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "version": {
+      "default": "0.1.0",
+      "title": "Version",
+      "type": "string"
+    },
+    "skills": {
+      "items": {
+        "$ref": "#/$defs/SkillSpec"
+      },
+      "minItems": 1,
+      "title": "Skills",
+      "type": "array"
+    },
+    "permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Permissions",
+      "type": "array"
+    },
+    "transport": {
+      "default": "local",
+      "enum": [
+        "local",
+        "a2a"
+      ],
+      "title": "Transport",
+      "type": "string"
+    },
+    "entrypoint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "'module:AgentClass' for local",
+      "title": "Entrypoint"
+    },
+    "endpoint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Base URL for a2a",
+      "title": "Endpoint"
+    }
+  },
+  "required": [
+    "agent_id",
+    "name",
+    "kind",
+    "tenant",
+    "skills"
+  ],
+  "title": "AgentCard",
+  "type": "object"
+}

@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed": {
+      "title": "Allowed",
+      "type": "boolean"
+    },
+    "sha256": {
+      "title": "Sha256",
+      "type": "string"
+    },
+    "findings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "extracted_text_chars": {
+      "default": 0,
+      "title": "Extracted Text Chars",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "allowed",
+    "sha256"
+  ],
+  "title": "ScreenResult",
+  "type": "object"
+}

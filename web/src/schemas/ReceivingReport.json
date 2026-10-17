@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "order_id": {
+      "title": "Order Id",
+      "type": "string"
+    },
+    "received_qty": {
+      "title": "Received Qty",
+      "type": "string"
+    },
+    "rejected_qty": {
+      "title": "Rejected Qty",
+      "type": "string"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "photos": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Photos",
+      "type": "array"
+    },
+    "received_at": {
+      "format": "date-time",
+      "title": "Received At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "received_qty",
+    "rejected_qty",
+    "received_at"
+  ],
+  "title": "ReceivingReport",
+  "type": "object"
+}

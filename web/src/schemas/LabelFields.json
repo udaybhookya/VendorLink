@@ -1,0 +1,90 @@
+{
+  "additionalProperties": false,
+  "description": "What a vision model reads off a packaged-food label.",
+  "properties": {
+    "product_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Product Name"
+    },
+    "ingredients": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ingredients"
+    },
+    "allergens": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Allergens"
+    },
+    "expiry_date": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expiry Date"
+    },
+    "net_weight": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Net Weight"
+    },
+    "registration_numbers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Label wording → number, e.g. {'P-IRT': '...'}",
+      "title": "Registration Numbers",
+      "type": "object"
+    },
+    "halal_logo": {
+      "default": false,
+      "title": "Halal Logo",
+      "type": "boolean"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    }
+  },
+  "required": [
+    "confidence"
+  ],
+  "title": "LabelFields",
+  "type": "object"
+}

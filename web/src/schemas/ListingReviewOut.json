@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "publish": {
+      "title": "Publish",
+      "type": "boolean"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "publish"
+  ],
+  "title": "ListingReviewOut",
+  "type": "object"
+}

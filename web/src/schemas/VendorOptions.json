@@ -1,0 +1,151 @@
+{
+  "$defs": {
+    "BusinessOption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Name",
+          "type": "object"
+        },
+        "units": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Units",
+          "type": "array"
+        },
+        "required_docs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Docs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "units",
+        "required_docs"
+      ],
+      "title": "BusinessOption",
+      "type": "object"
+    },
+    "CountryOption": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Name",
+          "type": "object"
+        },
+        "languages": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Languages",
+          "type": "array"
+        },
+        "default_language": {
+          "title": "Default Language",
+          "type": "string"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "languages",
+        "default_language",
+        "currency"
+      ],
+      "title": "CountryOption",
+      "type": "object"
+    },
+    "DirectoryEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "party_id": {
+          "title": "Party Id",
+          "type": "string"
+        },
+        "party_type": {
+          "enum": [
+            "vendor",
+            "retailer"
+          ],
+          "title": "Party Type",
+          "type": "string"
+        },
+        "display_name": {
+          "title": "Display Name",
+          "type": "string"
+        },
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "party_id",
+        "party_type",
+        "display_name",
+        "agent_id",
+        "status"
+      ],
+      "title": "DirectoryEntry",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "countries": {
+      "items": {
+        "$ref": "#/$defs/CountryOption"
+      },
+      "title": "Countries",
+      "type": "array"
+    },
+    "business_profiles": {
+      "items": {
+        "$ref": "#/$defs/BusinessOption"
+      },
+      "title": "Business Profiles",
+      "type": "array"
+    },
+    "retailers": {
+      "items": {
+        "$ref": "#/$defs/DirectoryEntry"
+      },
+      "title": "Retailers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "countries",
+    "business_profiles",
+    "retailers"
+  ],
+  "title": "VendorOptions",
+  "type": "object"
+}

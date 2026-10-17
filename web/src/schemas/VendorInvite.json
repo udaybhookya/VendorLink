@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "invite_id": {
+      "title": "Invite Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "retailer_name": {
+      "default": "",
+      "title": "Retailer Name",
+      "type": "string"
+    },
+    "message": {
+      "default": "",
+      "title": "Message",
+      "type": "string"
+    },
+    "sent_at": {
+      "format": "date-time",
+      "title": "Sent At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "invite_id",
+    "retailer_id",
+    "vendor_id",
+    "sent_at"
+  ],
+  "title": "VendorInvite",
+  "type": "object"
+}

@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "auto_order_max_value": {
+      "description": "In the Country Pack currency",
+      "title": "Auto Order Max Value",
+      "type": "string"
+    },
+    "auto_accept_counter_max_delta": {
+      "description": "Max relative change in order value a counter may make and still auto-accept",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Auto Accept Counter Max Delta",
+      "type": "number"
+    },
+    "new_vendor_needs_human": {
+      "default": true,
+      "title": "New Vendor Needs Human",
+      "type": "boolean"
+    },
+    "listing_publish_min_confidence": {
+      "default": 0.8,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Listing Publish Min Confidence",
+      "type": "number"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "auto_order_max_value",
+    "auto_accept_counter_max_delta"
+  ],
+  "title": "RetailerPolicy",
+  "type": "object"
+}

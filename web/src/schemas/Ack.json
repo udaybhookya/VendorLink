@@ -1,0 +1,17 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "ok": {
+      "default": true,
+      "title": "Ok",
+      "type": "boolean"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    }
+  },
+  "title": "Ack",
+  "type": "object"
+}

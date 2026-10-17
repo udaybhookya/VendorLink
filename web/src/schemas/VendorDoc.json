@@ -1,0 +1,54 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "doc_type": {
+      "description": "A DocSpec id from the Country Pack",
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Number"
+    },
+    "uri": {
+      "title": "Uri",
+      "type": "string"
+    },
+    "status": {
+      "default": "submitted",
+      "enum": [
+        "submitted",
+        "verified",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "failure_reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Reason"
+    }
+  },
+  "required": [
+    "doc_type",
+    "uri"
+  ],
+  "title": "VendorDoc",
+  "type": "object"
+}

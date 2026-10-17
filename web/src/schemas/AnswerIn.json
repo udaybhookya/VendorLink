@@ -1,0 +1,36 @@
+{
+  "additionalProperties": false,
+  "description": "human.answer: a reply from any channel. Parsed deterministically against the request.",
+  "properties": {
+    "task_id": {
+      "title": "Task Id",
+      "type": "string"
+    },
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "by": {
+      "description": "Who answered: user id, email or vendor id",
+      "title": "By",
+      "type": "string"
+    },
+    "via": {
+      "enum": [
+        "inapp",
+        "slack",
+        "gmail"
+      ],
+      "title": "Via",
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "text",
+    "by",
+    "via"
+  ],
+  "title": "AnswerIn",
+  "type": "object"
+}

@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "AgentEvent": {
+      "additionalProperties": false,
+      "description": "Every operational fact in one shape: calls, decisions, logins, permission checks,\nscreening and control actions. The audit log stays the formal, tamper-evident record.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "call",
+            "decision",
+            "login",
+            "permission_check",
+            "screening",
+            "control",
+            "security",
+            "audit",
+            "ask",
+            "answer",
+            "notify"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "default": "",
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "action": {
+          "description": "Capability, skill, audit action or control verb",
+          "title": "Action",
+          "type": "string"
+        },
+        "target": {
+          "default": "",
+          "title": "Target",
+          "type": "string"
+        },
+        "outcome": {
+          "default": "ok",
+          "enum": [
+            "ok",
+            "denied",
+            "error"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "trace_id": {
+          "default": "",
+          "title": "Trace Id",
+          "type": "string"
+        },
+        "span_id": {
+          "default": "",
+          "title": "Span Id",
+          "type": "string"
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Person, for control actions",
+          "title": "Actor"
+        },
+        "attrs": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attrs",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "type",
+        "agent_id",
+        "action"
+      ],
+      "title": "AgentEvent",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "events": {
+      "items": {
+        "$ref": "#/$defs/AgentEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    }
+  },
+  "required": [
+    "events"
+  ],
+  "title": "EventBatch",
+  "type": "object"
+}

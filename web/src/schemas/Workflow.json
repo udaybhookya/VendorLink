@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "WorkflowStep": {
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "description": "Capability or wildcard, e.g. 'grade.*'",
+          "title": "Capability",
+          "type": "string"
+        },
+        "optional": {
+          "default": false,
+          "description": "Skip when no loaded specialist offers it",
+          "title": "Optional",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "capability"
+      ],
+      "title": "WorkflowStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "job_type": {
+      "title": "Job Type",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/WorkflowStep"
+      },
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "job_type",
+    "steps"
+  ],
+  "title": "Workflow",
+  "type": "object"
+}

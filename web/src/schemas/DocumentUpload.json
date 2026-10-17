@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "doc_type": {
+      "description": "DocSpec id from the Country Pack",
+      "title": "Doc Type",
+      "type": "string"
+    },
+    "number": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Number"
+    },
+    "data_b64": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Data B64"
+    },
+    "content_type": {
+      "default": "image/jpeg",
+      "title": "Content Type",
+      "type": "string"
+    },
+    "filename": {
+      "default": "document",
+      "title": "Filename",
+      "type": "string"
+    }
+  },
+  "required": [
+    "doc_type"
+  ],
+  "title": "DocumentUpload",
+  "type": "object"
+}

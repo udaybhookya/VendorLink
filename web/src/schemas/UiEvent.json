@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "enum": [
+        "deal",
+        "rules",
+        "listing",
+        "consent_needed",
+        "document",
+        "status",
+        "notice"
+      ],
+      "title": "Type",
+      "type": "string"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "UiEvent",
+  "type": "object"
+}

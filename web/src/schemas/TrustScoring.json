@@ -1,0 +1,81 @@
+{
+  "additionalProperties": false,
+  "description": "Weights of the trust score (0–100, from 100). `config/scoring/trust.json`.",
+  "properties": {
+    "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+    },
+    "suspended": {
+      "default": 40,
+      "description": "Points off while suspended",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Suspended",
+      "type": "integer"
+    },
+    "quarantined": {
+      "default": 60,
+      "description": "Points off while quarantined",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Quarantined",
+      "type": "integer"
+    },
+    "per_violation": {
+      "default": 25,
+      "description": "Per verified violation by the agent",
+      "minimum": 0,
+      "title": "Per Violation",
+      "type": "integer"
+    },
+    "max_violations": {
+      "default": 75,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Max Violations",
+      "type": "integer"
+    },
+    "per_impersonation": {
+      "default": 2,
+      "description": "Per blocked call in its name",
+      "minimum": 0,
+      "title": "Per Impersonation",
+      "type": "integer"
+    },
+    "max_impersonation": {
+      "default": 10,
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Max Impersonation",
+      "type": "integer"
+    },
+    "error_rate": {
+      "default": 30,
+      "description": "× share of calls that failed",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Error Rate",
+      "type": "integer"
+    },
+    "denial_rate": {
+      "default": 20,
+      "description": "× share of calls denied",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Denial Rate",
+      "type": "integer"
+    },
+    "needs_review_rate": {
+      "default": 20,
+      "description": "× needs-review rate",
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Needs Review Rate",
+      "type": "integer"
+    }
+  },
+  "title": "TrustScoring",
+  "type": "object"
+}

@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "DocCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "doc_type": {
+          "title": "Doc Type",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "needs_review"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "code": {
+          "description": "Machine code, e.g. NAME_MISMATCH, LICENCE_EXPIRED",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "doc_type",
+        "status",
+        "code"
+      ],
+      "title": "DocCheck",
+      "type": "object"
+    },
+    "VendorStatus": {
+      "enum": [
+        "draft",
+        "verifying",
+        "pending_approval",
+        "active"
+      ],
+      "title": "VendorStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/VendorStatus"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/DocCheck"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "status"
+  ],
+  "title": "VendorStatusUpdate",
+  "type": "object"
+}

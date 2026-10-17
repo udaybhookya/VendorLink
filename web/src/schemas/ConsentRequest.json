@@ -1,0 +1,42 @@
+{
+  "additionalProperties": false,
+  "description": "The vendor's spoken or tapped 'yes' to an exact subject she was read back.",
+  "properties": {
+    "subject_hash": {
+      "title": "Subject Hash",
+      "type": "string"
+    },
+    "transcript": {
+      "title": "Transcript",
+      "type": "string"
+    },
+    "language": {
+      "title": "Language",
+      "type": "string"
+    },
+    "audio_b64": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Audio B64"
+    },
+    "audio_mime": {
+      "default": "audio/webm",
+      "title": "Audio Mime",
+      "type": "string"
+    }
+  },
+  "required": [
+    "subject_hash",
+    "transcript",
+    "language"
+  ],
+  "title": "ConsentRequest",
+  "type": "object"
+}

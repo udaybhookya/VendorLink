@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "AutoAccept": {
+      "additionalProperties": false,
+      "properties": {
+        "max_value": {
+          "title": "Max Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_value"
+      ],
+      "title": "AutoAccept",
+      "type": "object"
+    },
+    "SkuRule": {
+      "additionalProperties": false,
+      "properties": {
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price_floor": {
+          "description": "Minimum price per unit",
+          "title": "Price Floor",
+          "type": "string"
+        },
+        "max_qty_per_day": {
+          "title": "Max Qty Per Day",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sku",
+        "unit",
+        "price_floor",
+        "max_qty_per_day"
+      ],
+      "title": "SkuRule",
+      "type": "object"
+    },
+    "StandingMandate": {
+      "additionalProperties": false,
+      "description": "The vendor's rules (AP2 'intent' analogue). Signed by the Guardian with consent.",
+      "properties": {
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "version": {
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "timezone": {
+          "title": "Timezone",
+          "type": "string"
+        },
+        "skus": {
+          "items": {
+            "$ref": "#/$defs/SkuRule"
+          },
+          "minItems": 1,
+          "title": "Skus",
+          "type": "array"
+        },
+        "pickup_windows": {
+          "items": {
+            "$ref": "#/$defs/TimeWindow"
+          },
+          "minItems": 1,
+          "title": "Pickup Windows",
+          "type": "array"
+        },
+        "payment_days_max": {
+          "minimum": 0,
+          "title": "Payment Days Max",
+          "type": "integer"
+        },
+        "approved_buyers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Approved Buyers",
+          "type": "array"
+        },
+        "auto_accept": {
+          "$ref": "#/$defs/AutoAccept"
+        },
+        "signature": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signature"
+        },
+        "consent_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent Ref"
+        },
+        "signed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signed At"
+        }
+      },
+      "required": [
+        "vendor_id",
+        "version",
+        "currency",
+        "timezone",
+        "skus",
+        "pickup_windows",
+        "payment_days_max",
+        "auto_accept"
+      ],
+      "title": "StandingMandate",
+      "type": "object"
+    },
+    "TimeWindow": {
+      "additionalProperties": false,
+      "description": "Local wall-clock window in the mandate's timezone.",
+      "properties": {
+        "start": {
+          "format": "time",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "format": "time",
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "mandate": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/StandingMandate"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "mandate"
+  ],
+  "title": "MandateOut",
+  "type": "object"
+}

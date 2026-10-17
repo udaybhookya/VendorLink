@@ -1,0 +1,84 @@
+{
+  "$defs": {
+    "Contact": {
+      "additionalProperties": false,
+      "description": "Where one role at one party can be reached. Addresses may use ${ENV} placeholders.",
+      "properties": {
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "title": "Name",
+          "type": "string"
+        },
+        "slack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Slack"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "inapp": {
+          "default": false,
+          "title": "Inapp",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "Contact",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "party": {
+      "title": "Party",
+      "type": "string"
+    },
+    "note": {
+      "default": "",
+      "title": "Note",
+      "type": "string"
+    },
+    "language": {
+      "default": "en",
+      "description": "Language this party's staff are written to in",
+      "title": "Language",
+      "type": "string"
+    },
+    "contacts": {
+      "items": {
+        "$ref": "#/$defs/Contact"
+      },
+      "title": "Contacts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "party",
+    "contacts"
+  ],
+  "title": "ContactBook",
+  "type": "object"
+}

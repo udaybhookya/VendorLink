@@ -1,0 +1,36 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "tenant": {
+      "description": "vendor, retailer, or one party id",
+      "title": "Tenant",
+      "type": "string"
+    },
+    "frozen": {
+      "title": "Frozen",
+      "type": "boolean"
+    },
+    "actor": {
+      "title": "Actor",
+      "type": "string"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant",
+    "frozen",
+    "actor",
+    "reason",
+    "ts"
+  ],
+  "title": "TenantFreeze",
+  "type": "object"
+}

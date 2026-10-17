@@ -1,0 +1,12 @@
+{
+  "note": "Points taken off an agent's trust score (starts at 100). Rates are multiplied by the share of its calls.",
+  "suspended": 40,
+  "quarantined": 60,
+  "per_violation": 25,
+  "max_violations": 75,
+  "per_impersonation": 2,
+  "max_impersonation": 10,
+  "error_rate": 30,
+  "denial_rate": 20,
+  "needs_review_rate": 20
+}

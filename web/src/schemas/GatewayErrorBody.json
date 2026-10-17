@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "description": "Machine code, e.g. bad_signature, out_of_scope",
+      "title": "Error",
+      "type": "string"
+    },
+    "detail": {
+      "default": "",
+      "title": "Detail",
+      "type": "string"
+    }
+  },
+  "required": [
+    "error"
+  ],
+  "title": "GatewayErrorBody",
+  "type": "object"
+}

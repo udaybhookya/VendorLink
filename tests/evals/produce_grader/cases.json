@@ -1,0 +1,77 @@
+{
+  "note": "Needs real photos in seed/photos/ and FLASH_MODEL. Each case: photo file and acceptable grades.",
+  "cases": [
+    {
+      "name": "fresh_spinach",
+      "photo": "seed/photos/spinach_fresh.jpg",
+      "grades": [
+        "A"
+      ]
+    },
+    {
+      "name": "spinach_day_old",
+      "photo": "seed/photos/spinach_day_old.jpg",
+      "grades": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "name": "wilting_spinach",
+      "photo": "seed/photos/spinach_wilting.jpg",
+      "grades": [
+        "C"
+      ]
+    },
+    {
+      "name": "fresh_tomato",
+      "photo": "seed/photos/tomato_fresh.jpg",
+      "grades": [
+        "A"
+      ]
+    },
+    {
+      "name": "tomato_mixed",
+      "photo": "seed/photos/tomato_mixed.jpg",
+      "grades": [
+        "B"
+      ]
+    },
+    {
+      "name": "tomato_spoiled",
+      "photo": "seed/photos/tomato_spoiled.jpg",
+      "grades": [
+        "C"
+      ]
+    },
+    {
+      "name": "mint_fresh",
+      "photo": "seed/photos/mint_fresh.jpg",
+      "grades": [
+        "A"
+      ]
+    },
+    {
+      "name": "tomato_bruised",
+      "photo": "seed/photos/tomato_bruised.jpg",
+      "grades": [
+        "B",
+        "C"
+      ]
+    },
+    {
+      "name": "carrot_fresh",
+      "photo": "seed/photos/carrot_fresh.jpg",
+      "grades": [
+        "A"
+      ]
+    },
+    {
+      "name": "not_produce",
+      "photo": "seed/photos/not_produce.jpg",
+      "grades": [
+        "C"
+      ]
+    }
+  ]
+}
