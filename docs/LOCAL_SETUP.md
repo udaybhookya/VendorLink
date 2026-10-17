@@ -68,7 +68,7 @@ make attacks      # must print IMPOSTOR BLOCKED and INJECTED DOCUMENT BLOCKED
 make dev
 ```
 
-Wait for **`VendorLink ready: http://localhost:5173`**. `make dev` resets and seeds config A
+Wait for **`VendorLink ready: vendor app http://localhost:5173/vendor · retailer console http://localhost:5173/retailer`**. `make dev` resets and seeds config A
 once at startup. The vendor app opens in **English**; the 🌐 picker in its header switches a
 vendor to her own language (Telugu in India, Bahasa Indonesia in Indonesia).
 

@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import type { AgentCredential, Vendor, VendorOptions } from "../types/generated";
 import { api, GATEWAY_URL, VENDOR_URL } from "../lib/api";
 import { languageName, strings } from "../lib/i18n";
-import { useApp } from "../lib/app";
 import { Icon } from "../lib/icons";
 
 /** Supplier self-registration: creates the vendor and her own agent at the gateway. */
 export function Join() {
   const navigate = useNavigate();
-  useApp("vendor");
   const [options, setOptions] = useState<VendorOptions | null>(null);
   // English by default; she can pick her own language below (or later, in the app header).
   const [picked, setForm] = useState({ display_name: "", legal_name: "", country: "", language: "en", business_profile: "" });

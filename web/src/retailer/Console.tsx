@@ -3,7 +3,6 @@ import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import type { ActiveConfig, Retailer } from "../types/generated";
 import { api, GATEWAY_URL, RETAILER_URL, shortHash, subscribe } from "../lib/api";
 import { c } from "../lib/i18n";
-import { useApp } from "../lib/app";
 import { Icon, type IconName, Logo } from "../lib/icons";
 import { Today } from "./Today";
 import { Studio } from "./Studio";
@@ -28,7 +27,6 @@ export function Console() {
   const [tick, setTick] = useState(0);
   const [error, setError] = useState("");
   const refresh = useCallback(() => setTick((n) => n + 1), []);
-  useApp("console");
 
   useEffect(() => {
     api<Retailer[]>(RETAILER_URL, "/retailers")

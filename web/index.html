@@ -2,18 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0f766e" />
     <meta name="description" content="VendorLink: small vendors sell to retailers in their own language, within rules they set." />
-    <!-- the vendor app by default; the console swaps in its own manifest (src/lib/app.ts) -->
-    <link id="manifest" rel="manifest" href="/vendor.webmanifest" />
-    <link id="favicon" rel="icon" type="image/svg+xml" href="/icons/vendor.svg" />
-    <link rel="apple-touch-icon" href="/icons/vendor-192.png" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="icon" type="image/svg+xml" href="/icons/vendor.svg" />
     <title>VendorLink</title>
   </head>
   <body>
     <div id="root"></div>
+    <!-- a launcher only: the vendor app and the retailer console are separate pages (vendor/, retailer/) -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

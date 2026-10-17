@@ -34,7 +34,7 @@ for port in 8000 8001 8002 8009; do
   until curl -sf -o /dev/null "http://localhost:${port}/healthz"; do sleep 0.3; done
 done
 if uv run python scripts/demo_reset.py ${DEMO_SCENE:+--scene "$DEMO_SCENE"}; then
-  echo "VendorLink ready: http://localhost:5173"
+  echo "VendorLink ready: vendor app http://localhost:5173/vendor · retailer console http://localhost:5173/retailer"
 else
   echo "demo_reset failed; run it by hand"
 fi

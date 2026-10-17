@@ -4,7 +4,6 @@ import type { Vendor, VendorOptions } from "../types/generated";
 import { api, subscribe, VENDOR_URL } from "../lib/api";
 import { languageName, strings } from "../lib/i18n";
 import { useWide } from "../lib/useWide";
-import { useApp } from "../lib/app";
 import { Icon, type IconName, Logo } from "../lib/icons";
 import { Talk } from "./Talk";
 import { Deals } from "./Deals";
@@ -31,7 +30,6 @@ export function VendorApp() {
   const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) ?? "talk");
   const [tick, setTick] = useState(0);
   const wide = useWide();
-  useApp("vendor");
   const [error, setError] = useState("");
 
   const vendor = vendors.find((v) => v.id === vendorId);
