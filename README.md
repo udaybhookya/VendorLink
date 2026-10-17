@@ -233,15 +233,7 @@ VendorLink/
 
 ## Architecture at a glance
 
-```
- Vendor app (/vendor)                                      Retailer console (/retailer)
-         │                                                              │
-         ▼                                                              ▼
-    vendor-svc  ──────────────►  trust-gateway  ◄──────────────  retailer-svc
-    Guardian (signs)             signatures, policy,             Orchestrator,
-    Concierge (chat, voice)      screening, audit log,           specialist agents
-                                 agent control plane
-```
+![VendorLink system architecture](docs/diagrams/01-system-architecture.png)
 
 The vendor and retailer services never call each other directly; every message between them
 goes through the trust gateway. A Human Liaison on each side asks people for decisions in the
@@ -249,7 +241,30 @@ app, on Slack or by email. 17 agents are configured in `config/agents.json` and 
 capability. Every cloud dependency (Firestore, Cloud Storage, KMS, Model Armor) has a local
 fallback, so nothing cloud-based is needed to run it.
 
-Read more in **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
+**The order loop**, end to end: the Guardian counters, the buyer approves the counter on Slack,
+Maya says yes in Telugu, and both sides sign.
+
+![Order loop sequence diagram](docs/diagrams/04-order-loop.png)
+
+Every core flow has its own diagram, explained in
+[docs/ARCHITECTURE.md → Core flows](docs/ARCHITECTURE.md#core-flows):
+
+| Flow | Diagram |
+|---|---|
+| Trust gateway relay: tokens, policy, screening, audit | [02-gateway-relay](docs/diagrams/02-gateway-relay.png) |
+| Selling rules and consent (voice or chat) | [03-rules-and-consent](docs/diagrams/03-rules-and-consent.png) |
+| Order loop (hero order) | [04-order-loop](docs/diagrams/04-order-loop.png) |
+| How the Guardian decides: green, amber, red, decline | [05-guardian-decision](docs/diagrams/05-guardian-decision.png) |
+| People in the loop: ask, remind, escalate, resume | [06-human-in-the-loop](docs/diagrams/06-human-in-the-loop.png) |
+| Nightly replenishment (durable LangGraph job) | [07-replenishment-job](docs/diagrams/07-replenishment-job.png) |
+| Listing enrichment: photo to catalogue | [08-listing-enrichment](docs/diagrams/08-listing-enrichment.png) |
+| Supplier onboarding | [09-onboarding](docs/diagrams/09-onboarding.png) |
+| Config A → B switch | [10-config-switch](docs/diagrams/10-config-switch.png) |
+| Attacks blocked: impostor, injected document | [11-attacks-blocked](docs/diagrams/11-attacks-blocked.png) |
+| Agent registry and control plane | [12-agents-and-control-plane](docs/diagrams/12-agents-and-control-plane.png) |
+| Supplier terms | [13-terms](docs/diagrams/13-terms.png) |
+
+The diagram sources are Mermaid files next to the PNGs; run `make diagrams` after editing one.
 
 ## Troubleshooting
 
@@ -272,7 +287,8 @@ More fixes, including Gemini, Slack and Gmail errors, are in
 |---|---|
 | [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md) | Getting Gemini, Slack and Gmail keys; full local setup, logs and troubleshooting |
 | [docs/DEMO.md](docs/DEMO.md) | The demo script, scene by scene |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Design principles, services, agents, cloud adapters, extending |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Design principles, services, agents, a diagram of every core flow, cloud adapters, extending |
+| [docs/diagrams/](docs/diagrams/) | Architecture and sequence diagrams (PNG + Mermaid source) |
 | [docs/PLAN.md](docs/PLAN.md) | Modules, data model and build plan |
 | [docs/adr/](docs/adr/) | Architecture decision records |
 | [agents/README.md](agents/README.md) | How agents work and how to add one |

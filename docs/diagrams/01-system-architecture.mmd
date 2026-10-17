@@ -1,0 +1,71 @@
+%% VendorLink: deployables, agents and what they talk to.
+flowchart TB
+  subgraph people["People"]
+    direction LR
+    maya(["Vendor (Maya)<br/>phone or laptop, her language"])
+    staff(["Retailer staff<br/>buyer · category manager · ops"])
+  end
+
+  subgraph web["web · React + Vite · two installable apps"]
+    direction LR
+    vapp["<b>/vendor</b><br/>Chat + Needs you · Deals<br/>Products · My shop · Activity"]
+    rcon["<b>/retailer</b> console<br/>Inbox · Orders · Catalogue · Suppliers<br/>Studio · Trust · Observability"]
+  end
+
+  subgraph vsvc["vendor-svc :8001 · vendor tenant"]
+    vapi["Vendor REST API<br/>voice WebSocket · A2A server"]
+    concierge["<b>Concierge</b><br/>Google ADK · chat + Live voice<br/>words things · <b>no signing tool</b>"]
+    guardian["<b>Guardian</b><br/>deterministic · <b>the only signer</b><br/>standing mandate · commitments"]
+    vliaison["Human Liaison"]
+  end
+
+  subgraph gw["trust-gateway :8000"]
+    trust["<b>Relay</b>: tokens · request signatures<br/>deny-by-default policy table<br/>screening · consents · mandates"]
+    audit[("Hash-chained<br/>append-only audit log")]
+    cplane["<b>Agent control plane</b><br/>registry · events · scores<br/>suspend · quarantine · freeze"]
+  end
+
+  subgraph rsvc["retailer-svc :8002 · retailer tenant"]
+    rapi["Retailer REST API<br/>orders · approval queue (Inbox)<br/>config studio · A2A server"]
+    orch["<b>Orchestrator</b><br/>runs config workflows,<br/>finds agents by capability"]
+    specs["<b>Specialists</b> (the active config loads them)<br/>Onboarding Verifier · Catalogue Builder<br/>Craft Quality Checker · Label Checker<br/>Catalogue Image Checker · Image Enhancer<br/>Listing Enricher · Compliance Auditor<br/>Terms Agent · Replenishment Planner"]
+    jobs["Durable jobs<br/>LangGraph + checkpointer"]
+    rliaison["Human Liaison"]
+  end
+
+  subgraph shared["Shared and external"]
+    direction LR
+    channels["Channel agents<br/>in-app · Slack (MCP) · Gmail (MCP)"]
+    mocks["mocks :8009<br/>simulated ID · bank · FSSAI · P-IRT"]
+    gemini["Gemini (optional)<br/>FLASH · PRO · LIVE · IMAGE"]
+    config[/"config/ JSON<br/>profiles · country packs · policies<br/>workflows · presets · i18n · routing"/]
+    cloud["vl_core adapters, local by default<br/>Firestore · GCS · KMS · Model Armor"]
+  end
+
+  maya --> vapp
+  staff --> rcon
+  vapp --> vapi
+  rcon --> rapi
+
+  vapi --> concierge
+  vapi -- "decide · sign" --> guardian
+  rapi --> orch --> specs
+  rapi --> jobs
+
+  vapi <== "every cross-tenant message<br/>POST /relay/{agent}/{skill}" ==> trust
+  trust <== "signed A2A" ==> rapi
+  trust --> audit
+  trust --- cplane
+
+  vliaison --> channels
+  rliaison --> channels
+  specs --> mocks
+  specs --> gemini
+  concierge --> gemini
+
+  classDef signer fill:#dcfce7,stroke:#16a34a,color:#14532d
+  classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef llm fill:#fae8ff,stroke:#a21caf,color:#4a044e
+  class guardian signer
+  class trust,audit,cplane gate
+  class concierge,specs,gemini llm

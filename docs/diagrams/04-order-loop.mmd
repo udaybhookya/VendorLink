@@ -1,0 +1,60 @@
+%% The hero order, end to end (scripts/e2e_order_loop.py checks this path).
+sequenceDiagram
+  autonumber
+  actor B as Buyer<br/>(console / Slack)
+  box rgb(238,242,255) retailer-svc
+    participant RO as Retailer ops<br/>(orders, queue)
+    participant OR as Orchestrator
+    participant PL as Replenishment Planner<br/>(order.create)
+    participant RL as Liaison
+  end
+  participant GW as trust-gateway
+  box rgb(240,253,244) vendor-svc
+    participant VO as Vendor ops<br/>(deals)
+    participant GU as Guardian
+    participant VL as Liaison
+  end
+  actor M as Maya<br/>(vendor app)
+
+  B->>RO: Orders → Place order (Maya, corporate gifting desk, tomorrow)
+  RO->>OR: orchestrator.plan_orders
+  OR->>PL: order.create (first step of the place_order workflow)
+  PL-->>OR: v1: 50 lavender candles @ ₹220, pickup 08:00, paid in 45 days
+  OR-->>RO: within auto-order limit → send (else Inbox: buyer approves first)
+  RO->>GW: relay order.propose (v1)
+  GW->>VO: order.propose
+  VO->>GU: guardian.decide(v1)
+  Note over GU: plain code against her standing mandate<br/>and what is already committed that day
+  GU-->>VO: RED · QTY_OVER_DAILY_MAX · PICKUP_BEFORE_WINDOW · PAYMENT_TOO_LATE<br/>counter v2: 40 @ ₹220, pickup 10:00, paid in 15 days (v1 never changes)
+  VO-->>GW: Decision (red + counter v2)
+  GW-->>RO: Decision
+  RO->>OR: orchestrator.review_counter(v1, v2)
+  OR-->>RO: value change 20% (₹11,000 → ₹8,800) > 10% policy → needs the buyer
+  Note over RO: order queued → console Inbox (v1 against v2, reasons in words)
+  RO->>RL: human.ask (approval, role buyer)
+  RL->>B: Slack: "Maya countered… approve / reject" [VL-XXXX]<br/>(reminder on Gmail after 60 min, category lead after 4 h)
+  B-->>RL: "approve" on Slack (read on the next Liaison tick)<br/>or Accept the counter in the Inbox
+  RL->>RO: resolved → accept the counter
+  RO->>GW: relay order.counter_response (accept, exactly v2)
+  GW->>VO: order.counter_response
+  Note over VO: must be the exact counter we sent (hash check)
+  VO->>GU: guardian.decide(v2)
+  GU-->>VO: AMBER · VALUE_OVER_AUTO_ACCEPT (₹8,800 > ₹5,000)
+  VO->>VL: human.ask (consent, in-app, nudge by Gmail after 30 min)
+  VO-->>GW: Decision (amber)
+  GW-->>RO: order awaiting vendor
+  VL->>M: Needs you: the deal, read back in her language
+  M->>VO: reads the read-back (Telugu), says "అవును" (yes)<br/>in the app or by voice, never by Slack or email
+  Note over VO: read-back hash = latest version · her own words are a clear yes
+  VO->>GW: POST /consents (ConsentRecord, subject_hash = sha256(canonical v2))
+  VO->>GU: guardian.sign_order(v2, consent)
+  Note over GU: decide again · consent matches exactly v2 · never sign a decline
+  GU-->>VO: vendor signature, 40 candles committed for that day
+  VO->>GW: relay order.vendor_signed (v2, signature, consent ref)
+  GW->>RO: order.vendor_signed
+  Note over RO: signed version is the latest · retailer signs too
+  RO->>GW: POST /mandates/order (Order Mandate)
+  Note over GW: both signatures valid · consent matches the terms hash<br/>audit mandate.order
+  RO-->>B: order confirmed
+  VO-->>M: deal signed
+  Note over B,M: Green path: the Guardian signs inside guardian.decide and the order is confirmed at once.<br/>Every step above writes one audit record through the gateway.

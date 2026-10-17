@@ -1,0 +1,24 @@
+%% The nightly replenishment run: a durable LangGraph job (services/retailer_svc/jobs.py).
+flowchart TD
+  trigger(["Cloud Scheduler nightly, or the console<br/>POST /retailers/{id}/jobs/replenishment-run"]) --> plan
+
+  subgraph graph["LangGraph replenishment_run · state saved by the checkpointer (memory / SQLite / Postgres)"]
+    plan["<b>plan</b><br/>orchestrator.plan_orders for every store<br/>gate each proposal: value ≤ auto_order_max_value?"]
+    ask["<b>ask_vendor</b><br/>demand with no listing → InfoRequest<br/>relayed as info.request"]
+    auto["<b>send_auto</b><br/>orders within policy go now<br/>(never wait behind someone else's decision)"]
+    approve["<b>approve</b><br/>interrupt() once per order over the limit<br/>→ the job pauses, state checkpointed"]
+    approved["<b>send_approved</b><br/>approved orders sent,<br/>rejected ones held"]
+    report["<b>report</b><br/>notice to ops: sent, waiting, skipped"]
+    plan --> ask --> auto --> approve --> approved --> report
+  end
+
+  ask -. "via trust-gateway" .-> maya(["Maya, Questions tab, her language:<br/>'How many rose candles can you supply?'"])
+  maya -. "answer relayed back as info.response" .-> sup["Retailer sees it under the supplier"]
+  auto --> loop[["Each order runs the order loop<br/>(order.propose → Guardian → …)"]]
+  approved --> loop
+  approve -- "Liaison asks the buyer on Slack" --> buyer(["Buyer replies approve / reject"])
+  buyer -- "Liaison tick → resolved → Command(resume)" --> approve
+  report --> done(["Run done"])
+
+  classDef pause fill:#fef3c7,stroke:#d97706,color:#78350f
+  class approve pause

@@ -1,0 +1,42 @@
+%% Configuration, not code: one preset switch changes market, language, documents and agents.
+flowchart TB
+  subgraph files["config/ (JSON, versioned)"]
+    direction LR
+    bp["business_profiles/<br/>handmade_gifts · packaged_food · fresh_produce"]
+    rp["retailer_profiles/<br/>gifting · grocery_chain · quick_commerce"]
+    cp["country_packs/<br/>IN · ID"]
+    pol["retailer_policies/<br/>default_gifting · default_grocery · default_qc"]
+    wf["workflows/<br/>gifting · default"]
+    pre["presets/<br/>A · B"]
+  end
+
+  studio(["Console → Studio<br/>activate preset live<br/>(or demo_reset ACTIVE_CONFIG)"]) --> pre
+  pre --> resolve["resolve_active_config<br/>loads the 4 refs, pins versions,<br/>specialists = retailer profile ∪ business profile,<br/>workflow set from the retailer profile"]
+  bp --> resolve
+  rp --> resolve
+  cp --> resolve
+  pol --> resolve
+  wf --> resolve
+  resolve --> wfcheck{"every workflow step has exactly one<br/>loaded agent? (optional steps: at most one)"}
+  wfcheck -- "no" --> refused["ConfigError → 422 bad_config<br/>nothing activated (ADR 0015)"]
+  wfcheck -- "yes" --> active[["ActiveConfig + config_hash"]]
+  active --> gwcfg["trust-gateway: config.activate audited,<br/>every later audit record carries config_hash"]
+  active --> reg["AgentRegistry.find_all(capability, ActiveConfig)<br/>only specialists the config names can be found"]
+  reg --> orch["Orchestrator runs workflow steps by capability<br/>(no if business_type == … anywhere)"]
+
+  subgraph A["Preset A · handmade gifts · India · gifting buyer"]
+    direction TB
+    a1["English + Telugu · INR · no FSSAI (not food)"]
+    a2["build_listing: catalogue.build → grade.craft →<br/>image.assess → image.enhance → listing.enrich"]
+    a3["place_order: order.create (one-off orders)"]
+    a4["Specialists: Onboarding Verifier · Catalogue Builder<br/>Craft Quality Checker · Catalogue Image Checker<br/>Image Enhancer · Listing Enricher · Terms Agent<br/>Replenishment Planner"]
+  end
+  subgraph B["Preset B · packaged food · Indonesia · grocery chain"]
+    direction TB
+    b1["English + Bahasa Indonesia · IDR · P-IRT · halal"]
+    b2["build_listing: catalogue.build → grade.label"]
+    b3["onboard_vendor: vendor.verify → compliance.check<br/>place_order: order.replenish (demand feed)"]
+    b4["Specialists: Onboarding Verifier · Catalogue Builder<br/>Label & Food-Safety Checker · Compliance Auditor<br/>Terms Agent · Replenishment Planner"]
+  end
+  orch --> A
+  orch --> B

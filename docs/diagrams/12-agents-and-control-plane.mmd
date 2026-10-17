@@ -1,0 +1,40 @@
+%% How agents are found and called, and how the operator can stop them (ADR 0002, 0003).
+flowchart TB
+  caller(["Service, Orchestrator,<br/>Liaison or job"]) -- "call(capability, input model)" --> find
+
+  subgraph registry["AgentRegistry (agents/registry.py), one per host"]
+    direction LR
+    find["<b>find</b><br/>config/agents.json cards ·<br/>capability match (e.g. grade.*) ·<br/>filtered by the ActiveConfig"]
+    gate{"<b>gate</b><br/>cached status snapshot:<br/>active? permitted? under rate limit?"}
+    route{"route"}
+    local["in-process agent<br/>(self.ctx: llm, http, blob, repo)"]
+    a2a["standalone agent<br/>python -m agents run &lt;id&gt;<br/>transport: a2a + endpoint"]
+    report["report event:<br/>call · decision · latency · tokens"]
+    find --> gate
+    gate -- yes --> route
+    gate -- no --> blocked["AgentBlocked<br/>→ agent_blocked"]
+    route -- local --> local
+    route -- a2a --> a2a
+    local --> report
+    a2a --> report
+  end
+
+  subgraph cp["trust-gateway control plane"]
+    direction LR
+    hosted["POST /agents/hosted<br/>hosts register their agents"]
+    events["POST /events · /events/stream"]
+    obs["Observability<br/>overview · connections · activities<br/>traces · safety · humans · quality"]
+    scores["Trust scores<br/>(config/scoring/trust.json)"]
+    control["Control API (VL_OPERATOR_TOKEN)<br/>/control/agents/{id}/{action}<br/>/control/tenants/{tenant}/{action}<br/>suspend · resume · quarantine · revoke · rotate_key<br/>permissions · rate limit · end sessions · freeze tenant"]
+    status["/agents/status snapshot"]
+    events --> obs
+    events --> scores
+    control --> status
+    hosted --> status
+  end
+
+  report --> events
+  status -. "polled by each host" .-> gate
+  op(["Operator in the console"]) --> control
+  op --> obs
+  control -. "also refused at the relay" .-> relay["Relay checks the sender and target status on every call"]

@@ -1,0 +1,47 @@
+%% One cross-tenant call through the trust gateway (services/trust_gateway/gateway.py).
+sequenceDiagram
+  autonumber
+  participant S as Sender service<br/>(e.g. retailer-svc as<br/>retailer-agent:freshcart)
+  box rgb(254,243,199) trust-gateway
+    participant G as Relay
+    participant P as Policy table<br/>(deny by default)
+    participant A as Audit log<br/>(hash-chained)
+    participant C as Control plane
+  end
+  participant R as Receiver service<br/>(e.g. vendor-svc<br/>A2A server)
+
+  rect rgb(241,245,249)
+    Note over S,G: 1. Get a token for exactly one skill and one target agent
+    S->>G: POST /tokens {scope: order.propose, aud: vendor-agent:maya}<br/>signed with the sender's Ed25519 key + one-time request id
+    Note over G,P: signature valid · request id unused · under rate limit<br/>sender not revoked, suspended, quarantined or frozen
+    G->>P: does a rule exist for this skill?
+    P-->>G: retailer → vendor, body OrderProposal, reply Decision
+    Note over G,P: party types match the rule · sender has the permission<br/>target agent registered and active
+    G->>A: token.issue
+    G-->>S: short-lived JWT (sub, on-behalf-of, scope, aud, jti)
+  end
+
+  rect rgb(241,245,249)
+    Note over S,R: 2. Relay the message
+    S->>G: POST /relay/vendor-agent:maya/order.propose<br/>A2A envelope + Bearer JWT + request signature
+    Note over G,P: JWT signed by the gateway, for this audience, scope, sender and jti
+    Note over G,P: authenticate again (signature, replay, rate, status)<br/>token not older than an ended session
+    G->>P: validate body against the skill's schema
+    Note over G,P: envelope and body name the same parties as the token
+    Note over G,P: business policy (order.propose: buyer is on the vendor's approved list)
+    Note over G,P: screen every text field for prompt injection<br/>(heuristics locally, Model Armor in the cloud)
+    G->>A: relay.order.propose (actor, on_behalf_of, payload hash, config hash)
+    G->>R: POST /a2a/vendor-agent:maya/order.propose, signed by the gateway
+    Note over R: accept only gateway-signed requests, run the handler<br/>(here: the Guardian decides)
+    R-->>G: Decision
+    Note over G,P: reply matches the skill's response schema
+    G->>A: relay.order.propose.response
+    G->>C: call event (latency) + decision event (green / amber / red)
+    G-->>S: Decision
+  end
+
+  alt any check fails
+    G->>A: deny.{code}, outcome denied
+    G->>C: security event, blocked<br/>(forged scope, other party's data or injection → credential revoked)
+    G-->>S: 401 / 403 / 422 refused, nothing forwarded
+  end

@@ -1,0 +1,34 @@
+%% Supplier terms: proposed by the retailer's Terms Agent, checked against her rules, decided by her.
+sequenceDiagram
+  autonumber
+  actor B as Retailer staff
+  box rgb(238,242,255) retailer-svc
+    participant RO as Retailer ops
+    participant OR as Orchestrator
+    participant TA as Terms Agent<br/>(terms.propose)
+  end
+  participant GW as trust-gateway
+  box rgb(240,253,244) vendor-svc
+    participant VO as Vendor ops
+    participant GU as Guardian
+  end
+  actor M as Maya
+
+  B->>RO: Suppliers → Terms → propose to Maya
+  RO->>OR: orchestrator.propose_terms
+  OR->>TA: terms.propose (term templates from the retailer profile)
+  TA-->>OR: TermsProposal (e.g. corporate gifting, paid in 45 days)
+  RO->>GW: relay terms.propose
+  GW->>VO: terms.propose
+  VO->>GU: guardian.mandate (her rules in force)
+  Note over VO: verdict: payment days ≤ her maximum?<br/>WITHIN_RULES / PAYMENT_TOO_LATE / NO_STANDING_MANDATE
+  VO-->>GW: Ack (ok = not PAYMENT_TOO_LATE, verdict)
+  GW-->>RO: Ack
+  VO-->>M: Deals → Terms, with her Guardian's verdict
+  M->>VO: Accept or Decline (in the app)
+  alt accept but outside her rules
+    VO-->>M: refused: change your rules first
+  else allowed
+    VO->>GW: relay terms.response (accepted / declined, reason)
+    GW->>RO: terms.response → shown under the supplier
+  end

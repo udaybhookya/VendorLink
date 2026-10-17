@@ -1,0 +1,42 @@
+%% Maya sets her selling rules by voice or chat; her own "yes" becomes a signed standing mandate.
+sequenceDiagram
+  autonumber
+  actor M as Maya
+  participant APP as Vendor app<br/>(chat or voice)
+  box rgb(240,253,244) vendor-svc
+    participant CO as Concierge<br/>(Google ADK)
+    participant VO as Vendor ops
+    participant GU as Guardian
+  end
+  participant LLM as Gemini<br/>(PRO chat / LIVE voice)
+  participant GW as trust-gateway
+
+  M->>APP: "At least 180 a candle, 40 a day, pickup after 10, paid in 15 days"
+  alt voice
+    APP->>CO: 16 kHz audio over WebSocket (/voice)
+    CO->>LLM: Live session: her language, system prompt, tool list
+    LLM-->>CO: her words transcribed → kept as last_user_text
+  else text
+    APP->>CO: concierge.chat
+    CO->>LLM: ToolChat turn (or offline intent matching when no model is set)
+  end
+  LLM-->>CO: tool call draft_rules(skus, pickup windows, payment days, …)
+  CO->>VO: draft_rules (through the vendor port, the same API the app uses)
+  Note over VO: StandingMandate draft, version + 1, currency and timezone from her Country Pack
+  VO-->>CO: read-back in her language + subject_hash of the draft
+  CO-->>APP: speaks / shows the read-back, "Shall I save these rules?"
+  M->>APP: "అవును" (yes)
+  Note over CO: capture_consent uses her last words (last_user_text),<br/>never text the model supplies
+  CO->>VO: consent_rules(subject_hash, her transcript, language)
+  Note over VO: hash still matches the draft · is_affirmative(her words, her language)
+  VO->>GW: POST /consents · ConsentRecord(subject_hash = sha256(canonical rules))
+  Note over GW: consent.register (only her own vendor agent may register it)
+  VO->>GU: guardian.sign_mandate(draft, consent)
+  Note over GU: consent matches exactly these rules → sign with her key (local Ed25519 or Cloud KMS)
+  GU-->>VO: signed StandingMandate
+  VO->>GW: POST /mandates/standing
+  Note over GW: Guardian signature valid · consent hash matches → mandate.standing (audited)
+  VO->>GU: guardian.install_mandate (only a mandate carrying its own valid signature)
+  GU-->>VO: in force: every later order is checked against it
+  VO-->>APP: My shop shows her rules, signed
+  Note over CO,GU: The Concierge has no signing tool. It can draft, read back and pass on her words.<br/>Only the Guardian signs, and only with consent bound to the hash of the exact text.

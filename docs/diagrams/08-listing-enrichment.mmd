@@ -1,0 +1,61 @@
+%% A phone photo becomes a catalogue-ready listing (ADR 0008, 0009, 0012).
+sequenceDiagram
+  autonumber
+  actor M as Maya
+  box rgb(240,253,244) vendor-svc
+    participant VO as Vendor ops<br/>(via Concierge or app)
+    participant GU as Guardian
+    participant VL as Liaison
+  end
+  participant GW as trust-gateway
+  box rgb(238,242,255) retailer-svc
+    participant RO as Retailer ops
+    participant OR as Orchestrator
+    participant SP as Specialists<br/>(build_listing workflow)
+    participant RL as Liaison
+  end
+  actor CM as Category manager
+
+  M->>VO: Chat → Add a product: phone photo +<br/>"40 lavender candles at 220 rupees, 250 grams"
+  VO->>GW: POST /screen (photo): injection, duplicate upload
+  VO->>GW: relay listing.submit (photo, her words, language)
+  GW->>RO: listing.submit
+  RO->>OR: orchestrator.build_listing (photo saved to the blob store)
+  OR->>SP: catalogue.build: Catalogue Builder drafts the listing from her words and photo
+  OR->>SP: grade.*: Craft Quality Checker (config A) or Label Checker (config B)
+  OR->>SP: image.assess: Catalogue Image Checker measures size, sharpness, brightness<br/>and describes the background → IMAGE_CLUTTERED_BACKGROUND
+  OR->>SP: image.enhance: Image Enhancer makes an auto-enhanced version (code)<br/>and 2 AI versions of her own photo, each in a look (needs IMAGE_MODEL, else retake tips)
+  OR->>SP: listing.enrich: Listing Enricher writes title, description, bullets<br/>from her facts, each fact tagged with its source
+  SP-->>OR: listing + flags (+ InfoRequests if a fact is missing)
+  OR-->>RO: ListingStepOut (draft stored)
+  RO-->>GW: draft listing
+  GW-->>VO: draft listing
+  opt a fact is missing
+    VO->>VL: ask her in the app → her answer → the listing is built again
+  end
+  VO->>GU: guardian.review_listing (deterministic): price and qty are what she said?<br/>facts from her? text rewrite allowed? AI photo allowed? photo good enough?
+  alt within her listing rules
+    GU-->>VO: auto-approve (on her behalf)
+  else she must look (e.g. AI_PHOTO_NEEDS_HER_OK)
+    GU-->>VO: reasons
+    VO->>VL: listing_review task (in-app only)
+    VL->>M: "Which photo should we use?" + read-back
+    M->>VO: picks Photo 2 in the app
+  end
+  VO->>GW: relay listing.confirm (exact draft + chosen photo)
+  GW->>RO: listing.confirm
+  Note over RO: draft fields unchanged (hash) · chosen photo is one we offered
+  RO->>SP: image.assess again on the chosen photo (never assume it fixed everything)
+  RO->>OR: orchestrator.review_listing: flags · vendor approved · confidence ≥ policy
+  alt clean
+    OR-->>RO: publish
+  else needs a person (e.g. AI_PHOTO_NEEDS_REVIEW)
+    OR-->>RO: review
+    RO->>RL: queue item → Inbox + human.ask (category manager)
+    RL->>CM: Slack: her photo beside the AI photo, copy, sources, flags
+    CM-->>RL: approve
+    RL->>RO: resolved → published
+    RO->>GW: relay listing.status (published, AI photo disclosed)
+    GW->>VO: listing.status → her Products tab updates
+  end
+  Note over RO,CM: Published products appear in Console → Catalogue<br/>with every photo version, the copy, each fact's source, history and orders.

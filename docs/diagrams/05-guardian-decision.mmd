@@ -1,0 +1,32 @@
+%% How the Guardian decides and when it may sign (agents/core/guardian/rules.py, agent.py). No LLM.
+flowchart TD
+  start(["Order proposal arrives<br/>guardian.decide"]) --> hasm{"Standing mandate<br/>in force?"}
+  hasm -- no --> amber0["<b>AMBER</b><br/>NO_STANDING_MANDATE"]
+  hasm -- yes --> checks["Check every line against her mandate<br/>and what is already committed that pickup day"]
+
+  checks --> dcodes{"Any of<br/>BUYER_NOT_APPROVED · SKU_NOT_IN_MANDATE<br/>CURRENCY_MISMATCH · DAILY_MAX_REACHED?"}
+  dcodes -- yes --> decline["<b>DECLINE</b><br/>never signed"]
+  dcodes -- no --> rcodes{"Any of<br/>QTY_OVER_DAILY_MAX · PRICE_BELOW_FLOOR<br/>PICKUP_BEFORE_WINDOW · PICKUP_AFTER_WINDOW<br/>PAYMENT_TOO_LATE?"}
+  rcodes -- yes --> red["<b>RED</b> + counter = version + 1<br/>clamp qty to what is left that day<br/>raise price to her floor<br/>move pickup into her window<br/>cap payment days"]
+  rcodes -- no --> value{"Order value ><br/>auto-accept limit?"}
+  value -- yes --> amber["<b>AMBER</b><br/>VALUE_OVER_AUTO_ACCEPT"]
+  value -- no --> green["<b>GREEN</b><br/>signed at once, qty committed"]
+
+  red --> retailer["Retailer policy reviews the counter<br/>(auto-accept if the value change ≤ limit, else the buyer)"]
+  retailer -- accepted --> again(["Counter decided again"])
+  again -.-> start
+  amber0 --> consent
+  amber --> consent{"Vendor's own yes<br/>after the read-back?"}
+  consent -- "yes, in app or by voice" --> sign["guardian.sign_order<br/>decide again · consent.subject_hash ==<br/>sha256(canonical_json(this exact version))"]
+  consent -- "no / expired" --> declined["Deal declined,<br/>retailer told"]
+  sign --> signed["<b>Signed</b> → Order Mandate"]
+  green --> signed
+
+  classDef g fill:#dcfce7,stroke:#16a34a,color:#14532d
+  classDef a fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef r fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  classDef d fill:#e5e7eb,stroke:#4b5563,color:#111827
+  class green,signed g
+  class amber,amber0 a
+  class red r
+  class decline,declined d

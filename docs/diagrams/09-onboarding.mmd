@@ -1,0 +1,52 @@
+%% A new supplier signs up, sends documents and applies to a retailer.
+sequenceDiagram
+  autonumber
+  actor V as New vendor (Sam)
+  box rgb(240,253,244) vendor-svc
+    participant VO as Vendor ops
+    participant VL as Liaison
+  end
+  participant GW as trust-gateway
+  box rgb(238,242,255) retailer-svc
+    participant RO as Retailer ops
+    participant OR as Orchestrator
+    participant OV as Onboarding Verifier<br/>(vendor.verify)
+    participant CA as Compliance Auditor<br/>(compliance.check, optional)
+    participant RL as Liaison
+  end
+  participant MK as mocks<br/>(simulated registries)
+  actor CM as Category manager
+
+  opt the retailer invites first
+    RO->>GW: relay vendor.invite
+    GW->>VO: invitation in her app
+  end
+  V->>VO: register (name, country, business type, language)
+  VO->>GW: POST /credentials: her own agent identity and public key
+  VO-->>V: documents needed, from her Country Pack + Business Profile<br/>(e.g. ID, bank, FSSAI in India, P-IRT in Indonesia)
+  V->>VO: upload documents / numbers
+  VO->>GW: POST /screen each file: hidden instructions → blocked + quarantined
+  V->>VO: Apply to FreshCart
+  VO->>GW: relay vendor.onboard (application + document numbers)
+  GW->>RO: vendor.onboard
+  RO->>OR: orchestrator.onboard_vendor (workflow from the active config)
+  OR->>OV: vendor.verify: format check, then the registry
+  OV->>MK: ID / bank / FSSAI / P-IRT lookup with her legal name
+  MK-->>OV: pass, or e.g. NAME_MISMATCH
+  OR->>CA: compliance.check (config B): documents + listing flags<br/>(e.g. MISSING_REGISTRATION_PIRT, unsupported halal claim)
+  OR-->>RO: checks, flags, InfoRequests, status
+  RO-->>GW: VendorCheckOut
+  GW-->>VO: result
+  alt a check failed
+    VO->>VL: one question per failed document, in her language (in-app, Gmail nudge)
+    VL->>V: "Your bank account name does not match. Please send…"
+    V->>VO: new number → saved → she applies again automatically
+  else all checks passed, policy wants a person
+    Note over RO: vendor pending_approval → Inbox (with the document checks)
+    RO->>RL: human.ask (approval, category manager)
+    RL->>CM: Slack
+    CM-->>RL: approve (or in the Inbox)
+    RL->>RO: resolved
+    RO->>GW: relay vendor.status (active)
+    GW->>VO: she is an active supplier
+  end

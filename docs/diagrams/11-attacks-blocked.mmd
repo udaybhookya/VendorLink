@@ -1,0 +1,38 @@
+%% scripts/attack_impostor.py and scripts/attack_injected_doc.py: both must print BLOCKED.
+sequenceDiagram
+  autonumber
+  actor X as Impostor<br/>(claims to be vendor-agent:maya)
+  actor S as Sam's upload<br/>(vendor:sam)
+  participant VO as vendor-svc
+  box rgb(254,243,199) trust-gateway
+    participant GW as Relay + screening
+    participant A as Audit + security events
+  end
+  participant RS as retailer-svc<br/>A2A server
+
+  rect rgb(254,242,242)
+    Note over X,RS: Impostor: wants FreshCart to believe Maya signed 1000 candles at ₹1, paid in 90 days
+    X->>GW: POST /tokens as vendor-agent:maya, signed with its own key
+    GW->>A: deny.bad_signature + security event (bad_signature)
+    GW-->>X: 401 BLOCKED
+    X->>GW: POST /relay/… with a JWT it minted itself
+    GW->>A: deny.bad_token + security event (bad_token)
+    GW-->>X: 401 BLOCKED
+    X->>RS: POST /a2a/…/order.vendor_signed, skipping the gateway
+    RS-->>X: 401 not_from_gateway, BLOCKED (only gateway-signed requests are accepted)
+    Note over GW,A: Maya's real credential stays active: an unproven identity never triggers revocation.<br/>Every denied attempt is in the hash-chained audit log.
+  end
+
+  rect rgb(254,242,242)
+    Note over S,RS: Injected document: an FSSAI "licence" PDF with hidden instructions
+    S->>VO: upload the document
+    VO->>GW: POST /screen (before any model sees it)
+    Note over GW: extract the text → injection findings
+    GW->>A: security event (injection) · vendor:sam quarantined · screen.vendor_document denied
+    GW-->>VO: allowed = false
+    VO-->>S: document failed: BLOCKED_BY_SCREENING (never stored, never sent on)
+    S->>VO: Apply to FreshCart
+    VO->>GW: relay vendor.onboard
+    GW-->>VO: 403 quarantined, BLOCKED
+  end
+  Note over X,RS: Console → Observability counts the authentication failures, Safety shows the denials and the quarantine.

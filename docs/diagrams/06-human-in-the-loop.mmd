@@ -1,0 +1,35 @@
+%% Agents ask people; the Human Liaison routes, reminds, escalates, expires and resumes the work.
+sequenceDiagram
+  autonumber
+  participant W as Work that needs a person<br/>(queue item, job, deal,<br/>listing, document, question)
+  participant LI as Human Liaison<br/>(human.ask / human.tick)
+  participant CFG as config/hitl/routing.json<br/>config/contacts/
+  participant CH as Channel agents<br/>in-app · Slack · Gmail
+  actor P as Person<br/>(buyer, category manager,<br/>ops or the vendor)
+
+  W->>LI: human.ask(InfoRequest: kind, role, question key, choices, resume)
+  LI->>CFG: routing rule for (kind, role) · contact for the role
+  CFG-->>LI: steps, e.g. approval/buyer: Slack now → Gmail at 60 min<br/>→ category lead on Slack at 4 h · expires after 24 h
+  Note over LI: HumanTask with a reply token [VL-XXXX], question worded<br/>from i18n in the person's language, deadline
+  LI->>CH: channel.slack.send (Slack and Gmail over MCP, or the dev Outbox locally)
+  CH->>P: question + choices + link to the console or app
+
+  loop every Liaison tick (VL_HITL_TICK_SECONDS, or POST /dev/tick)
+    LI->>CH: channel.{slack,gmail}.poll (replies carrying the task's token)
+    alt clear answer
+      CH-->>LI: "approve"
+      Note over LI: parse against the choices → answered
+      LI->>W: resolved hook → the work resumes
+    else unclear answer
+      LI->>CH: ask again, listing the valid choices
+    else next step is due
+      LI->>CH: reminder, or escalation to another role
+    else deadline passed
+      LI->>W: expired → on_expire: keep / reject / cancel
+    end
+  end
+
+  P->>W: or answers in the console / app directly (the Liaison task is closed)
+
+  Note over W,CH: How work resumes: queue item → approve / reject (place order, counter, vendor, listing)<br/>job → LangGraph resumes from its checkpoint · deal → decline on expiry<br/>document / missing fact → saved and the step runs again · info → info.response relayed to the retailer
+  Note over LI,P: The vendor's consent and photo choice count only from the app or voice.<br/>Slack and email may only nudge her back to the app.

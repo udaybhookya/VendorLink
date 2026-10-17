@@ -3,6 +3,13 @@
 How VendorLink is built and why. For setup and running, see the [README](../README.md); for the
 detailed module plan, [PLAN.md](PLAN.md); for individual decisions, [adr/](adr/).
 
+![VendorLink system architecture](diagrams/01-system-architecture.png)
+
+Vendor and retailer each have their own service and agents. The only path between them is the
+trust gateway. The Guardian (green) is the only signer; the agents that call models (purple) can
+draft and word things but never decide. The [core flows](#core-flows) below show each feature
+step by step.
+
 ## Design principles
 
 - **A deterministic Guardian is the only signer.** The Guardian checks every order against the
@@ -25,7 +32,7 @@ detailed module plan, [PLAN.md](PLAN.md); for individual decisions, [adr/](adr/)
   | Country | India (INR) | Indonesia (P-IRT, halal, IDR) |
   | Languages | English, Telugu | English, Bahasa Indonesia |
   | Retailer | Gifting buyer | Grocery chain |
-  | Specialists | Craft Quality Checker, Ordering (`order.create`) | Label & Food-Safety Checker, Supplier Compliance Auditor |
+  | Specialists | Craft Quality Checker, Ordering (`order.create`) | Label & Food-Safety Checker, Supplier Compliance Auditor, Replenishment (`order.replenish`) |
 
 - **People stay in the loop.** When an agent needs a person, the Human Liaison sends the
   question to the right role in the app, on Slack or by Gmail (over MCP), then sends reminders,
@@ -74,6 +81,129 @@ publishes it, or a category manager reviews it on Slack; her side is told either
 products appear in the console's **Catalogue** with their photos, copy, history and orders.
 See [ADR 0008](adr/0008-listing-enrichment.md), [ADR 0009](adr/0009-catalogue-and-photo-pipeline.md)
 and [ADR 0012](adr/0012-styled-looks-for-ai-photos.md).
+
+## Core flows
+
+Each diagram below is drawn from the code paths named in its caption. Sequence diagrams read top
+to bottom: each vertical line is a participant, each arrow a call (solid) or a reply (dashed).
+The sources are Mermaid files in [diagrams/](diagrams/); after changing one, run
+`make diagrams` to regenerate the PNGs.
+
+### 1. Every cross-tenant call goes through the trust gateway
+
+![Trust gateway relay](diagrams/02-gateway-relay.png)
+
+The sender first gets a token for exactly one skill and one target agent, then relays the
+message. The gateway checks the request signature, replay, rate limit, agent status, the
+deny-by-default policy table, the parties named in the body, business policy and content
+screening. It writes an audit record before forwarding and after the reply. Any failed check is
+refused, audited and raised as a security event. Code: `services/trust_gateway/gateway.py`,
+`policy.py`.
+
+### 2. Selling rules and consent
+
+![Rules and consent](diagrams/03-rules-and-consent.png)
+
+Maya says her rules by voice or in chat. The Concierge drafts them and reads them back in her
+language. Her "yes" is taken from her own transcribed words, never from model output. The consent
+is bound to the hash of the exact rules. The Guardian signs the standing mandate, the gateway
+verifies and files it, and only then is it put in force. Code: `vendor_svc/operations.py`
+(`consent_to_rules`), `agents/core/concierge/tools.py` (`capture_consent`),
+`agents/core/guardian/agent.py`.
+
+### 3. The order loop (hero order)
+
+![Order loop](diagrams/04-order-loop.png)
+
+The retailer's ordering agent proposes 50 candles at 08:00, paid in 45 days. Maya's Guardian
+answers red and counters with 40 at 10:00, paid in 15 days, as a new version. The counter changes
+the order value by 20%, more than the retailer's 10% policy, so the buyer is asked on Slack.
+After the buyer accepts, the Guardian rates the counter amber (over Maya's auto-accept value), so
+Maya is asked in her app. Her "yes" lets the Guardian sign, and both signatures become an Order
+Mandate at the gateway. Code: `retailer_svc/operations.py`, `vendor_svc/operations.py`;
+checked by `scripts/e2e_order_loop.py`.
+
+### 4. How the Guardian decides
+
+![Guardian decision](diagrams/05-guardian-decision.png)
+
+The decision is plain code with machine reason codes. A decline is never signed. Red produces the
+closest proposal inside her mandate. Amber and red are signed only with consent whose
+`subject_hash` equals `sha256(canonical_json(proposal))`. Code: `agents/core/guardian/rules.py`.
+
+### 5. People in the loop
+
+![Human in the loop](diagrams/06-human-in-the-loop.png)
+
+Any agent or job that needs a person asks the Human Liaison. `config/hitl/routing.json` decides
+who is asked, on which channel, and when to remind, escalate or expire the question. Replies on
+Slack or Gmail carry a task token, and a clear answer resumes the waiting work. Vendor consent
+and photo choices count only from the app. Code: `agents/core/liaison/agent.py`,
+`*/hitl.py`.
+
+### 6. Nightly replenishment as a durable job
+
+![Replenishment job](diagrams/07-replenishment-job.png)
+
+A LangGraph job plans every store and asks the vendor about demand she has no listing for. It
+sends orders within policy at once and pauses with `interrupt()` on each order over the limit. It
+resumes from its checkpoint when the buyer answers, even after a restart. Code:
+`retailer_svc/jobs.py`.
+
+### 7. Listing enrichment
+
+![Listing enrichment](diagrams/08-listing-enrichment.png)
+
+A phone photo and a sentence become a catalogue listing. The workflow from the active config
+builds the draft, grades it, assesses the photo, creates enhanced and AI versions of her own
+photo, and writes copy from her facts. Her Guardian approves it within her listing rules;
+otherwise she picks the photo in the app. The retailer re-checks the chosen photo and publishes
+it, or a category manager reviews it on Slack.
+
+### 8. Supplier onboarding
+
+![Onboarding](diagrams/09-onboarding.png)
+
+A new vendor registers, which gives her own agent identity at the gateway, and uploads the
+documents her Country Pack and Business Profile require. Each file is screened before it is
+stored. Applying runs the onboarding workflow: registry checks against the simulated registries,
+plus compliance checks in config B. A failed check becomes a question to her in her language. A
+pass goes to the retailer's Inbox for approval.
+
+### 9. Switching market by configuration
+
+![Config switch](diagrams/10-config-switch.png)
+
+A preset names four config files. Resolving them produces an `ActiveConfig` with a hash that the
+gateway records. A config whose loaded agents cannot run one of its workflow steps is refused at
+this point ([ADR 0015](adr/0015-workflows-checked-at-activation.md)). The registry only finds
+specialists the config names, and the Orchestrator runs workflow steps by capability, so A and B
+differ without any code branch.
+
+### 10. Attacks that must be blocked
+
+![Attacks blocked](diagrams/11-attacks-blocked.png)
+
+An impostor without Maya's key is refused at every path, and Maya's real credential stays active.
+A document with hidden instructions is caught in screening before any model reads it, and the
+uploader is quarantined. Checked by `scripts/attack_impostor.py` and
+`scripts/attack_injected_doc.py`.
+
+### 11. Agents and the control plane
+
+![Agents and control plane](diagrams/12-agents-and-control-plane.png)
+
+Agents are always called by capability. Before every call the registry checks a cached status
+snapshot from the gateway, so a suspended or quarantined agent is refused. Every call reports an
+event that feeds observability and trust scores.
+
+### 12. Supplier terms
+
+![Terms](diagrams/13-terms.png)
+
+The retailer's Terms Agent proposes terms. Maya's side checks them against her rules, and she
+accepts or declines in the app. She cannot accept terms outside her rules without changing her
+rules first.
 
 ## Shared library and cloud adapters
 

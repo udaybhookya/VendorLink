@@ -1,4 +1,4 @@
-.PHONY: install dev check lint fmt typecheck test schemas web-install web-check e2e attacks evals reset api-check ui-check
+.PHONY: install dev check lint fmt typecheck test schemas web-install web-check e2e attacks evals reset api-check ui-check diagrams
 
 install:
 	uv sync
@@ -48,3 +48,6 @@ evals:
 
 reset:
 	uv run python scripts/demo_reset.py
+
+diagrams:  # docs/diagrams/*.mmd → PNG
+	./scripts/render_diagrams.sh
