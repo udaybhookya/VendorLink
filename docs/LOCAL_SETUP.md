@@ -193,14 +193,46 @@ VendorLink reaches people through **MCP servers**, started with `npx` (comes wit
 We use [`@zencoderai/slack-mcp-server`](https://www.npmjs.com/package/@zencoderai/slack-mcp-server):
 its tool names match `config/channels/slack.json`. (The original reference server is deprecated.)
 
-1. Go to <https://api.slack.com/apps> → **Create New App** → **From scratch**. Name it, for
-   example, `VendorLink`, and pick a workspace you can install apps in. A free workspace of your
-   own is fine.
-2. **OAuth & Permissions → Bot Token Scopes**, add:
-   `chat:write`, `channels:read`, `channels:history`, `users:read`, `users.profile:read`,
-   `reactions:write`.
-   For private channels, also add `groups:read` and `groups:history`.
-3. **Install to Workspace** → Allow. Copy the **Bot User OAuth Token** (it starts with `xoxb-`).
+1. Go to <https://api.slack.com/apps> → **Create New App** → **From a manifest** (under "Or
+   start your own way"; skip the **AI agent** and **Starter app** templates, they add features
+   VendorLink does not use). Replace the editor's contents with the manifest below (JSON), then
+   under **Workspace** pick the one you will demo in (it cannot be changed later, and the
+   channels in step 5 must be in it), then **Next** → review → **Create**. If the list is empty
+   or your work workspace blocks app installs, create a free one at
+   <https://slack.com/get-started#/createnew>, then reload and start again.
+   ```json
+   {
+     "display_information": { "name": "VendorLink" },
+     "features": {
+       "bot_user": { "display_name": "VendorLink", "always_online": true }
+     },
+     "oauth_config": {
+       "scopes": {
+         "bot": [
+           "chat:write", "channels:read", "channels:history",
+           "groups:read", "groups:history",
+           "users:read", "users.profile:read", "reactions:write"
+         ]
+       }
+     },
+     "settings": {
+       "org_deploy_enabled": false,
+       "socket_mode_enabled": false,
+       "token_rotation_enabled": false
+     }
+   }
+   ```
+   (`groups:*` are only needed for private channels; keeping them is harmless.)
+2. If you picked **Blank app** instead: name it `VendorLink`, pick the workspace, then go to
+   **OAuth & Permissions → Scopes → Bot Token Scopes** and add the same eight scopes by hand.
+   Adding the first scope creates the bot user.
+3. **Install App** (left sidebar) → **Install to *your workspace*** → **Allow**. Copy the
+   **Bot User OAuth Token** (it starts with `xoxb-`); it is shown on **Install App** and on
+   **OAuth & Permissions**.
+   If Slack then shows a **"VendorLink is ready!"** dialog with Slack CLI steps (`slack login`,
+   `slack create --template …`, `slack run`), close it: those build a separate Bolt starter app.
+   VendorLink only needs the bot token; it reaches Slack through the MCP server. You also do not
+   need the `xapp-` App token (that is for Socket Mode).
 4. Find the team ID:
    ```bash
    curl -s -H "Authorization: Bearer xoxb-YOUR-TOKEN" https://slack.com/api/auth.test
