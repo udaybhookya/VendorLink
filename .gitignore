@@ -9,6 +9,11 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.coverage
+htmlcov/
+# uv.lock is the lock file; `uv export` output goes stale
+req.txt
+requirements*.txt
 
 # Secrets and local state
 .env
@@ -23,8 +28,15 @@ web/*.tsbuildinfo
 
 # OS / editors
 .DS_Store
+Thumbs.db
 .idea/
 .vscode/
+*.swp
+# Office lock files while a .docx / .xlsx is open
+~$*
+
+# Logs
+*.log
 
 # Deploy-time contacts (infra/deploy.env.example)
 infra/deploy.env
