@@ -24,6 +24,7 @@ from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
 from vl_core.llm.toolchat import ChatTurn, ToolCaller, ToolSpec
+from vl_core.llm.usage import record_usage
 from vl_core.obs import get_logger
 
 log = get_logger("adk")
@@ -91,18 +92,24 @@ class AdkToolChat:
         message = types.Content(role="user", parts=[types.Part.from_text(text=user_text)])
         reply = ""
         started = time.perf_counter()
-        model_calls = 0
+        model_calls = tokens_in = tokens_out = 0
         async for event in runner.run_async(
             user_id=user, session_id=session_id, new_message=message
         ):
             if event.author != "user" and event.content:
                 model_calls += 1
+            if event.usage_metadata is not None:
+                n_in, n_out = record_usage(event.usage_metadata)
+                tokens_in += n_in
+                tokens_out += n_out
             if event.is_final_response() and event.content:
                 reply = "".join(p.text or "" for p in event.content.parts or []) or reply
         log.info(
             "adk turn",
             model=_name(self._model),
             events=model_calls,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
             reply_chars=len(reply),
             ms=round((time.perf_counter() - started) * 1000),
         )
@@ -157,6 +164,8 @@ class AdkLiveBridge:
                 live_request_queue=queue,
                 run_config=run_config,
             ):
+                if event.usage_metadata is not None:
+                    record_usage(event.usage_metadata)
                 if event.input_transcription and event.input_transcription.text:
                     text = event.input_transcription.text
                     await on_user_transcript(text)  # consent reads her own words, not the model's

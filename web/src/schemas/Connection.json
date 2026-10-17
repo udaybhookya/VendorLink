@@ -1,0 +1,109 @@
+{
+  "additionalProperties": false,
+  "description": "One vendor agent and one retailer agent that talk through the gateway.",
+  "properties": {
+    "vendor_agent": {
+      "title": "Vendor Agent",
+      "type": "string"
+    },
+    "vendor": {
+      "description": "The vendor it acts for",
+      "title": "Vendor",
+      "type": "string"
+    },
+    "retailer_agent": {
+      "title": "Retailer Agent",
+      "type": "string"
+    },
+    "retailer": {
+      "description": "The retailer it acts for",
+      "title": "Retailer",
+      "type": "string"
+    },
+    "messages": {
+      "default": 0,
+      "title": "Messages",
+      "type": "integer"
+    },
+    "to_retailer": {
+      "default": 0,
+      "title": "To Retailer",
+      "type": "integer"
+    },
+    "to_vendor": {
+      "default": 0,
+      "title": "To Vendor",
+      "type": "integer"
+    },
+    "denied": {
+      "default": 0,
+      "title": "Denied",
+      "type": "integer"
+    },
+    "errors": {
+      "default": 0,
+      "title": "Errors",
+      "type": "integer"
+    },
+    "skills": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Skills",
+      "type": "object"
+    },
+    "decisions": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Decisions",
+      "type": "object"
+    },
+    "p95_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P95 Ms"
+    },
+    "first_seen": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "First Seen"
+    },
+    "last_seen": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Seen"
+    }
+  },
+  "required": [
+    "vendor_agent",
+    "vendor",
+    "retailer_agent",
+    "retailer"
+  ],
+  "title": "Connection",
+  "type": "object"
+}

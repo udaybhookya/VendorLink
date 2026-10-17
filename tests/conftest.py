@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -22,6 +23,16 @@ REAL_MODELS = {
 }
 for _var in MODEL_VARS:
     os.environ[_var] = ""
+# Likewise the store: a developer's .env may point at the sqlite store `make dev` is using, and
+# tests must neither read that demo state nor wipe it (nor wait on its lock).
+os.environ["VL_STORE"] = "memory"
+os.environ["VL_CHECKPOINTS"] = "memory"
+# And people: messages go to the local outbox, addressed to the contacts' defaults in config,
+# never to the real Slack channels or inboxes a developer's .env names.
+os.environ["VL_CHANNELS"] = "local"
+for _path in sorted((CONFIG_DIR / "contacts").glob("*.json")):
+    for _var, _default in re.findall(r"\$\{(\w+):-([^}]*)\}", _path.read_text()):
+        os.environ[_var] = _default
 
 
 @pytest.fixture(autouse=True)

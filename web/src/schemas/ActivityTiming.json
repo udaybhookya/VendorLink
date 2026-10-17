@@ -1,0 +1,83 @@
+{
+  "additionalProperties": false,
+  "description": "How long one kind of work takes: a single step (an agent capability or relayed skill), or\na whole flow (every event under one trace, named after the step that started it).",
+  "properties": {
+    "activity": {
+      "title": "Activity",
+      "type": "string"
+    },
+    "count": {
+      "title": "Count",
+      "type": "integer"
+    },
+    "p50_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "P50 Ms"
+    },
+    "p95_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "P95 Ms"
+    },
+    "max_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Max Ms"
+    },
+    "errors": {
+      "default": 0,
+      "title": "Errors",
+      "type": "integer"
+    },
+    "denied": {
+      "default": 0,
+      "title": "Denied",
+      "type": "integer"
+    },
+    "tokens_in": {
+      "default": 0,
+      "title": "Tokens In",
+      "type": "integer"
+    },
+    "tokens_out": {
+      "default": 0,
+      "title": "Tokens Out",
+      "type": "integer"
+    },
+    "agents": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Agents",
+      "type": "array"
+    }
+  },
+  "required": [
+    "activity",
+    "count",
+    "p50_ms",
+    "p95_ms",
+    "max_ms"
+  ],
+  "title": "ActivityTiming",
+  "type": "object"
+}

@@ -1,0 +1,96 @@
+{
+  "additionalProperties": false,
+  "description": "Authentication (who it is) and authorisation (what it may do) for one agent.",
+  "properties": {
+    "key_fingerprint": {
+      "default": "",
+      "title": "Key Fingerprint",
+      "type": "string"
+    },
+    "host": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host"
+    },
+    "permissions": {
+      "description": "Empty = every skill its policy allows",
+      "items": {
+        "type": "string"
+      },
+      "title": "Permissions",
+      "type": "array"
+    },
+    "rate_limit_per_min": {
+      "default": 0,
+      "title": "Rate Limit Per Min",
+      "type": "integer"
+    },
+    "sessions_valid_after": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sessions Valid After"
+    },
+    "key_rotation_requested": {
+      "default": false,
+      "title": "Key Rotation Requested",
+      "type": "boolean"
+    },
+    "logins": {
+      "default": 0,
+      "title": "Logins",
+      "type": "integer"
+    },
+    "last_login": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Login"
+    },
+    "scopes": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "description": "Tokens issued per skill",
+      "title": "Scopes",
+      "type": "object"
+    },
+    "authn_failures": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Authn Failures",
+      "type": "object"
+    },
+    "authz_denials": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Authz Denials",
+      "type": "object"
+    }
+  },
+  "title": "AuthSummary",
+  "type": "object"
+}

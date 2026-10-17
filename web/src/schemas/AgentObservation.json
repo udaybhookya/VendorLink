@@ -236,6 +236,23 @@
           },
           "title": "Decisions",
           "type": "object"
+        },
+        "tokens_in": {
+          "default": 0,
+          "description": "Model input tokens of its own calls",
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "default": 0,
+          "description": "Model output tokens, thinking included",
+          "title": "Tokens Out",
+          "type": "integer"
+        },
+        "model_calls": {
+          "default": 0,
+          "title": "Model Calls",
+          "type": "integer"
         }
       },
       "title": "AgentMetrics",

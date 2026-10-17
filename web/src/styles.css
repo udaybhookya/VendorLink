@@ -364,6 +364,23 @@ table.agents td:nth-child(2) { min-width: 240px; }
 .wf-bar.denied { background: var(--amber); }
 .wf-bar.error { background: var(--red); }
 
+/* observability: links inside tables, timing bars, and one agent's detail drawer */
+button.link { background: none; border: 0; box-shadow: none; padding: 0; min-height: 0; color: var(--brand); font: inherit; text-align: left; cursor: pointer; }
+button.link:hover:not(:disabled) { background: none; text-decoration: underline; }
+.bar-cell { width: 18%; min-width: 80px; }
+table.timings td:not(:last-child), td button.link { white-space: nowrap; }
+.time-bar { height: 8px; border-radius: 4px; background: var(--brand); min-width: 3px; }
+.drawer-backdrop { position: fixed; inset: 0; z-index: 40; background: rgb(15 23 42 / 0.32); display: flex; justify-content: flex-end; }
+.drawer { width: min(860px, 100%); height: 100%; overflow-y: auto; background: var(--bg); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); padding: 20px 24px 48px; }
+.drawer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.drawer-head h2 { margin: 0 0 4px; }
+.drawer h3 { margin: 24px 0 10px; font-size: 0.95rem; }
+.drawer-status { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.drawer-status .row-actions { margin-left: auto; }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 0.875rem; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
 @media (max-width: 760px) {
   .console { grid-template-columns: 1fr; }
   .sidebar { position: static; height: auto; }
@@ -373,6 +390,9 @@ table.agents td:nth-child(2) { min-width: 240px; }
   table { display: block; overflow-x: auto; }
   .sku-row { grid-template-columns: 1fr 1fr; }
   .wf-row { grid-template-columns: 1fr; }
+  .drawer { padding: 16px 16px 40px; }
+  .kv { grid-template-columns: 1fr; gap: 2px 0; }
+  .kv dd { margin-bottom: 8px; }
 }
 
 /* lists of things waiting (Today) */

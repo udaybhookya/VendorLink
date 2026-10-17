@@ -229,6 +229,28 @@ export interface ActivityItem {
   actor: string;
 }
 
+export interface ActivitySummary {
+  steps: ActivityTiming[];
+  flows: ActivityTiming[];
+}
+/**
+ * How long one kind of work takes: a single step (an agent capability or relayed skill), or
+ * a whole flow (every event under one trace, named after the step that started it).
+ */
+
+export interface ActivityTiming {
+  activity: string;
+  count: number;
+  p50_ms: number | null;
+  p95_ms: number | null;
+  max_ms: number | null;
+  errors?: number;
+  denied?: number;
+  tokens_in?: number;
+  tokens_out?: number;
+  agents?: string[];
+}
+
 export interface AgentCard {
   agent_id: string;
   name: string;
@@ -314,32 +336,124 @@ export interface AgentCredential {
   sessions_valid_after?: string | null;
 }
 
-export interface AgentEntry {
-  id: string;
+export interface AgentDetail {
+  observation: AgentObservation;
+  auth: AuthSummary;
+  connections: Connection[];
+  activities: ActivityTiming[];
+  events: AgentEvent[];
+}
+
+export interface AgentObservation {
+  agent: AgentCredential;
+  effective_status: "active" | "suspended" | "quarantined" | "revoked";
+  live: boolean;
+  metrics: AgentMetrics;
+  trust_score: number;
+  trust_factors: TrustFactor[];
+  quality_score?: number | null;
+}
+/**
+ * The gateway's record of one agent: identity, key, permissions and status.
+ *
+ * Party agents (one per vendor or retailer) hold their own key. Agents hosted in-process by a
+ * service (Guardian, Orchestrator, specialists) are registered by that host and act under it.
+ */
+
+export interface AgentMetrics {
+  calls?: number;
+  errors?: number;
+  denied?: number;
+  success_rate?: number;
+  p50_ms?: number | null;
+  p95_ms?: number | null;
+  calls_last_5m?: number;
+  needs_review_rate?: number | null;
+  decisions?: {
+    [k: string]: number;
+  };
   /**
-   * Path to agent.json, relative to the repository root
+   * Model input tokens of its own calls
    */
-  card: string;
-  enabled?: boolean;
+  tokens_in?: number;
   /**
-   * Deployables that run it in-process, e.g. vendor-svc, retailer-svc
+   * Model output tokens, thinking included
    */
-  hosts?: string[];
+  tokens_out?: number;
+  model_calls?: number;
+}
+
+export interface TrustFactor {
+  name: string;
   /**
-   * Overrides the card
+   * Points added (+) or removed (-) from 100
    */
-  transport?: ("local" | "a2a") | null;
+  impact: number;
+  detail?: string;
+}
+/**
+ * Authentication (who it is) and authorisation (what it may do) for one agent.
+ */
+
+export interface AuthSummary {
+  key_fingerprint?: string;
+  host?: string | null;
   /**
-   * Overrides the card; ${ENV} allowed
+   * Empty = every skill its policy allows
    */
-  endpoint?: string | null;
+  permissions?: string[];
+  rate_limit_per_min?: number;
+  sessions_valid_after?: string | null;
+  key_rotation_requested?: boolean;
+  logins?: number;
+  last_login?: string | null;
   /**
-   * Agent's own settings
+   * Tokens issued per skill
    */
-  settings?: {
-    [k: string]: unknown;
+  scopes?: {
+    [k: string]: number;
+  };
+  authn_failures?: {
+    [k: string]: number;
+  };
+  authz_denials?: {
+    [k: string]: number;
   };
 }
+/**
+ * One vendor agent and one retailer agent that talk through the gateway.
+ */
+
+export interface Connection {
+  vendor_agent: string;
+  /**
+   * The vendor it acts for
+   */
+  vendor: string;
+  retailer_agent: string;
+  /**
+   * The retailer it acts for
+   */
+  retailer: string;
+  messages?: number;
+  to_retailer?: number;
+  to_vendor?: number;
+  denied?: number;
+  errors?: number;
+  skills?: {
+    [k: string]: number;
+  };
+  decisions?: {
+    [k: string]: number;
+  };
+  p95_ms?: number | null;
+  first_seen?: string | null;
+  last_seen?: string | null;
+}
+/**
+ * How long one kind of work takes: a single step (an agent capability or relayed skill), or
+ * a whole flow (every event under one trace, named after the step that started it).
+ */
 
 export interface AgentEvent {
   id: string;
@@ -376,43 +490,31 @@ export interface AgentEvent {
   };
 }
 
-export interface AgentMetrics {
-  calls?: number;
-  errors?: number;
-  denied?: number;
-  success_rate?: number;
-  p50_ms?: number | null;
-  p95_ms?: number | null;
-  calls_last_5m?: number;
-  needs_review_rate?: number | null;
-  decisions?: {
-    [k: string]: number;
-  };
-}
-
-export interface AgentObservation {
-  agent: AgentCredential;
-  effective_status: "active" | "suspended" | "quarantined" | "revoked";
-  live: boolean;
-  metrics: AgentMetrics;
-  trust_score: number;
-  trust_factors: TrustFactor[];
-  quality_score?: number | null;
-}
-/**
- * The gateway's record of one agent: identity, key, permissions and status.
- *
- * Party agents (one per vendor or retailer) hold their own key. Agents hosted in-process by a
- * service (Guardian, Orchestrator, specialists) are registered by that host and act under it.
- */
-
-export interface TrustFactor {
-  name: string;
+export interface AgentEntry {
+  id: string;
   /**
-   * Points added (+) or removed (-) from 100
+   * Path to agent.json, relative to the repository root
    */
-  impact: number;
-  detail?: string;
+  card: string;
+  enabled?: boolean;
+  /**
+   * Deployables that run it in-process, e.g. vendor-svc, retailer-svc
+   */
+  hosts?: string[];
+  /**
+   * Overrides the card
+   */
+  transport?: ("local" | "a2a") | null;
+  /**
+   * Overrides the card; ${ENV} allowed
+   */
+  endpoint?: string | null;
+  /**
+   * Agent's own settings
+   */
+  settings?: {
+    [k: string]: unknown;
+  };
 }
 
 export interface AgentStatus {
@@ -1306,6 +1408,60 @@ export interface MandateOut {
 
 export interface MandateQuery {
   vendor_id: string;
+}
+
+export interface ObservabilityOverview {
+  /**
+   * vendor, retailer, hosted
+   */
+  sides: {
+    [k: string]: SideSummary;
+  };
+  /**
+   * Vendor-agent ↔ retailer-agent pairs that have talked
+   */
+  connections: number;
+  /**
+   * Cross-side messages relayed by the gateway
+   */
+  messages: number;
+  tokens_in: number;
+  tokens_out: number;
+  model_calls: number;
+  /**
+   * Gateway tokens issued
+   */
+  logins: number;
+  /**
+   * Bad signature, bad or replayed token, ended session
+   */
+  authn_failures: number;
+  /**
+   * Refused for scope, permission, status or policy
+   */
+  authz_denials: number;
+  p95_relay_ms: number | null;
+}
+/**
+ * One group of agents at a glance: the vendors' own agents, the retailers' own agents, or
+ * the agents hosted by the services (core, specialists, channels).
+ */
+
+export interface SideSummary {
+  total?: number;
+  active?: number;
+  /**
+   * Active and seen in the last 2 minutes
+   */
+  live?: number;
+  /**
+   * Messaged the other side (hosted agents: did work) in the last 15 minutes
+   */
+  talking?: number;
+  /**
+   * Suspended, quarantined, revoked or frozen
+   */
+  blocked?: number;
 }
 
 export type VendorStatus = "draft" | "verifying" | "pending_approval" | "active";

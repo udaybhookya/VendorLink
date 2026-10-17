@@ -27,6 +27,7 @@ from vl_core import schemas
 from vl_core.a2a import make_client
 from vl_core.config import ConfigError, ConfigLoader
 from vl_core.crypto import Signer
+from vl_core.llm.usage import usage_scope
 from vl_core.obs import get_logger, party_var
 from vl_core.obs.tracing import agent_span, current_ids
 from vl_core.registry import RegistryError, capability_matches
@@ -385,7 +386,8 @@ class AgentRegistry:
                 raise
             started = time.perf_counter()
             try:
-                result = await self.agent(card.agent_id).invoke(capability, payload)
+                with usage_scope() as usage:  # tokens of this agent's own model calls
+                    result = await self.agent(card.agent_id).invoke(capability, payload)
             except Exception as exc:
                 log.warning(
                     f"{card.agent_id} {capability} failed",
@@ -398,10 +400,11 @@ class AgentRegistry:
                     kind="call",
                     outcome="error",
                     latency_ms=(time.perf_counter() - started) * 1000,
-                    attrs={"error": type(exc).__name__},
+                    attrs={"error": type(exc).__name__, **usage.attrs()},
                 )
                 raise
             kind, attrs = event_attrs(result)
+            attrs = {**attrs, **usage.attrs()}
             routine = any(fnmatchcase(capability, p) for p in ROUTINE_CAPABILITIES)
             log.log(
                 logging.DEBUG if routine else logging.INFO,

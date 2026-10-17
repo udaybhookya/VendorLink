@@ -20,6 +20,7 @@ from vl_core.llm.toolchat import (
     get_tool_chat,
     set_tool_chat_override,
 )
+from vl_core.llm.usage import Usage, record_usage, usage_scope
 
 __all__ = [
     "ChatTurn",
@@ -33,9 +34,12 @@ __all__ = [
     "ToolChat",
     "ToolSpec",
     "UnconfiguredLlm",
+    "Usage",
     "get_llm",
     "get_tool_chat",
     "load_prompt",
+    "record_usage",
     "set_llm_override",
     "set_tool_chat_override",
+    "usage_scope",
 ]

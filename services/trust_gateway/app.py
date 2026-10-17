@@ -17,13 +17,16 @@ from vl_core.obs import log_startup
 from vl_core.obs.tracing import TracingMiddleware
 from vl_core.schemas import (
     Ack,
+    ActivitySummary,
     AgentCredential,
+    AgentDetail,
     AgentEvent,
     AgentObservation,
     AgentStatusSnapshot,
     AuditAppend,
     AuditRecord,
     AuditVerifyResult,
+    Connection,
     ConsentRecord,
     ControlAction,
     ControlRequest,
@@ -33,6 +36,7 @@ from vl_core.schemas import (
     HostedAgentsRegistration,
     HumanLoopSummary,
     KeyRotation,
+    ObservabilityOverview,
     OrderMandate,
     OrderMandateRequest,
     PartyConfig,
@@ -206,6 +210,25 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
     @app.get("/observability/agents")
     async def observe() -> list[AgentObservation]:
         return await observability.observe_agents(gw)
+
+    @app.get("/observability/overview")
+    async def obs_overview() -> ObservabilityOverview:
+        return await observability.overview(gw)
+
+    @app.get("/observability/connections")
+    async def obs_connections(agent_id: str | None = None) -> list[Connection]:
+        return await observability.connections(gw, agent_id)
+
+    @app.get("/observability/activities")
+    async def obs_activities() -> ActivitySummary:
+        return await observability.activities(gw)
+
+    @app.get("/observability/agents/{agent_id}")
+    async def obs_agent(agent_id: str) -> AgentDetail:
+        detail = await observability.agent_detail(gw, agent_id)
+        if detail is None:
+            raise HTTPException(404, {"error": "unknown_agent", "detail": agent_id})
+        return detail
 
     @app.get("/observability/traces")
     async def list_traces(limit: int = 50) -> list[TraceSummary]:

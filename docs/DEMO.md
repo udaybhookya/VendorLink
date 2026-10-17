@@ -89,18 +89,24 @@ Console → **Studio** → activate preset **B** live (or `demo_reset.py --scene
 
 ## Scene 4: the control plane and attacks (about 1.5 min)
 
-1. Console → **Observability** → **Agents**: every agent, live, with its host, status and scores.
-   Open a trace: one order across vendor-svc, gateway and retailer-svc, each span tagged with the
-   agent and on whose behalf it acted.
-2. **Suspend** the `terms-agent` (operator token), then **Suppliers → Terms** → refused
+1. Console → **Observability** → **Overview**: supplier, retailer and hosted agents (active,
+   live, talking now), messages relayed, model tokens, logins, authentication failures and
+   authorisation denials; below, **who talks to whom** (Maya's agent ⇄ FreshCart's, with skills
+   and Guardian decisions). Click `vendor-agent:maya` for her detail: trust breakdown, key,
+   permissions, logins, denials, timings and her own logs, with **Suspend** right there.
+2. **Activities**: how long each end-to-end flow and each step takes, and the tokens it used
+   (the Concierge's chat is the only step that spends tokens; the Guardian spends none).
+3. **Agents** → open a trace: one order across vendor-svc, gateway and retailer-svc, each span
+   tagged with the agent and on whose behalf it acted.
+4. **Suspend** the `terms-agent` (operator token), then **Suppliers → Terms** → refused
    (`agent_blocked`); resume it.
-3. In a terminal:
+5. In a terminal (`--live`, so the attacks hit the running gateway the console is watching):
    ```bash
-   uv run python scripts/attack_impostor.py      # IMPOSTOR BLOCKED
-   uv run python scripts/attack_injected_doc.py  # INJECTED DOCUMENT BLOCKED
+   uv run python scripts/attack_impostor.py --live      # IMPOSTOR BLOCKED
+   uv run python scripts/attack_injected_doc.py --live  # INJECTED DOCUMENT BLOCKED
    ```
-   Observability → **Safety** shows the denials and the quarantined uploader. The victim's trust
-   score is unaffected.
+   **Overview** counts the authentication failures; **Safety** shows the denials and the
+   quarantined uploader. The victim's trust score is unaffected.
 
 ## If something goes wrong
 

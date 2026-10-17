@@ -1,0 +1,113 @@
+{
+  "$defs": {
+    "SideSummary": {
+      "additionalProperties": false,
+      "description": "One group of agents at a glance: the vendors' own agents, the retailers' own agents, or\nthe agents hosted by the services (core, specialists, channels).",
+      "properties": {
+        "total": {
+          "default": 0,
+          "title": "Total",
+          "type": "integer"
+        },
+        "active": {
+          "default": 0,
+          "title": "Active",
+          "type": "integer"
+        },
+        "live": {
+          "default": 0,
+          "description": "Active and seen in the last 2 minutes",
+          "title": "Live",
+          "type": "integer"
+        },
+        "talking": {
+          "default": 0,
+          "description": "Messaged the other side (hosted agents: did work) in the last 15 minutes",
+          "title": "Talking",
+          "type": "integer"
+        },
+        "blocked": {
+          "default": 0,
+          "description": "Suspended, quarantined, revoked or frozen",
+          "title": "Blocked",
+          "type": "integer"
+        }
+      },
+      "title": "SideSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "sides": {
+      "additionalProperties": {
+        "$ref": "#/$defs/SideSummary"
+      },
+      "description": "vendor, retailer, hosted",
+      "title": "Sides",
+      "type": "object"
+    },
+    "connections": {
+      "description": "Vendor-agent ↔ retailer-agent pairs that have talked",
+      "title": "Connections",
+      "type": "integer"
+    },
+    "messages": {
+      "description": "Cross-side messages relayed by the gateway",
+      "title": "Messages",
+      "type": "integer"
+    },
+    "tokens_in": {
+      "title": "Tokens In",
+      "type": "integer"
+    },
+    "tokens_out": {
+      "title": "Tokens Out",
+      "type": "integer"
+    },
+    "model_calls": {
+      "title": "Model Calls",
+      "type": "integer"
+    },
+    "logins": {
+      "description": "Gateway tokens issued",
+      "title": "Logins",
+      "type": "integer"
+    },
+    "authn_failures": {
+      "description": "Bad signature, bad or replayed token, ended session",
+      "title": "Authn Failures",
+      "type": "integer"
+    },
+    "authz_denials": {
+      "description": "Refused for scope, permission, status or policy",
+      "title": "Authz Denials",
+      "type": "integer"
+    },
+    "p95_relay_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "P95 Relay Ms"
+    }
+  },
+  "required": [
+    "sides",
+    "connections",
+    "messages",
+    "tokens_in",
+    "tokens_out",
+    "model_calls",
+    "logins",
+    "authn_failures",
+    "authz_denials",
+    "p95_relay_ms"
+  ],
+  "title": "ObservabilityOverview",
+  "type": "object"
+}

@@ -246,9 +246,13 @@ async def journey(s: Settings, operator_token: str) -> None:
         "/observability/agents",
         "/observability/safety",
         "/observability/quality",
+        "/observability/overview",
+        "/observability/connections",
+        "/observability/activities",
     ):
         await call(gw, "GET", path)
     await call(gw, "GET", f"/agents/{vendor['agent_id']}")
+    await call(gw, "GET", f"/observability/agents/{vendor['agent_id']}")
     await call(gw, "GET", f"/mandates/standing/{MAYA}")
     traces = await call(gw, "GET", "/observability/traces")
     await call(gw, "GET", f"/observability/traces/{traces[0]['trace_id']}")

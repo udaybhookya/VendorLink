@@ -10,6 +10,7 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ValidationError
 
+from vl_core.llm.usage import record_usage
 from vl_core.obs import get_logger
 from vl_core.settings import Settings, get_settings
 
@@ -127,6 +128,7 @@ class GeminiLlm(JsonLlm):
             contents=contents,
             config=types.GenerateContentConfig(response_mime_type="application/json"),
         )
+        record_usage(response.usage_metadata)
         return str(response.text or "")
 
 

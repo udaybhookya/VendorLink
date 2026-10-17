@@ -47,3 +47,25 @@ def test_tool_chat_is_reused_so_the_conversation_persists() -> None:
     settings = Settings(pro_model="some-model")
     first = get_tool_chat(settings)
     assert first is not None and get_tool_chat(settings) is first
+
+
+def test_usage_scopes_count_tokens_without_double_counting() -> None:
+    from types import SimpleNamespace
+
+    from vl_core.llm import record_usage, usage_scope
+
+    meta = SimpleNamespace(
+        prompt_token_count=100, candidates_token_count=20, thoughts_token_count=5
+    )
+    assert record_usage(meta) == (100, 25)  # outside any scope: counted, not stored
+    with usage_scope() as outer:
+        record_usage(meta)
+        with usage_scope() as inner:  # a sub-agent's tokens are its own
+            record_usage(meta)
+            record_usage(None)
+        record_usage(SimpleNamespace(prompt_token_count=None, candidates_token_count=1))
+    assert inner.attrs() == {"tokens_in": 100, "tokens_out": 25, "model_calls": 1}
+    assert outer.attrs() == {"tokens_in": 100, "tokens_out": 26, "model_calls": 2}
+    with usage_scope() as empty:
+        pass
+    assert empty.attrs() == {}

@@ -1,0 +1,801 @@
+{
+  "$defs": {
+    "ActivityTiming": {
+      "additionalProperties": false,
+      "description": "How long one kind of work takes: a single step (an agent capability or relayed skill), or\na whole flow (every event under one trace, named after the step that started it).",
+      "properties": {
+        "activity": {
+          "title": "Activity",
+          "type": "string"
+        },
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "p50_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P50 Ms"
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P95 Ms"
+        },
+        "max_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Ms"
+        },
+        "errors": {
+          "default": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "denied": {
+          "default": 0,
+          "title": "Denied",
+          "type": "integer"
+        },
+        "tokens_in": {
+          "default": 0,
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "default": 0,
+          "title": "Tokens Out",
+          "type": "integer"
+        },
+        "agents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Agents",
+          "type": "array"
+        }
+      },
+      "required": [
+        "activity",
+        "count",
+        "p50_ms",
+        "p95_ms",
+        "max_ms"
+      ],
+      "title": "ActivityTiming",
+      "type": "object"
+    },
+    "AgentCredential": {
+      "additionalProperties": false,
+      "description": "The gateway's record of one agent: identity, key, permissions and status.\n\nParty agents (one per vendor or retailer) hold their own key. Agents hosted in-process by a\nservice (Guardian, Orchestrator, specialists) are registered by that host and act under it.",
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "party_type": {
+          "enum": [
+            "vendor",
+            "retailer",
+            "platform"
+          ],
+          "title": "Party Type",
+          "type": "string"
+        },
+        "kind": {
+          "default": "party",
+          "enum": [
+            "party",
+            "core",
+            "specialist",
+            "channel",
+            "host"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "description": "Vendor or retailer id the agent acts for",
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "display_name": {
+          "default": "",
+          "title": "Display Name",
+          "type": "string"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Deployable running it in-process",
+          "title": "Host"
+        },
+        "public_key": {
+          "description": "Raw Ed25519 public key, base64url (host's key if hosted)",
+          "title": "Public Key",
+          "type": "string"
+        },
+        "key_fingerprint": {
+          "default": "",
+          "title": "Key Fingerprint",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A2A base URL the gateway forwards to",
+          "title": "Endpoint"
+        },
+        "permissions": {
+          "description": "Allowed skills/capabilities; empty = policy defaults",
+          "items": {
+            "type": "string"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "rate_limit_per_min": {
+          "default": 120,
+          "minimum": 0,
+          "title": "Rate Limit Per Min",
+          "type": "integer"
+        },
+        "status": {
+          "default": "active",
+          "enum": [
+            "active",
+            "suspended",
+            "quarantined",
+            "revoked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "status_reason": {
+          "default": "",
+          "title": "Status Reason",
+          "type": "string"
+        },
+        "issued_at": {
+          "format": "date-time",
+          "title": "Issued At",
+          "type": "string"
+        },
+        "revoked_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revoked At"
+        },
+        "last_seen": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Seen"
+        },
+        "key_rotation_requested": {
+          "default": false,
+          "title": "Key Rotation Requested",
+          "type": "boolean"
+        },
+        "sessions_valid_after": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tokens issued before this are void (end session)",
+          "title": "Sessions Valid After"
+        }
+      },
+      "required": [
+        "agent_id",
+        "party_type",
+        "on_behalf_of",
+        "public_key",
+        "issued_at"
+      ],
+      "title": "AgentCredential",
+      "type": "object"
+    },
+    "AgentEvent": {
+      "additionalProperties": false,
+      "description": "Every operational fact in one shape: calls, decisions, logins, permission checks,\nscreening and control actions. The audit log stays the formal, tamper-evident record.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "call",
+            "decision",
+            "login",
+            "permission_check",
+            "screening",
+            "control",
+            "security",
+            "audit",
+            "ask",
+            "answer",
+            "notify"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "default": "",
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "action": {
+          "description": "Capability, skill, audit action or control verb",
+          "title": "Action",
+          "type": "string"
+        },
+        "target": {
+          "default": "",
+          "title": "Target",
+          "type": "string"
+        },
+        "outcome": {
+          "default": "ok",
+          "enum": [
+            "ok",
+            "denied",
+            "error"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "latency_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latency Ms"
+        },
+        "trace_id": {
+          "default": "",
+          "title": "Trace Id",
+          "type": "string"
+        },
+        "span_id": {
+          "default": "",
+          "title": "Span Id",
+          "type": "string"
+        },
+        "actor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Person, for control actions",
+          "title": "Actor"
+        },
+        "attrs": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attrs",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "ts",
+        "type",
+        "agent_id",
+        "action"
+      ],
+      "title": "AgentEvent",
+      "type": "object"
+    },
+    "AgentMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "calls": {
+          "default": 0,
+          "title": "Calls",
+          "type": "integer"
+        },
+        "errors": {
+          "default": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "denied": {
+          "default": 0,
+          "title": "Denied",
+          "type": "integer"
+        },
+        "success_rate": {
+          "default": 1.0,
+          "title": "Success Rate",
+          "type": "number"
+        },
+        "p50_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P50 Ms"
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P95 Ms"
+        },
+        "calls_last_5m": {
+          "default": 0,
+          "title": "Calls Last 5M",
+          "type": "integer"
+        },
+        "needs_review_rate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Needs Review Rate"
+        },
+        "decisions": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Decisions",
+          "type": "object"
+        },
+        "tokens_in": {
+          "default": 0,
+          "description": "Model input tokens of its own calls",
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "default": 0,
+          "description": "Model output tokens, thinking included",
+          "title": "Tokens Out",
+          "type": "integer"
+        },
+        "model_calls": {
+          "default": 0,
+          "title": "Model Calls",
+          "type": "integer"
+        }
+      },
+      "title": "AgentMetrics",
+      "type": "object"
+    },
+    "AgentObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "$ref": "#/$defs/AgentCredential"
+        },
+        "effective_status": {
+          "enum": [
+            "active",
+            "suspended",
+            "quarantined",
+            "revoked"
+          ],
+          "title": "Effective Status",
+          "type": "string"
+        },
+        "live": {
+          "title": "Live",
+          "type": "boolean"
+        },
+        "metrics": {
+          "$ref": "#/$defs/AgentMetrics"
+        },
+        "trust_score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Trust Score",
+          "type": "integer"
+        },
+        "trust_factors": {
+          "items": {
+            "$ref": "#/$defs/TrustFactor"
+          },
+          "title": "Trust Factors",
+          "type": "array"
+        },
+        "quality_score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quality Score"
+        }
+      },
+      "required": [
+        "agent",
+        "effective_status",
+        "live",
+        "metrics",
+        "trust_score",
+        "trust_factors"
+      ],
+      "title": "AgentObservation",
+      "type": "object"
+    },
+    "AuthSummary": {
+      "additionalProperties": false,
+      "description": "Authentication (who it is) and authorisation (what it may do) for one agent.",
+      "properties": {
+        "key_fingerprint": {
+          "default": "",
+          "title": "Key Fingerprint",
+          "type": "string"
+        },
+        "host": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Host"
+        },
+        "permissions": {
+          "description": "Empty = every skill its policy allows",
+          "items": {
+            "type": "string"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "rate_limit_per_min": {
+          "default": 0,
+          "title": "Rate Limit Per Min",
+          "type": "integer"
+        },
+        "sessions_valid_after": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sessions Valid After"
+        },
+        "key_rotation_requested": {
+          "default": false,
+          "title": "Key Rotation Requested",
+          "type": "boolean"
+        },
+        "logins": {
+          "default": 0,
+          "title": "Logins",
+          "type": "integer"
+        },
+        "last_login": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Login"
+        },
+        "scopes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Tokens issued per skill",
+          "title": "Scopes",
+          "type": "object"
+        },
+        "authn_failures": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Authn Failures",
+          "type": "object"
+        },
+        "authz_denials": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Authz Denials",
+          "type": "object"
+        }
+      },
+      "title": "AuthSummary",
+      "type": "object"
+    },
+    "Connection": {
+      "additionalProperties": false,
+      "description": "One vendor agent and one retailer agent that talk through the gateway.",
+      "properties": {
+        "vendor_agent": {
+          "title": "Vendor Agent",
+          "type": "string"
+        },
+        "vendor": {
+          "description": "The vendor it acts for",
+          "title": "Vendor",
+          "type": "string"
+        },
+        "retailer_agent": {
+          "title": "Retailer Agent",
+          "type": "string"
+        },
+        "retailer": {
+          "description": "The retailer it acts for",
+          "title": "Retailer",
+          "type": "string"
+        },
+        "messages": {
+          "default": 0,
+          "title": "Messages",
+          "type": "integer"
+        },
+        "to_retailer": {
+          "default": 0,
+          "title": "To Retailer",
+          "type": "integer"
+        },
+        "to_vendor": {
+          "default": 0,
+          "title": "To Vendor",
+          "type": "integer"
+        },
+        "denied": {
+          "default": 0,
+          "title": "Denied",
+          "type": "integer"
+        },
+        "errors": {
+          "default": 0,
+          "title": "Errors",
+          "type": "integer"
+        },
+        "skills": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Skills",
+          "type": "object"
+        },
+        "decisions": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Decisions",
+          "type": "object"
+        },
+        "p95_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "P95 Ms"
+        },
+        "first_seen": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Seen"
+        },
+        "last_seen": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Seen"
+        }
+      },
+      "required": [
+        "vendor_agent",
+        "vendor",
+        "retailer_agent",
+        "retailer"
+      ],
+      "title": "Connection",
+      "type": "object"
+    },
+    "TrustFactor": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "impact": {
+          "description": "Points added (+) or removed (-) from 100",
+          "title": "Impact",
+          "type": "number"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "impact"
+      ],
+      "title": "TrustFactor",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "observation": {
+      "$ref": "#/$defs/AgentObservation"
+    },
+    "auth": {
+      "$ref": "#/$defs/AuthSummary"
+    },
+    "connections": {
+      "items": {
+        "$ref": "#/$defs/Connection"
+      },
+      "title": "Connections",
+      "type": "array"
+    },
+    "activities": {
+      "items": {
+        "$ref": "#/$defs/ActivityTiming"
+      },
+      "title": "Activities",
+      "type": "array"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/AgentEvent"
+      },
+      "title": "Events",
+      "type": "array"
+    }
+  },
+  "required": [
+    "observation",
+    "auth",
+    "connections",
+    "activities",
+    "events"
+  ],
+  "title": "AgentDetail",
+  "type": "object"
+}

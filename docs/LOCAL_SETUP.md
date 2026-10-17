@@ -326,7 +326,7 @@ checklist of what must happen.
 | 10 | Sara (`/vendor?vendor=vendor:sara`) → **Products**: photo of a real food label | label fields read from the photo; P-IRT checked | B |
 | 11 | Vendor app → vendor menu → **new vendor** → join → Setup: rules + apply | approval request in console → Queue (and in Slack at Level C) | A / C |
 | 12 | Console → **Observability**: operator token from `.env` → suspend `terms-agent` → Suppliers → Terms | refused (`agent_blocked`); resume it and it works again | A |
-| 13 | `make attacks` | both BLOCKED; Observability → Safety shows the denials | A |
+| 13 | `attack_impostor.py --live` and `attack_injected_doc.py --live` (`make attacks` runs them in-process, so the console sees nothing) | both BLOCKED; Observability → Overview counts the authentication failures, Safety shows the denials | A |
 
 To start over at any point: `uv run python scripts/demo_reset.py` (or `--scene waiting|sara`).
 

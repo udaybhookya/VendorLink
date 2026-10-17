@@ -121,6 +121,9 @@ class AgentMetrics(VLModel):
     calls_last_5m: int = 0
     needs_review_rate: float | None = None
     decisions: dict[str, int] = Field(default_factory=dict)
+    tokens_in: int = Field(default=0, description="Model input tokens of its own calls")
+    tokens_out: int = Field(default=0, description="Model output tokens, thinking included")
+    model_calls: int = 0
 
 
 class TrustScoring(VLModel):
@@ -202,3 +205,96 @@ class HumanLoopSummary(VLModel):
     by_channel: dict[str, int]
     by_role: dict[str, int]
     recent: list[AgentEvent]
+
+
+class SideSummary(VLModel):
+    """One group of agents at a glance: the vendors' own agents, the retailers' own agents, or
+    the agents hosted by the services (core, specialists, channels)."""
+
+    total: int = 0
+    active: int = 0
+    live: int = Field(default=0, description="Active and seen in the last 2 minutes")
+    talking: int = Field(
+        default=0,
+        description="Messaged the other side (hosted agents: did work) in the last 15 minutes",
+    )
+    blocked: int = Field(default=0, description="Suspended, quarantined, revoked or frozen")
+
+
+class ObservabilityOverview(VLModel):
+    sides: dict[str, SideSummary] = Field(description="vendor, retailer, hosted")
+    connections: int = Field(description="Vendor-agent ↔ retailer-agent pairs that have talked")
+    messages: int = Field(description="Cross-side messages relayed by the gateway")
+    tokens_in: int
+    tokens_out: int
+    model_calls: int
+    logins: int = Field(description="Gateway tokens issued")
+    authn_failures: int = Field(description="Bad signature, bad or replayed token, ended session")
+    authz_denials: int = Field(description="Refused for scope, permission, status or policy")
+    p95_relay_ms: float | None
+
+
+class Connection(VLModel):
+    """One vendor agent and one retailer agent that talk through the gateway."""
+
+    vendor_agent: str
+    vendor: str = Field(description="The vendor it acts for")
+    retailer_agent: str
+    retailer: str = Field(description="The retailer it acts for")
+    messages: int = 0
+    to_retailer: int = 0
+    to_vendor: int = 0
+    denied: int = 0
+    errors: int = 0
+    skills: dict[str, int] = Field(default_factory=dict)
+    decisions: dict[str, int] = Field(default_factory=dict)
+    p95_ms: float | None = None
+    first_seen: datetime | None = None
+    last_seen: datetime | None = None
+
+
+class ActivityTiming(VLModel):
+    """How long one kind of work takes: a single step (an agent capability or relayed skill), or
+    a whole flow (every event under one trace, named after the step that started it)."""
+
+    activity: str
+    count: int
+    p50_ms: float | None
+    p95_ms: float | None
+    max_ms: float | None
+    errors: int = 0
+    denied: int = 0
+    tokens_in: int = 0
+    tokens_out: int = 0
+    agents: list[str] = Field(default_factory=list)
+
+
+class ActivitySummary(VLModel):
+    steps: list[ActivityTiming]
+    flows: list[ActivityTiming]
+
+
+class AuthSummary(VLModel):
+    """Authentication (who it is) and authorisation (what it may do) for one agent."""
+
+    key_fingerprint: str = ""
+    host: str | None = None
+    permissions: list[str] = Field(
+        default_factory=list, description="Empty = every skill its policy allows"
+    )
+    rate_limit_per_min: int = 0
+    sessions_valid_after: datetime | None = None
+    key_rotation_requested: bool = False
+    logins: int = 0
+    last_login: datetime | None = None
+    scopes: dict[str, int] = Field(default_factory=dict, description="Tokens issued per skill")
+    authn_failures: dict[str, int] = Field(default_factory=dict)
+    authz_denials: dict[str, int] = Field(default_factory=dict)
+
+
+class AgentDetail(VLModel):
+    observation: AgentObservation
+    auth: AuthSummary
+    connections: list[Connection]
+    activities: list[ActivityTiming]
+    events: list[AgentEvent]

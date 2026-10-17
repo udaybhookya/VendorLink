@@ -10,6 +10,10 @@ Trust score (0–100), starting from 100; weights from `config/scoring/trust.jso
   denials           −20 × share of its calls that were denied
   quality           −20 × needs-review rate (specialists)
 Quality score (specialists): 100 × (1 − needs-review rate) × success rate.
+
+Also: an overview (agents per side, messages, tokens, authentication and authorisation), the
+vendor-agent ↔ retailer-agent connections, timings of steps and whole flows, and one agent's
+detail (auth, connections, timings, its own events).
 """
 
 from __future__ import annotations
@@ -20,14 +24,21 @@ from statistics import quantiles
 from typing import TYPE_CHECKING
 
 from vl_core.schemas import (
+    ActivitySummary,
+    ActivityTiming,
     AgentCredential,
+    AgentDetail,
     AgentEvent,
     AgentMetrics,
     AgentObservation,
+    AuthSummary,
+    Connection,
     HumanLoopSummary,
+    ObservabilityOverview,
     QualityRow,
     SafetySummary,
     SecurityEvent,
+    SideSummary,
     TraceSummary,
     TraceView,
     TrustFactor,
@@ -68,6 +79,7 @@ def metrics_for(agent_id: str, events: list[AgentEvent], now: datetime) -> Agent
         for e in events
         if e.type == "decision" and e.agent_id == agent_id and "status" in e.attrs
     )
+    own_work = [e for e in events if e.agent_id == agent_id and e.type in ("call", "decision")]
     n = len(calls)
     return AgentMetrics(
         calls=n,
@@ -81,6 +93,9 @@ def metrics_for(agent_id: str, events: list[AgentEvent], now: datetime) -> Agent
         if reviews
         else None,
         decisions=dict(decisions),
+        tokens_in=sum(_num(e, "tokens_in") for e in own_work),
+        tokens_out=sum(_num(e, "tokens_out") for e in own_work),
+        model_calls=sum(_num(e, "model_calls") for e in own_work),
     )
 
 
@@ -279,4 +294,270 @@ def humans(gw: Gateway) -> HumanLoopSummary:
         by_channel=dict(Counter(str(a.attrs.get("via", "?")) for a in answered)),
         by_role=dict(Counter(str(e.attrs.get("role", "?")) for e in asks.values())),
         recent=sorted([*asks.values(), *answers.values()], key=lambda e: e.ts, reverse=True)[:30],
+    )
+
+
+# ---- overview, connections, activity timings, per-agent detail --------------------------------
+
+AUTHN = {"bad_signature", "replay", "bad_token", "session_ended"}
+TALKING_WINDOW = timedelta(minutes=15)
+
+
+def _num(e: AgentEvent, key: str) -> int:
+    value = e.attrs.get(key)
+    return int(value) if isinstance(value, int | float) and not isinstance(value, bool) else 0
+
+
+def _is_denial(e: AgentEvent) -> bool:
+    return e.outcome == "denied" and e.type in ("permission_check", "security")
+
+
+def _is_authn(e: AgentEvent) -> bool:
+    return _is_denial(e) and e.action in AUTHN
+
+
+def _relay_target(path: str) -> str | None:
+    """The receiving agent of a refused relay call, from the request path."""
+    parts = path.split("/")
+    return parts[2] if len(parts) >= 4 and parts[1] == "relay" else None
+
+
+def _pair(
+    a: AgentCredential | None, b: AgentCredential | None
+) -> tuple[AgentCredential, AgentCredential] | None:
+    """(vendor agent, retailer agent) when a and b sit on opposite sides, else None."""
+    if a is None or b is None:
+        return None
+    sides = {a.party_type: a, b.party_type: b}
+    if set(sides) != {"vendor", "retailer"}:
+        return None
+    return sides["vendor"], sides["retailer"]
+
+
+def _is_relay(e: AgentEvent, creds: dict[str, AgentCredential]) -> bool:
+    """A cross-side message the gateway relayed (only relay call events carry a target agent)."""
+    return (
+        e.type == "call"
+        and _pair(creds.get(e.agent_id), creds.get(e.target)) is not None
+        and e.agent_id in creds
+    )
+
+
+def _group(cred: AgentCredential) -> str | None:
+    if cred.kind == "host":
+        return None
+    if cred.kind == "party":
+        return cred.party_type if cred.party_type in ("vendor", "retailer") else None
+    return "hosted"
+
+
+async def overview(gw: Gateway) -> ObservabilityOverview:
+    now = datetime.now(UTC)
+    events = list(gw.control.events)
+    creds = {c.agent_id: c for c in await gw.store.credentials.query()}
+    frozen = await gw.control.frozen()
+    recent_activity: set[str] = set()
+    for e in events:
+        if now - e.ts > TALKING_WINDOW:
+            continue
+        if _is_relay(e, creds):
+            recent_activity.update((e.agent_id, e.target))
+        elif e.type in ("call", "decision") and not e.target:
+            recent_activity.add(e.agent_id)
+    sides = {k: SideSummary() for k in ("vendor", "retailer", "hosted")}
+    for cred in creds.values():
+        group = _group(cred)
+        if group is None:
+            continue
+        side = sides[group]
+        effective = await gw.control.effective(cred, frozen)
+        side.total += 1
+        if effective == "active":
+            side.active += 1
+            if cred.last_seen is not None and now - cred.last_seen <= LIVE_WINDOW:
+                side.live += 1
+        else:
+            side.blocked += 1
+        if cred.agent_id in recent_activity:
+            side.talking += 1
+    relays = [e for e in events if _is_relay(e, creds)]
+    return ObservabilityOverview(
+        sides=sides,
+        connections=len(_connections(events, creds)),
+        messages=len(relays),
+        tokens_in=sum(_num(e, "tokens_in") for e in events),
+        tokens_out=sum(_num(e, "tokens_out") for e in events),
+        model_calls=sum(_num(e, "model_calls") for e in events),
+        logins=sum(1 for e in events if e.type == "login"),
+        authn_failures=sum(1 for e in events if _is_authn(e)),
+        authz_denials=sum(1 for e in events if _is_denial(e) and not _is_authn(e)),
+        p95_relay_ms=_percentile([e.latency_ms for e in relays if e.latency_ms is not None], 95),
+    )
+
+
+def _connections(
+    events: list[AgentEvent], creds: dict[str, AgentCredential]
+) -> dict[tuple[str, str], Connection]:
+    pairs: dict[tuple[str, str], Connection] = {}
+    latencies: dict[tuple[str, str], list[float]] = defaultdict(list)
+
+    def connection(v: AgentCredential, r: AgentCredential, ts: datetime) -> Connection:
+        key = (v.agent_id, r.agent_id)
+        conn = pairs.get(key)
+        if conn is None:
+            conn = pairs[key] = Connection(
+                vendor_agent=v.agent_id,
+                vendor=v.on_behalf_of,
+                retailer_agent=r.agent_id,
+                retailer=r.on_behalf_of,
+                first_seen=ts,
+            )
+        conn.first_seen = min(conn.first_seen or ts, ts)
+        conn.last_seen = max(conn.last_seen or ts, ts)
+        return conn
+
+    for e in events:
+        if e.type == "call":
+            pair = _pair(creds.get(e.agent_id), creds.get(e.target))
+            if pair is None:
+                continue
+            conn = connection(*pair, e.ts)
+            conn.messages += 1
+            if creds[e.agent_id].party_type == "vendor":
+                conn.to_retailer += 1
+            else:
+                conn.to_vendor += 1
+            conn.skills[e.action] = conn.skills.get(e.action, 0) + 1
+            if e.outcome == "error":
+                conn.errors += 1
+            if e.latency_ms is not None:
+                latencies[(pair[0].agent_id, pair[1].agent_id)].append(e.latency_ms)
+        elif e.type == "decision" and "status" in e.attrs:
+            pair = _pair(creds.get(e.agent_id), creds.get(e.target))
+            if pair is not None:
+                conn = connection(*pair, e.ts)
+                status = str(e.attrs["status"])
+                conn.decisions[status] = conn.decisions.get(status, 0) + 1
+        elif _is_denial(e):
+            receiver = _relay_target(e.target)
+            pair = _pair(creds.get(e.agent_id), creds.get(receiver or ""))
+            if pair is not None:
+                connection(*pair, e.ts).denied += 1
+    for key, values in latencies.items():
+        pairs[key].p95_ms = _percentile(values, 95)
+    return pairs
+
+
+async def connections(gw: Gateway, agent_id: str | None = None) -> list[Connection]:
+    creds = {c.agent_id: c for c in await gw.store.credentials.query()}
+    rows = list(_connections(list(gw.control.events), creds).values())
+    if agent_id:
+        rows = [c for c in rows if agent_id in (c.vendor_agent, c.retailer_agent)]
+    epoch = datetime.min.replace(tzinfo=UTC)
+    return sorted(rows, key=lambda c: c.last_seen or epoch, reverse=True)
+
+
+def _timing(name: str, rows: list[tuple[AgentEvent, float | None]]) -> ActivityTiming:
+    durations = [d for _, d in rows if d is not None]
+    return ActivityTiming(
+        activity=name,
+        count=len(rows),
+        p50_ms=_percentile(durations, 50),
+        p95_ms=_percentile(durations, 95),
+        max_ms=round(max(durations), 1) if durations else None,
+        errors=sum(1 for e, _ in rows if e.outcome == "error"),
+        denied=sum(1 for e, _ in rows if e.outcome == "denied"),
+        tokens_in=sum(_num(e, "tokens_in") for e, _ in rows),
+        tokens_out=sum(_num(e, "tokens_out") for e, _ in rows),
+        agents=sorted({e.agent_id for e, _ in rows})[:12],
+    )
+
+
+def _step_name(e: AgentEvent, creds: dict[str, AgentCredential]) -> str:
+    return f"relay:{e.action}" if e.target in creds and e.type == "call" else e.action
+
+
+def _steps(
+    events: list[AgentEvent], creds: dict[str, AgentCredential], agent_id: str | None = None
+) -> list[ActivityTiming]:
+    """Timed work: in-process agent calls (capability) and relayed messages (relay:skill).
+    Gateway decision events repeat a relay's outcome without a duration, so they are skipped."""
+    grouped: dict[str, list[tuple[AgentEvent, float | None]]] = defaultdict(list)
+    for e in events:
+        if agent_id and e.agent_id != agent_id:
+            continue
+        if e.type in ("call", "decision") and e.latency_ms is not None:
+            grouped[_step_name(e, creds)].append((e, e.latency_ms))
+        elif e.type == "call" and e.outcome == "error":
+            grouped[_step_name(e, creds)].append((e, None))
+    for e in events:  # calls the registry refused (blocked agent, missing permission)
+        mine = not agent_id or e.agent_id == agent_id
+        if mine and e.type == "permission_check" and e.action in grouped:
+            grouped[e.action].append((e, None))
+    rows = [_timing(name, rows) for name, rows in grouped.items()]
+    return sorted(rows, key=lambda t: (-(t.p95_ms or 0), t.activity))
+
+
+async def activities(gw: Gateway) -> ActivitySummary:
+    events = list(gw.control.events)
+    creds = {c.agent_id: c for c in await gw.store.credentials.query()}
+    traced: dict[str, list[AgentEvent]] = defaultdict(list)
+    for e in events:
+        if e.trace_id:
+            traced[e.trace_id].append(e)
+    flows: dict[str, list[tuple[AgentEvent, float | None]]] = defaultdict(list)
+    for trace_id, evs in traced.items():
+        evs.sort(key=lambda e: e.ts)
+        root = evs[0]
+        summary = summarise(trace_id, evs)
+        # One row per flow: carry the flow's outcome and token totals on a synthetic event.
+        flow_event = root.model_copy(
+            update={
+                "outcome": summary.outcome,
+                "attrs": {
+                    "tokens_in": sum(_num(e, "tokens_in") for e in evs),
+                    "tokens_out": sum(_num(e, "tokens_out") for e in evs),
+                },
+            }
+        )
+        flows[_step_name(root, creds)].append((flow_event, summary.duration_ms))
+    return ActivitySummary(
+        steps=_steps(events, creds),
+        flows=sorted(
+            (_timing(name, rows) for name, rows in flows.items()),
+            key=lambda t: (-(t.p95_ms or 0), t.activity),
+        ),
+    )
+
+
+def _auth(cred: AgentCredential, events: list[AgentEvent]) -> AuthSummary:
+    own = [e for e in events if e.agent_id == cred.agent_id]
+    logins = [e for e in own if e.type == "login"]
+    return AuthSummary(
+        key_fingerprint=cred.key_fingerprint,
+        host=cred.host,
+        permissions=cred.permissions,
+        rate_limit_per_min=cred.rate_limit_per_min,
+        sessions_valid_after=cred.sessions_valid_after,
+        key_rotation_requested=cred.key_rotation_requested,
+        logins=len(logins),
+        last_login=max((e.ts for e in logins), default=None),
+        scopes=dict(Counter(e.action for e in logins)),
+        authn_failures=dict(Counter(e.action for e in own if _is_authn(e))),
+        authz_denials=dict(Counter(e.action for e in own if _is_denial(e) and not _is_authn(e))),
+    )
+
+
+async def agent_detail(gw: Gateway, agent_id: str) -> AgentDetail | None:
+    observation = next((o for o in await observe_agents(gw) if o.agent.agent_id == agent_id), None)
+    if observation is None:
+        return None
+    events = list(gw.control.events)
+    creds = {c.agent_id: c for c in await gw.store.credentials.query()}
+    return AgentDetail(
+        observation=observation,
+        auth=_auth(observation.agent, events),
+        connections=await connections(gw, agent_id),
+        activities=_steps(events, creds, agent_id),
+        events=gw.control.recent(agent_id=agent_id, limit=200),
     )
