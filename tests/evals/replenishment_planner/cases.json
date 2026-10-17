@@ -1,12 +1,12 @@
 {
   "cases": [
-    {"name": "hub4_anchor", "demand": [{"sku": "spinach", "qty": 350, "unit": "bunch", "pickup_local": "05:30"}], "lines": [["spinach", "350", "40"]], "pickup_local": "05:30"},
-    {"name": "two_skus", "demand": [{"sku": "spinach", "qty": 100, "unit": "bunch", "pickup_local": "07:00"}, {"sku": "tomato", "qty": 20, "unit": "kg", "pickup_local": "06:30"}], "lines": [["spinach", "100", "40"], ["tomato", "20", "70"]], "pickup_local": "06:30"},
-    {"name": "unknown_sku_skipped", "demand": [{"sku": "mint", "qty": 10, "unit": "bunch", "pickup_local": "07:00"}, {"sku": "spinach", "qty": 5, "unit": "bunch", "pickup_local": "08:00"}], "lines": [["spinach", "5", "40"]], "pickup_local": "08:00"},
-    {"name": "unit_mismatch_skipped", "demand": [{"sku": "spinach", "qty": 3, "unit": "kg", "pickup_local": "07:00"}], "lines": [], "pickup_local": null},
-    {"name": "nothing_matches", "demand": [{"sku": "lotus", "qty": 3, "unit": "bunch", "pickup_local": "07:00"}], "lines": [], "pickup_local": null},
-    {"name": "late_pickup", "demand": [{"sku": "tomato", "qty": 50, "unit": "kg", "pickup_local": "18:00"}], "lines": [["tomato", "50", "70"]], "pickup_local": "18:00"},
-    {"name": "large_qty", "demand": [{"sku": "spinach", "qty": 2000, "unit": "bunch", "pickup_local": "06:00"}], "lines": [["spinach", "2000", "40"]], "pickup_local": "06:00"},
-    {"name": "one_unit", "demand": [{"sku": "tomato", "qty": 1, "unit": "kg", "pickup_local": "09:59"}], "lines": [["tomato", "1", "70"]], "pickup_local": "09:59"}
+    {"name": "gifting_desk_anchor", "demand": [{"sku": "lavender candle", "qty": 50, "unit": "piece", "pickup_local": "08:00"}], "lines": [["lavender candle", "50", "220"]], "pickup_local": "08:00"},
+    {"name": "two_skus", "demand": [{"sku": "lavender candle", "qty": 10, "unit": "piece", "pickup_local": "11:00"}, {"sku": "candle gift set", "qty": 4, "unit": "gift_set", "pickup_local": "10:30"}], "lines": [["lavender candle", "10", "220"], ["candle gift set", "4", "650"]], "pickup_local": "10:30"},
+    {"name": "unknown_sku_skipped", "demand": [{"sku": "rose candle", "qty": 20, "unit": "piece", "pickup_local": "11:00"}, {"sku": "lavender candle", "qty": 5, "unit": "piece", "pickup_local": "12:00"}], "lines": [["lavender candle", "5", "220"]], "pickup_local": "12:00"},
+    {"name": "unit_mismatch_skipped", "demand": [{"sku": "lavender candle", "qty": 3, "unit": "gift_set", "pickup_local": "11:00"}], "lines": [], "pickup_local": null},
+    {"name": "nothing_matches", "demand": [{"sku": "brass lamp", "qty": 3, "unit": "piece", "pickup_local": "11:00"}], "lines": [], "pickup_local": null},
+    {"name": "late_pickup", "demand": [{"sku": "candle gift set", "qty": 2, "unit": "gift_set", "pickup_local": "18:00"}], "lines": [["candle gift set", "2", "650"]], "pickup_local": "18:00"},
+    {"name": "large_qty", "demand": [{"sku": "lavender candle", "qty": 2000, "unit": "piece", "pickup_local": "10:00"}], "lines": [["lavender candle", "2000", "220"]], "pickup_local": "10:00"},
+    {"name": "one_unit", "demand": [{"sku": "candle gift set", "qty": 1, "unit": "gift_set", "pickup_local": "09:59"}], "lines": [["candle gift set", "1", "650"]], "pickup_local": "09:59"}
   ]
 }

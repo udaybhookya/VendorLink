@@ -87,6 +87,52 @@ def day(n: int) -> date:
     return date.today() + timedelta(days=n)
 
 
+async def outbox(s: Settings, base: str | None = None) -> list[dict[str, Any]]:
+    """Slack / Gmail messages sent while VL_CHANNELS=local."""
+    return list(await call(base or s.retailer_svc_url, "GET", "/dev/outbox"))
+
+
+async def reply(
+    s: Settings, msg: dict[str, Any], text: str, by: str = "U-asha", base: str | None = None
+) -> None:
+    """Answer an outbox message as a person would in Slack or Gmail."""
+    channel = msg["message"]["channel"]
+    await call(
+        base or s.retailer_svc_url,
+        "POST",
+        f"/dev/outbox/{channel}/{msg['id']}/reply",
+        json={"text": text, "by": by},
+    )
+
+
+async def tick(s: Settings) -> dict[str, Any]:
+    """One Liaison pass on both sides: read replies, remind, escalate."""
+    await call(s.vendor_svc_url, "POST", "/dev/tick")
+    return dict(await call(s.retailer_svc_url, "POST", "/dev/tick"))
+
+
+async def use_terms(s: Settings, template_id: str, preset: str = "A") -> None:
+    """The buyer puts a term template first in the active Retailer Profile (Studio, config API):
+    new orders carry its payment days."""
+    active = await call(s.retailer_svc_url, "GET", f"/retailers/{RETAILER}/config/active")
+    profile = active["retailer_profile"]
+    templates = sorted(profile["term_templates"], key=lambda t: t["id"] != template_id)
+    if templates[0]["id"] != template_id:
+        raise DemoError(f"no term template {template_id!r}")
+    await call(
+        s.retailer_svc_url,
+        "PUT",
+        f"/config/retailer_profiles/{profile['id']}",
+        json={**profile, "term_templates": templates},
+    )
+    await call(
+        s.retailer_svc_url,
+        "POST",
+        f"/retailers/{RETAILER}/config/activate",
+        json={"preset": preset},
+    )
+
+
 # ---- demo scenes: state to start a demo from (scripts/demo_reset.py --scene …; docs/DEMO.md)
 
 SARA = "vendor:sara"
@@ -97,16 +143,16 @@ SARA_LABEL = (
 
 
 async def scene_waiting(s: Settings) -> dict[str, Any]:
-    """Config A, with work waiting on people: tomorrow's replenishment run has paused for the
-    buyer (Slack, in the dev outbox) and asked Maya about mint (in-app, Telugu); FreshCart's
+    """Config A, with work waiting on people: tomorrow's order run has paused for the buyer
+    (Slack, in the dev outbox) and asked Maya about rose candles (in-app, Telugu); FreshCart's
     payment terms wait on her Deals tab."""
-    policy = await call(s.retailer_svc_url, "GET", "/config/retailer_policies/default_qc")
-    # 13 000: Hub 4's 350 × ₹40 needs the buyer, the other stores go out on their own
+    policy = await call(s.retailer_svc_url, "GET", "/config/retailer_policies/default_gifting")
+    # 10 000: the gifting desk's 50 × ₹220 needs the buyer, the other stores go out on their own
     await call(
         s.retailer_svc_url,
         "PUT",
-        "/config/retailer_policies/default_qc",
-        json={**policy, "auto_order_max_value": "13000"},
+        "/config/retailer_policies/default_gifting",
+        json={**policy, "auto_order_max_value": "10000"},
     )
     await call(
         s.retailer_svc_url, "POST", f"/retailers/{RETAILER}/config/activate", json={"preset": "A"}

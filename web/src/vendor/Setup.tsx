@@ -16,6 +16,7 @@ export function Setup({ vendor, t, tick, onChange }: { vendor: Vendor; t: T; tic
   const [retailers, setRetailers] = useState<DirectoryEntry[]>([]);
   const [invites, setInvites] = useState<VendorInvite[]>([]);
   const [checks, setChecks] = useState<VendorCheckOut | null>(null);
+  const [editRules, setEditRules] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -36,15 +37,37 @@ export function Setup({ vendor, t, tick, onChange }: { vendor: Vendor; t: T; tic
     }
   };
 
+  // where she is: documents in, rules signed, at least one retailer
+  const have = new Map((vendor.docs ?? []).map((d) => [d.doc_type, d.status]));
+  const steps = [
+    { key: "documents", done: Boolean(docs) && Object.values(docs?.roles ?? {}).every((specs) =>
+        (specs as DocSpec[]).some((spec) => have.has(spec.id) && have.get(spec.id) !== "failed")) },
+    { key: "rules", done: Boolean(rules?.mandate?.signature) },
+    { key: "retailers", done: (vendor.retailers ?? []).length > 0 },
+  ];
+
   return (
     <section className="stack setup-page">
+      <ol className="steps-bar">
+        {steps.map((s, i) => (
+          <li key={s.key} className={s.done ? "done" : ""}>
+            <span className="step-mark">{s.done ? <Icon name="check" size={14} /> : i + 1}</span>
+            {t(`ui.setup.step_${s.key}`)}
+          </li>
+        ))}
+      </ol>
       {error && <div className="error">{error}</div>}
       <Documents vendor={vendor} t={t} docs={docs} save={(body) => guard(() => api(VENDOR_URL, `/vendors/${vendor.id}/documents`, { method: "POST", json: body }))} />
 
       <div className="card-plain">
         <h3>{t("ui.setup.rules_title")}</h3>
         {rules?.mandate && <Rules vendor={vendor} t={t} tick={tick} />}
-        <RulesForm vendor={vendor} t={t} retailers={retailers} rules={rules} onChange={onChange} setError={setError} />
+        {rules?.mandate && !editRules ? (
+          <button className="secondary" onClick={() => setEditRules(true)}>{t("ui.setup.change_rules")}</button>
+        ) : (
+          <RulesForm vendor={vendor} t={t} retailers={retailers} rules={rules} setError={setError}
+            onChange={() => { setEditRules(false); onChange(); }} />
+        )}
       </div>
 
       <div className="card-plain">

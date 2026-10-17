@@ -52,8 +52,10 @@ class InProcessVendorPort:
     async def draft_listing(self, vendor_id: str, sub: ListingSubmission) -> ListingDraftView:
         return await self.s.listing_draft_view(vendor_id, sub)
 
-    async def confirm_listing(self, vendor_id: str, listing_id: str) -> Ack:
-        return await self.s.confirm_listing(vendor_id, listing_id)
+    async def confirm_listing(
+        self, vendor_id: str, listing_id: str, image: str = "original"
+    ) -> Ack:
+        return await self.s.confirm_listing(vendor_id, listing_id, image=image)
 
     async def submit_document(self, vendor_id: str, upload: DocumentUpload) -> VendorDoc:
         import base64

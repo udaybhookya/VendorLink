@@ -5,7 +5,7 @@ import pytest
 from tests.unit.gateway.conftest import FRESHCART, GW, MAYA, VENDOR, Env, order
 from vl_core.a2a import GatewayClient, GatewayError, make_client, make_envelope
 from vl_core.crypto import LocalSigner, b64e, canonical_json
-from vl_core.schemas import Decision, DecisionStatus
+from vl_core.schemas import Ack, Decision, DecisionStatus, ListingStatusUpdate
 
 
 async def events(env: Env) -> list[str]:
@@ -180,3 +180,22 @@ async def test_credentials_need_admin_token(env: Env) -> None:
             },
         )
     assert r.status_code == 403
+
+
+async def test_listing_status_naming_another_retailer_is_out_of_scope(env: Env) -> None:
+    """listing.status: a retailer may only report on listings in its own name."""
+    with pytest.raises(GatewayError) as err:
+        await env.retailer.relay(
+            MAYA,
+            "listing.status",
+            ListingStatusUpdate(
+                listing_id="lst-1",
+                vendor_id="vendor:maya",
+                retailer_id="retailer:other",
+                status="published",
+            ),
+            on_behalf_of="retailer:freshcart",
+            response_model=Ack,
+        )
+    assert err.value.code == "out_of_scope"
+    assert env.received == []

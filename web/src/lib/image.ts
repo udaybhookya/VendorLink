@@ -1,5 +1,6 @@
-/** Downscale a photo to at most `max` px on the long side; returns base64 JPEG (no data: prefix). */
-export async function downscale(file: File, max = 1024): Promise<{ data_b64: string; content_type: string }> {
+/** Downscale a photo to at most `max` px on the long side; returns base64 JPEG (no data: prefix).
+ *  1600 keeps a tall 9:16 phone photo 900 px wide, above the retailers' minimums. */
+export async function downscale(file: File, max = 1600): Promise<{ data_b64: string; content_type: string }> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");

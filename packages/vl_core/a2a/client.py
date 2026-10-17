@@ -36,6 +36,7 @@ from vl_core.schemas import (
     TokenRequest,
     TokenResponse,
 )
+from vl_core.settings import get_settings
 
 ADMIN_HEADER = "X-VL-Admin-Token"
 
@@ -78,7 +79,13 @@ class GatewayClient:
         return b64e(await self._signer.public_key(self.agent_id))
 
     async def _post(
-        self, path: str, body: BaseModel, *, jti: str | None = None, token: str | None = None
+        self,
+        path: str,
+        body: BaseModel,
+        *,
+        jti: str | None = None,
+        token: str | None = None,
+        wait_seconds: float = 30.0,
     ) -> httpx.Response:
         raw = canonical_json(body)
         jti = jti or uuid.uuid4().hex
@@ -92,7 +99,7 @@ class GatewayClient:
         }
         if token:
             headers["authorization"] = f"Bearer {token}"
-        async with make_client(self.base_url) as client:
+        async with make_client(self.base_url, timeout=wait_seconds) as client:
             response = await client.post(path, content=raw, headers=headers)
         try:
             _raise_for(response)
@@ -131,7 +138,11 @@ class GatewayClient:
             jti=token.jti,
         )
         response = await self._post(
-            f"/relay/{to_agent}/{skill}", envelope, jti=token.jti, token=token.token
+            f"/relay/{to_agent}/{skill}",
+            envelope,
+            jti=token.jti,
+            token=token.token,
+            wait_seconds=get_settings().vl_relay_timeout_seconds,
         )
         return response_model.model_validate(response.json())
 

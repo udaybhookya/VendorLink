@@ -25,7 +25,7 @@ async def test_hosted_agents_are_registered_and_visible(stack: Settings) -> None
     await reset(stack, "A")
     agents = {a["agent_id"]: a for a in await call(stack.trust_gateway_url, "GET", "/agents")}
     assert agents["host:retailer-svc"]["kind"] == "host"
-    grader = agents["produce-grader"]
+    grader = agents["craft-quality-checker"]
     assert grader["kind"] == "specialist" and grader["host"] == "retailer-svc"
     assert grader["key_fingerprint"] == agents["host:retailer-svc"]["key_fingerprint"]
     assert agents["guardian"]["host"] == "vendor-svc"
@@ -43,7 +43,7 @@ async def test_one_trace_follows_an_order_across_services(stack: Settings) -> No
     decision = next(e for e in view["events"] if e["action"] == "guardian.decide")
     assert decision["type"] == "decision" and decision["attrs"]["status"] == "red"
     assert decision["on_behalf_of"] == "vendor:maya"
-    assert order["status"] == "awaiting_vendor"
+    assert order["status"] == "queued"  # the counter changes the value past policy: buyer decides
 
 
 async def test_suspending_a_specialist_stops_it_inside_retailer_svc(stack: Settings) -> None:
@@ -127,15 +127,15 @@ async def test_supplier_registers_gets_invited_applies_and_declines(stack: Setti
         "POST",
         "/vendors",
         json={
-            "display_name": "Meena Flowers",
+            "display_name": "Meena Crafts",
             "legal_name": "Maya Thomas",
-            "business_profile": "fresh_produce",
+            "business_profile": "handmade_gifts",
             "country": "IN",
             "language": "te",
         },
     )
     vid = vendor["id"]
-    assert vid == "vendor:meena-flowers" and vendor["agent_id"] == "vendor-agent:meena-flowers"
+    assert vid == "vendor:meena-crafts" and vendor["agent_id"] == "vendor-agent:meena-crafts"
     gw_agent = await call(stack.trust_gateway_url, "GET", f"/agents/{vendor['agent_id']}")
     assert gw_agent["status"] == "active" and gw_agent["key_fingerprint"].startswith("SHA256:")
 
@@ -145,7 +145,7 @@ async def test_supplier_registers_gets_invited_applies_and_declines(stack: Setti
         stack.retailer_svc_url,
         "POST",
         f"/retailers/{RETAILER}/suppliers/{vid}/invite",
-        json={"message": "Supply spinach to our hubs?"},
+        json={"message": "Supply candles to our gifting desk?"},
     )
     invites = await call(stack.vendor_svc_url, "GET", f"/vendors/{vid}/invites")
     assert invites[0]["retailer_id"] == RETAILER and invites[0]["retailer_name"]

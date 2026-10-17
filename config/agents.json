@@ -66,6 +66,16 @@
       }
     },
     {
+      "id": "craft-quality-checker",
+      "card": "agents/specialists/craft_quality_checker/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
+    },
+    {
       "id": "compliance-auditor",
       "card": "agents/specialists/compliance_auditor/agent.json",
       "hosts": [
@@ -122,6 +132,36 @@
         "vendor-svc",
         "retailer-svc"
       ]
+    },
+    {
+      "id": "catalogue-image-checker",
+      "card": "agents/specialists/catalogue_image_checker/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
+    },
+    {
+      "id": "image-enhancer",
+      "card": "agents/specialists/image_enhancer/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
+    },
+    {
+      "id": "listing-enricher",
+      "card": "agents/specialists/listing_enricher/agent.json",
+      "hosts": [
+        "retailer-svc"
+      ],
+      "settings": {
+        "llm_tier": "flash"
+      }
     }
   ]
 }

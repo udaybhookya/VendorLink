@@ -31,26 +31,32 @@ uv run python scripts/demo_reset.py               # reset again after the smoke 
 - With `VL_CHANNELS=local` (the default), Slack and Gmail messages land in **Console → Outbox
   (dev)**, where you can reply as the person. With a real workspace (`VL_CHANNELS=mcp`), show
   the Slack message on a phone instead.
-- Open the tabs in advance: console **Orders**, **Tasks**, **Suppliers**, **Observability**,
+- Open the tabs in advance: console **Inbox**, **Orders**, **Suppliers**, **Observability**,
   **Trust**; Maya's **Deals** tab.
 
 ## Scene 1: the order loop (Config A, about 3 min)
 
-*"Maya grows spinach, tomatoes and mint on a small farm. She set her rules once, by voice: at most 300
-bunches a day, pickup not before 6 am, a price floor, paid within 7 days."*
+*"Maya pours candles by hand at home in Hyderabad. She set her rules once, by voice: at least ₹180
+a candle, at most 40 a day, pickup not before 10 am, paid within 15 days."*
 
-1. Maya → **Setup**: show her rules, the standing mandate signed by her Guardian with her
+1. Maya → **My shop**: show her rules, the standing mandate signed by her Guardian with her
    consent.
-2. Console → **Orders** → vendor Maya, store **Hub 4**, tomorrow → **Place**. The
-   Replenishment Planner asks for **350 bunches, pickup 05:30**.
-3. The Guardian returns **red**: `QTY_OVER_DAILY_MAX`, `PICKUP_BEFORE_WINDOW`. It counters with
-   **300 @ 06:00** (order v2; v1 is never changed). The retailer's policy auto-accepts the counter
-   (within `auto_accept_counter_max_delta`). *"No model decided this. The Guardian is plain code."*
-4. Maya → **Deals**: the deal is **amber**, waiting for her. Switch her app to **తెలుగు** with the
+2. Console → **Orders** → vendor Maya, store **Corporate gifting desk**, tomorrow → **Place**.
+   The corporate gifting buyer wants **50 candles at ₹220, pickup 08:00, paid in 45 days**.
+3. The Guardian returns **red**: `QTY_OVER_DAILY_MAX`, `PICKUP_BEFORE_WINDOW`, `PAYMENT_TOO_LATE`.
+   It counters with **40 @ 10:00, paid in 15 days** (order v2; v1 is never changed). *"No model
+   decided this. The Guardian is plain code."*
+4. The counter changes the order's value by 20%; FreshCart's gifting policy auto-accepts at most
+   10%, so it goes to the console **Inbox** (asked v1 against countered v2, the value change and
+   the Guardian's reasons in words) and the Human Liaison asks the buyer on Slack. Either click
+   **Accept the counter** in the Inbox, or in **Outbox (dev)** (or Slack on a phone) reply
+   **approve** as the buyer. Within a Liaison tick
+   (or `curl -X POST localhost:8002/dev/tick`) the counter is accepted.
+5. Maya → **Deals**: the deal is **amber**, waiting for her. Switch her app to **తెలుగు** with the
    🌐 picker in the header: the read-back, buttons and chat are now in Telugu. *"Her language,
    her choice."* She says **"అవును"** (yes): type it in **Chat**, or tap Yes on the deal.
-5. The deal shows **signed**: an Order Mandate whose consent hash matches the exact proposal.
-6. Console → **Trust** → **Verify** the audit chain ✓, then **Tamper** a record → verify shows
+6. The deal shows **signed**: an Order Mandate whose consent hash matches the exact proposal.
+7. Console → **Trust** → **Verify** the audit chain ✓, then **Tamper** a record → verify shows
    the broken seq. *"Every state change is one audit record, hash-chained."*
 
 ## Scene 2: agents that ask people (Config A, about 2 min)
@@ -61,29 +67,53 @@ uv run python scripts/demo_reset.py --scene waiting
 
 *"Most of this runs as a batch at night. Nobody watches a screen."*
 
-1. Console → **Tasks**: tomorrow's replenishment run is **waiting**. Hub 7 already went out
-   (within policy); Hub 4 is over the auto-order limit (the scene saved ₹13 000 in Studio) and
-   waits for the buyer.
+1. Console → **Orders** → Replenishment runs: tomorrow's run is **waiting**; the Inbox shows the held order. Hub 7 and Hub 12 already went out
+   (within policy); the corporate gifting desk's 50 × ₹220 is over the auto-order limit (the
+   scene saved ₹10 000 in Studio) and waits for the buyer.
 2. Console → **Outbox (dev)**: the buyer's Slack message ("over the auto-order limit…"). Reply
    **approve** as the buyer. Within a Liaison tick (or `curl -X POST localhost:8002/dev/tick`)
    the job resumes from where it paused (LangGraph checkpoint) and sends the order.
-3. Maya → **Deals** → **Questions**: the planner asked, in her language, how much mint she can
-   supply. She answers **45**; FreshCart sees it under the supplier.
-4. Maya → **Deals** → **Terms**: FreshCart's payment terms (7 days; the scene proposed them,
-   live it is **Suppliers → Terms**). Her Guardian checked them against her rules, so terms
-   paid later than 7 days could not be accepted. She accepts; console → **Suppliers** shows
-   *terms approved*.
+3. Maya → **Deals** → **Questions**: the planner asked, in her language, how many rose candles
+   she can supply. She answers **20**; FreshCart sees it under the supplier.
+4. Maya → **Deals** → **Terms**: FreshCart's corporate gifting terms (45 days; the scene proposed
+   them, live it is **Suppliers → Terms**). Her Guardian checked them against her rules: she
+   allows 15 days, so she cannot accept them. *"Her rules hold even for terms."* (After Studio
+   puts the 15-day template first, the same step proposes terms she can accept.)
 5. *"Slack and email may nudge Maya back to the app. They can never carry her consent."*
+
+## Scene 2b: a listing that is not catalogue-ready (Config A, about 1.5 min)
+
+*"Retailers have catalogue standards. Small makers have phone photos."*
+
+1. Maya → **Chat** → **Add a product**: she sends a phone photo of a candle on a cluttered table,
+   then says (or types) "40 lavender candles at 220 rupees, 250 grams". The listing comes back
+   into the chat as a card.
+2. The retailer's agents flag the photo (`IMAGE_CLUTTERED_BACKGROUND`, measured and described),
+   prepare **an auto-enhanced version (code, not AI) and two AI-regenerated versions of her own
+   photo** (the AI ones with `IMAGE_MODEL` set; otherwise retake tips in her language). Allow
+   about a minute. and write the title, description and bullet points from her
+   words. *"Every fact says where it came from. Nothing she did not say gets approved for her."*
+3. Her Guardian approves listings within her rules, but not an AI photo: *"Please check… which
+   photo should we use?"* She picks **Photo 2**.
+4. FreshCart's policy sends AI photos to a person: the category manager gets it on **Slack**
+   (Outbox in local mode), replies **approve**, and the listing is **published** with the AI photo
+   disclosed. Or in console → **Inbox**: her photo beside the AI photo, the copy, each fact's
+   source and the flags in words, then **Approve and publish**.
+5. Show the same with a clean photo: her Guardian approves it on her behalf, no question asked.
+6. Console → **Catalogue**: the product with its photos (her original, the auto-enhanced and AI
+   versions, which one is in use), the copy, each fact's source, its history and its orders.
+   From **Orders**, *View product* opens the product an order is for.
 
 ## Scene 3: same agents, different market (Config B, about 1.5 min)
 
 Console → **Studio** → activate preset **B** live (or `demo_reset.py --scene sara`).
 
 1. The active specialists change: **Label & Food-Safety Checker** and **Supplier Compliance
-   Auditor** replace the Produce Grader and Replenishment Planner. Bahasa Indonesia, IDR, P-IRT,
+   Auditor** replace the Craft Quality Checker, and ordering switches from one-off orders to
+   replenishment. Bahasa Indonesia, IDR, P-IRT,
    halal. The gateway's audit log records the new config hash. *"Config, not code."*
-2. Sara (`/vendor?vendor=vendor:sara`) → **Setup** → **Apply** to FreshCart; the simulated ID,
-   bank and P-IRT registries pass; the approval waits in console → **Queue**.
+2. Sara (`/vendor?vendor=vendor:sara`) → **My shop** → **Apply** to FreshCart; the simulated ID,
+   bank and P-IRT registries pass; the approval waits in console → **Inbox** (with the document checks).
 3. Her crisps label has **no P-IRT number** → the Label Checker flags
    `MISSING_REGISTRATION_PIRT`. Add the number, and the flag goes away.
 

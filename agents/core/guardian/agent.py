@@ -10,6 +10,7 @@ from decimal import Decimal
 from pydantic import BaseModel
 
 from agents.base import Agent, AgentContext, skill
+from agents.core.guardian.listing import review_listing
 from agents.core.guardian.rules import evaluate, pickup_date
 from vl_core.a2a import agent_id_for
 from vl_core.crypto import b64d, b64e, canonical_json, hash_obj, verify_signature
@@ -21,6 +22,8 @@ from vl_core.schemas import (
     Decision,
     DecisionStatus,
     EvaluateIn,
+    ListingApprovalIn,
+    ListingApprovalOut,
     MandateOut,
     MandateQuery,
     OrderProposal,
@@ -163,3 +166,8 @@ class Guardian(Agent):
     @skill("guardian.mandate")
     async def mandate(self, inp: MandateQuery) -> MandateOut:
         return MandateOut(mandate=await self._mandates.get(inp.vendor_id))
+
+    @skill("guardian.review_listing")
+    async def review_listing(self, inp: ListingApprovalIn) -> ListingApprovalOut:
+        """Approve an improved listing within her listing rules, or say why she must look."""
+        return review_listing(inp)

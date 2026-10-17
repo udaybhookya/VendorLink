@@ -72,10 +72,14 @@
     "credential.revoke": "An agent identity was blocked",
     "screen.vendor_document": "A document was safety-checked",
     "human.ask": "I asked someone a question",
-    "human.answer": "An answer came back"
+    "human.answer": "An answer came back",
+    "listing.approved_by_guardian": "I approved a product listing within your rules",
+    "listing.confirmed": "You confirmed a product listing",
+    "listing.withdrawn": "You withdrew a product listing",
+    "relay.listing.status": "The retailer decided on your product listing"
   },
   "chat": {
-    "greeting": "Hello {name}. I can tell you about your deals, your rules, or what I did today.",
+    "greeting": "Hello {name}. Send me a photo to add a product, or ask about your deals, your rules, or what I did today.",
     "no_deals": "You have no deals waiting.",
     "deals_summary": "You have {count} deals. {details}",
     "nothing_to_confirm": "There is nothing waiting for your yes right now.",
@@ -120,7 +124,7 @@
       "rules": "My rules",
       "activity": "Activity",
       "products": "Products",
-      "setup": "Setup"
+      "setup": "My shop"
     },
     "simulated": "Prototype — all vendors, retailers and registries are simulated",
     "hold_to_talk": "Hold to talk",
@@ -185,7 +189,11 @@
       "applied": "Applied",
       "checks": "Checks",
       "done": "Done",
-      "status": "Status"
+      "status": "Status",
+      "change_rules": "Change my rules",
+      "step_documents": "Documents",
+      "step_rules": "Rules signed",
+      "step_retailers": "Retailer"
     },
     "products": {
       "add": "Add a product",
@@ -195,7 +203,22 @@
       "confirm": "Yes, list it",
       "needs_review": "A person will check this first",
       "none": "No products yet",
-      "flags": "Needs attention"
+      "flags": "Needs attention",
+      "approved": "Your agent approved this within your rules and sent it to the retailer.",
+      "check": "Please check before it goes to the retailer",
+      "your_photo": "Your photo",
+      "photo_n": "Photo {n} (AI-enhanced)",
+      "use_photo": "Use this photo",
+      "retake": "Tips to retake the photo",
+      "send_as_is": "Send as it is",
+      "dont_list": "Don't list it",
+      "ai": "AI-enhanced",
+      "sent": "Sent to the retailer",
+      "enhanced": "Auto-enhanced (light and framing)",
+      "working": "The retailer's agents are checking your photo and writing your listing. This can take up to a minute.",
+      "add_hint": "Your assistant asks for a photo and a few words; the retailer's agents then write the listing for you.",
+      "finish": "Check and send",
+      "look_ai": "{name} · AI"
     },
     "questions": "Questions for you",
     "answer": "Answer",
@@ -211,7 +234,27 @@
       "no_rules": "Set your rules first"
     },
     "language": "Language",
-    "assistant": "Assistant"
+    "assistant": "Assistant",
+    "chips": {
+      "add": "Add a product",
+      "deals": "My deals",
+      "rules": "My rules",
+      "today": "What did you do today?"
+    },
+    "flow": {
+      "start": "Let's add a product. Send me a photo with the camera button, then tell me what it is, the price, and how many you can make a day.",
+      "got_photo": "Lovely photo. Now tell me what it is, the price, and how many you can make a day. You can speak or type.",
+      "label": "One more thing: type the text printed on the label, or tap Skip.",
+      "skip": "Skip",
+      "cancel": "Cancel",
+      "cancelled": "Okay, I stopped. Nothing was listed.",
+      "not_listed": "Not listed."
+    },
+    "needs": {
+      "title": "Needs you",
+      "all_clear": "All caught up. Nothing is waiting on you."
+    },
+    "demo_tag": "Demo data"
   },
   "hitl": {
     "q": {
@@ -225,8 +268,9 @@
       "order_over_limit": "Order {order} for {store} is {value}, over the auto-order limit {limit}. Send it to {vendor}?",
       "vendor_approval": "New supplier {vendor} passed checks ({checks}). Approve them?",
       "listing_review": "Listing \"{sku}\" from {vendor} needs a review: {reasons}. Publish it?",
-      "run_done": "Replenishment run for {date}: {sent} sent, {waiting} waiting, {skipped} need the vendor.",
-      "info_answer": "{vendor} answered \"{answer}\" about {subject}."
+      "run_done": "Order run for {date}: {sent} sent, {waiting} waiting, {skipped} need the vendor.",
+      "info_answer": "{vendor} answered \"{answer}\" about {subject}.",
+      "listing_review_vendor": "Please check your listing \"{sku}\" before it goes to {retailer}: {reasons}. Which photo should we use?"
     },
     "msg": {
       "reply_hint": "Reply here with: {choices}.",
@@ -240,7 +284,11 @@
       "approve": "approve",
       "reject": "reject",
       "yes": "yes",
-      "no": "no"
+      "no": "no",
+      "my_photo": "My own photo",
+      "photo": "Photo {n}",
+      "dont_list": "Don't list it",
+      "enhanced": "Auto-enhanced photo"
     },
     "choice_words": {
       "approve": [
@@ -259,9 +307,46 @@
         "stop",
         "👎",
         "❌"
+      ],
+      "my_photo": [
+        "mine",
+        "my photo",
+        "original",
+        "keep"
+      ],
+      "enhanced": [
+        "enhanced",
+        "auto",
+        "cleaned"
       ]
     }
   },
   "language_name": "English",
-  "language_short": "English"
+  "language_short": "English",
+  "listing_reason": {
+    "PRICE_NOT_WHAT_SHE_SAID": "the price is not the one you said",
+    "QTY_NOT_WHAT_SHE_SAID": "the quantity is not the one you said",
+    "FACTS_NOT_FROM_HER": "some details were added that you did not say",
+    "TEXT_REWRITE_NEEDS_HER_OK": "the description was rewritten",
+    "AI_PHOTO_NEEDS_HER_OK": "your photo was improved with AI; check it still looks like your product",
+    "PHOTO_BELOW_STANDARD": "the photo does not meet the retailer's standards; you can retake it or send it as it is"
+  },
+  "photo_tip": {
+    "IMAGE_LOW_RESOLUTION": "Move closer so the product fills the frame",
+    "IMAGE_BLURRY": "Hold the phone still and tap the product to focus",
+    "IMAGE_TOO_DARK": "Take it near a window in daylight",
+    "IMAGE_TOO_BRIGHT": "Avoid direct sun; use soft daylight",
+    "IMAGE_CLUTTERED_BACKGROUND": "Put the product on a plain light cloth or paper",
+    "IMAGE_PRODUCT_TOO_SMALL": "Fill the frame with the product",
+    "IMAGE_POOR_LIGHTING": "Use soft, even light from the front",
+    "IMAGE_NOISY": "Wipe the lens and use more light",
+    "IMAGE_NOT_CATALOGUE_READY": "Plain background, daylight, product centred",
+    "IMAGE_PRODUCT_CUT_OFF": "Step back so the whole product is in the photo"
+  },
+  "listing_status": {
+    "draft": "Waiting for you",
+    "needs_review": "Being checked",
+    "published": "Live",
+    "rejected": "Not listed"
+  }
 }

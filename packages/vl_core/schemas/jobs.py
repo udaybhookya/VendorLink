@@ -11,7 +11,7 @@ from vl_core.schemas.common import Fraction, VLModel
 from vl_core.schemas.config import BusinessProfile, CountryPack, RetailerProfile
 from vl_core.schemas.hitl import InfoRequest
 from vl_core.schemas.order import OrderProposal
-from vl_core.schemas.vendor import Listing, ListingFlag, Vendor
+from vl_core.schemas.vendor import Listing, ListingFlag, ListingRules, Vendor
 
 
 class ListingStepIn(VLModel):
@@ -36,6 +36,23 @@ class ListingStepOut(VLModel):
     notes: str = ""
     requests: list[InfoRequest] = Field(
         default_factory=list, description="What a person must tell us before this can continue"
+    )
+
+
+class ListingApprovalIn(VLModel):
+    """guardian.review_listing: may her agent approve this improved listing on her behalf?"""
+
+    listing: Listing
+    transcript: str = Field(default="", description="What she said about the item")
+    answers: dict[str, str] = Field(default_factory=dict, description="Her answers to questions")
+    rules: ListingRules = Field(default_factory=ListingRules)
+
+
+class ListingApprovalOut(VLModel):
+    auto_approve: bool
+    image: str = Field(default="original", description="The photo to confirm with")
+    reasons: list[str] = Field(
+        default_factory=list, description="Machine codes: why she must look first"
     )
 
 

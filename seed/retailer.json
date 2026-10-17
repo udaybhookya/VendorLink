@@ -2,11 +2,11 @@
   "_note": "Synthetic retailer, stores and catalogue for the demo.",
   "retailer": {
     "id": "retailer:freshcart",
-    "display_name": "FreshCart (simulated)",
+    "display_name": "FreshCart",
     "stores": [
       {
         "id": "store:hub-4",
-        "name": "Hub 4 · North"
+        "name": "Corporate gifting desk · Hyderabad"
       },
       {
         "id": "store:hub-7",
@@ -27,30 +27,37 @@
   ],
   "listings": [
     {
-      "id": "lst-maya-spinach",
+      "id": "lst-maya-lavender",
       "vendor_id": "vendor:maya",
-      "sku_name": "spinach",
-      "category": "leafy_greens",
-      "unit": "bunch",
-      "price": "40",
+      "sku_name": "lavender candle",
+      "category": "candles",
+      "unit": "piece",
+      "price": "220",
       "currency": "INR",
-      "qty": "300",
+      "qty": "40",
       "grade": "A",
-      "shelf_life_days": 2,
+      "attributes": {
+        "scent": "lavender",
+        "size": "200 g jar",
+        "burn_time_hours": 40
+      },
       "confidence": 0.92,
       "status": "published"
     },
     {
-      "id": "lst-maya-tomato",
+      "id": "lst-maya-giftset",
       "vendor_id": "vendor:maya",
-      "sku_name": "tomato",
-      "category": "vegetables",
-      "unit": "kg",
-      "price": "70",
+      "sku_name": "candle gift set",
+      "category": "gift_sets",
+      "unit": "gift_set",
+      "price": "650",
       "currency": "INR",
-      "qty": "100",
+      "qty": "10",
       "grade": "A",
-      "shelf_life_days": 3,
+      "attributes": {
+        "scent": "jasmine, sandalwood, rose",
+        "size": "3 × 100 g"
+      },
       "confidence": 0.9,
       "status": "published"
     }

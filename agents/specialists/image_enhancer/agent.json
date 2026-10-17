@@ -1,0 +1,23 @@
+{
+  "agent_id": "image-enhancer",
+  "name": "Image Enhancer",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "For a photo below the catalogue standards: a vision model plans as many edits as the retailer's standards ask for, code wraps each in a fixed faithfulness guard, and an image model renders them from her photo when one is configured; otherwise the prompts stay as reshoot tips.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "image.enhance",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "AI-enhanced versions of a product photo that misses the catalogue standards"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "blob.write",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.image_enhancer.agent:ImageEnhancer"
+}

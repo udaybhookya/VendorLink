@@ -1,41 +1,41 @@
 {
-  "_note": "Synthetic demand feed. Times are local to the store.",
+  "_note": "Synthetic demand feed. Times are local to the store; the order's date is its pickup date.",
   "store:hub-4": [
     {
-      "sku": "spinach",
-      "qty": 350,
-      "unit": "bunch",
-      "pickup_local": "05:30"
+      "sku": "lavender candle",
+      "qty": 50,
+      "unit": "piece",
+      "pickup_local": "08:00"
     }
   ],
   "store:hub-7": [
     {
-      "sku": "spinach",
-      "qty": 100,
-      "unit": "bunch",
-      "pickup_local": "07:00"
+      "sku": "lavender candle",
+      "qty": 10,
+      "unit": "piece",
+      "pickup_local": "11:00"
     }
   ],
   "store:hub-9": [
     {
-      "sku": "spinach",
-      "qty": 280,
-      "unit": "bunch",
-      "pickup_local": "06:30"
+      "sku": "lavender candle",
+      "qty": 30,
+      "unit": "piece",
+      "pickup_local": "12:00"
     }
   ],
   "store:hub-12": [
     {
-      "sku": "mint",
-      "qty": 40,
-      "unit": "bunch",
-      "pickup_local": "07:00"
+      "sku": "candle gift set",
+      "qty": 4,
+      "unit": "gift_set",
+      "pickup_local": "11:00"
     },
     {
-      "sku": "tomato",
+      "sku": "rose candle",
       "qty": 20,
-      "unit": "kg",
-      "pickup_local": "07:00"
+      "unit": "piece",
+      "pickup_local": "11:00"
     }
   ]
 }

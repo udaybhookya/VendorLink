@@ -24,6 +24,21 @@ class VendorDoc(VLModel):
     failure_reason: str | None = None
 
 
+class ListingRules(VLModel):
+    """What her agent may approve on her behalf when the retailer's agents improve a listing.
+    Anything outside these rules is shown to her first."""
+
+    price_must_match: bool = Field(
+        default=True, description="Price and quantity must be numbers she said or answered"
+    )
+    allow_text_rewrite: bool = Field(
+        default=True, description="Title and description reworded from her own facts"
+    )
+    allow_ai_images: bool = Field(
+        default=False, description="Use an AI-enhanced photo of her product without asking"
+    )
+
+
 class Vendor(VLModel):
     id: str
     display_name: str
@@ -36,6 +51,7 @@ class Vendor(VLModel):
     agent_id: str | None = None
     retailers: list[str] = Field(default_factory=list, description="Retailers she works with")
     email: str | None = Field(default=None, description="Optional: for nudges back to the app")
+    listing_rules: ListingRules = Field(default_factory=ListingRules)
     synthetic: bool = True
 
 
@@ -78,6 +94,27 @@ class ListingFlag(VLModel):
     detail: str = ""
 
 
+FactSource = Literal["vendor", "answer", "photo", "model"]
+"""Where a listing fact came from: her words, her answer to a question, visible in her photo, or
+only the model (which she must confirm)."""
+
+
+class ImageCandidate(VLModel):
+    """A photo the listing could use: her original, or an AI-enhanced version of it."""
+
+    id: str = Field(description="original, enhanced, or img-1, img-2 …")
+    kind: Literal["original", "enhanced", "generated"] = Field(
+        description="her photo; auto-enhanced in code (light, framing; not AI); or AI-regenerated"
+    )
+    uri: str | None = Field(default=None, description="Blob URI; none when only a prompt exists")
+    prompt: str = Field(default="", description="Regeneration prompt (also a reshoot tip)")
+    preview_b64: str | None = Field(default=None, description="Small JPEG for the apps")
+    look: str = Field(default="", description="The retailer's look this AI version was styled in")
+    look_name: dict[str, str] = Field(
+        default_factory=dict, description="That look's name, by language"
+    )
+
+
 class Listing(VLModel):
     id: str
     vendor_id: str
@@ -94,3 +131,13 @@ class Listing(VLModel):
     flags: list[ListingFlag] = Field(default_factory=list)
     confidence: Fraction = 0.0
     status: Literal["draft", "needs_review", "published", "rejected"] = "draft"
+    title: str = ""
+    description: str = ""
+    bullets: list[str] = Field(default_factory=list)
+    images: list[ImageCandidate] = Field(
+        default_factory=list, description="Her original first, then enhanced candidates"
+    )
+    sources: dict[str, FactSource] = Field(
+        default_factory=dict, description="Where each fact came from (price, qty, attributes …)"
+    )
+    ai_enhanced: bool = Field(default=False, description="The chosen photo is AI-enhanced")

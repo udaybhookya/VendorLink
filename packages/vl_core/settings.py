@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     live_model: str = ""
     pro_model: str = ""
     flash_model: str = ""
+    image_model: str = ""  # AI-enhanced product photos; empty = prompts only (reshoot tips)
 
     google_cloud_project: str = ""
     google_cloud_location: str = ""
@@ -66,6 +67,8 @@ class Settings(BaseSettings):
     vl_checkpoint_dsn: str = ""
     service_name: str = "vendorlink"
 
+    # A relay waits for the other side's agents (several model calls); other calls fail fast.
+    vl_relay_timeout_seconds: float = Field(default=120, gt=0)
     log_level: str = "INFO"
     # pretty: one readable line per event (terminal); json: Cloud Logging; auto: by terminal
     vl_log_format: Literal["auto", "pretty", "json"] = "auto"

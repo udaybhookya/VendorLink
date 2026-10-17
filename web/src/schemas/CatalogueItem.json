@@ -1,0 +1,137 @@
+{
+  "additionalProperties": false,
+  "description": "One product card in the catalogue.",
+  "properties": {
+    "listing_id": {
+      "title": "Listing Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "vendor_name": {
+      "title": "Vendor Name",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "sku_name": {
+      "title": "Sku Name",
+      "type": "string"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "category_name": {
+      "title": "Category Name",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "price": {
+      "title": "Price",
+      "type": "string"
+    },
+    "currency": {
+      "title": "Currency",
+      "type": "string"
+    },
+    "qty": {
+      "title": "Qty",
+      "type": "string"
+    },
+    "grade": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Grade"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "needs_review",
+        "published",
+        "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "ai_enhanced": {
+      "default": false,
+      "title": "Ai Enhanced",
+      "type": "boolean"
+    },
+    "image_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Image Url"
+    },
+    "thumb_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Thumb Url"
+    },
+    "flags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Flags",
+      "type": "array"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At"
+    }
+  },
+  "required": [
+    "listing_id",
+    "vendor_id",
+    "vendor_name",
+    "title",
+    "sku_name",
+    "category",
+    "category_name",
+    "unit",
+    "price",
+    "currency",
+    "qty",
+    "status"
+  ],
+  "title": "CatalogueItem",
+  "type": "object"
+}

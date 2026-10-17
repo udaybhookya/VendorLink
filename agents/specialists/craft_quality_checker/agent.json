@@ -1,0 +1,22 @@
+{
+  "agent_id": "craft-quality-checker",
+  "name": "Craft Quality Checker",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Checks a handmade product photo: grade, finish, defects, batch consistency and confidence; flags claims that need proof.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "grade.craft",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "Check a handmade product from a photo"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.craft_quality_checker.agent:CraftQualityChecker"
+}

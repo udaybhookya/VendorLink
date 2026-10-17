@@ -114,6 +114,10 @@ export interface RetailerProfile {
    * Product claims flagged for review, e.g. organic
    */
   claims_requiring_proof?: string[];
+  /**
+   * Photo and text standards; none means no catalogue checks
+   */
+  catalogue_standards?: CatalogueStandards | null;
 }
 
 export interface Category {
@@ -136,6 +140,84 @@ export interface TermTemplate {
   description?: {
     [k: string]: string;
   };
+}
+/**
+ * The retailer's bar for a listing: photo and text. Checked by the catalogue specialists.
+ */
+
+export interface CatalogueStandards {
+  image?: ImageStandards;
+  text?: TextStandards;
+}
+/**
+ * What a catalogue-ready product photo means to this retailer.
+ */
+
+export interface ImageStandards {
+  min_width?: number;
+  min_height?: number;
+  /**
+   * Edge strength vs contrast, ~0-100; below = severely blurry
+   */
+  min_sharpness?: number;
+  min_brightness?: number;
+  max_brightness?: number;
+  /**
+   * Style guide words
+   */
+  background?: string;
+  /**
+   * How enhanced photos should look; used in regeneration prompts
+   */
+  style?: string;
+  /**
+   * May agents propose AI photos
+   */
+  allow_ai_enhanced?: boolean;
+  /**
+   * Also offer her photo cleaned up in code (light, framing)
+   */
+  classic_enhancement?: boolean;
+  /**
+   * A listing using an AI photo goes to a person before publishing
+   */
+  ai_images_need_review?: boolean;
+  /**
+   * Regenerated photos to propose
+   */
+  candidates?: number;
+  /**
+   * One look per AI version, in order (repeating if fewer); none = `style` only
+   */
+  looks?: ImageLook[];
+  /**
+   * Shape of regenerated photos (catalogue tiles)
+   */
+  aspect_ratio?: "1:1" | "4:5" | "3:4" | "4:3";
+}
+/**
+ * One styled direction for an AI version of her photo: the backdrop, light, angle and mood.
+ * The product itself never changes; only how it is staged.
+ */
+
+export interface ImageLook {
+  id: string;
+  /**
+   * Shown under the photo, by language code
+   */
+  name: {
+    [k: string]: string;
+  };
+  /**
+   * For the image model: backdrop, surface, light, angle, mood
+   */
+  scene: string;
+}
+
+export interface TextStandards {
+  title_max_chars?: number;
+  description_min_words?: number;
+  bullets?: number;
 }
 
 export interface CountryPack {
@@ -712,6 +794,23 @@ export interface Listing {
   flags?: ListingFlag[];
   confidence?: number;
   status?: "draft" | "needs_review" | "published" | "rejected";
+  title?: string;
+  description?: string;
+  bullets?: string[];
+  /**
+   * Her original first, then enhanced candidates
+   */
+  images?: ImageCandidate[];
+  /**
+   * Where each fact came from (price, qty, attributes …)
+   */
+  sources?: {
+    [k: string]: "vendor" | "answer" | "photo" | "model";
+  };
+  /**
+   * The chosen photo is AI-enhanced
+   */
+  ai_enhanced?: boolean;
 }
 
 export interface ListingFlag {
@@ -720,6 +819,42 @@ export interface ListingFlag {
    */
   code: string;
   detail?: string;
+}
+/**
+ * A photo the listing could use: her original, or an AI-enhanced version of it.
+ */
+
+export interface ImageCandidate {
+  /**
+   * original, enhanced, or img-1, img-2 …
+   */
+  id: string;
+  /**
+   * her photo; auto-enhanced in code (light, framing; not AI); or AI-regenerated
+   */
+  kind: "original" | "enhanced" | "generated";
+  /**
+   * Blob URI; none when only a prompt exists
+   */
+  uri?: string | null;
+  /**
+   * Regeneration prompt (also a reshoot tip)
+   */
+  prompt?: string;
+  /**
+   * Small JPEG for the apps
+   */
+  preview_b64?: string | null;
+  /**
+   * The retailer's look this AI version was styled in
+   */
+  look?: string;
+  /**
+   * That look's name, by language
+   */
+  look_name?: {
+    [k: string]: string;
+  };
 }
 
 export interface BuildListingOut {
@@ -761,6 +896,96 @@ export interface CatalogueDraft {
    */
   claims?: string[];
   confidence: number;
+}
+
+export interface CatalogueEntry {
+  item: CatalogueItem;
+  description?: string;
+  bullets?: string[];
+  attributes?: {
+    [k: string]: string | number | boolean;
+  };
+  sources?: {
+    [k: string]: "vendor" | "answer" | "photo" | "model";
+  };
+  flag_details?: ListingFlag[];
+  images?: CatalogueImage[];
+  history?: ListingEvent[];
+  orders?: ProductOrder[];
+}
+/**
+ * One product card in the catalogue.
+ */
+
+export interface CatalogueItem {
+  listing_id: string;
+  vendor_id: string;
+  vendor_name: string;
+  title: string;
+  sku_name: string;
+  category: string;
+  category_name: string;
+  unit: string;
+  price: string;
+  currency: string;
+  qty: string;
+  grade?: string | null;
+  status: "draft" | "needs_review" | "published" | "rejected";
+  ai_enhanced?: boolean;
+  image_url?: string | null;
+  thumb_url?: string | null;
+  flags?: string[];
+  updated_at?: string | null;
+}
+
+export interface CatalogueImage {
+  /**
+   * original, enhanced, img-1 …
+   */
+  id: string;
+  kind: "original" | "enhanced" | "generated";
+  /**
+   * Full image, served by the retailer API
+   */
+  url?: string | null;
+  thumb_url?: string | null;
+  /**
+   * The regeneration prompt, for AI versions
+   */
+  prompt?: string;
+  /**
+   * The look an AI version was styled in
+   */
+  look_name?: string;
+  /**
+   * The photo the listing uses
+   */
+  chosen?: boolean;
+}
+/**
+ * One step in a listing's life, from the audit log.
+ */
+
+export interface ListingEvent {
+  ts: string;
+  action: string;
+  actor: string;
+  on_behalf_of: string;
+  outcome: string;
+}
+/**
+ * An order that includes this product.
+ */
+
+export interface ProductOrder {
+  order_id: string;
+  store_id: string;
+  store_name: string;
+  qty: string;
+  unit: string;
+  price: string;
+  status: string;
+  pickup_at?: string | null;
 }
 
 export interface ChannelConfig {
@@ -1365,9 +1590,62 @@ export interface LabelFields {
   confidence: number;
 }
 
+export interface ListingApprovalIn {
+  listing: Listing;
+  /**
+   * What she said about the item
+   */
+  transcript?: string;
+  /**
+   * Her answers to questions
+   */
+  answers?: {
+    [k: string]: string;
+  };
+  rules?: ListingRules;
+}
+
+export interface ListingRules {
+  /**
+   * Price and quantity must be numbers she said or answered
+   */
+  price_must_match?: boolean;
+  /**
+   * Title and description reworded from her own facts
+   */
+  allow_text_rewrite?: boolean;
+  /**
+   * Use an AI-enhanced photo of her product without asking
+   */
+  allow_ai_images?: boolean;
+}
+
+export interface ListingApprovalOut {
+  auto_approve: boolean;
+  /**
+   * The photo to confirm with
+   */
+  image?: string;
+  /**
+   * Machine codes: why she must look first
+   */
+  reasons?: string[];
+}
+
+export interface ListingConfirmRequest {
+  /**
+   * An ImageCandidate id
+   */
+  image?: string;
+}
+
 export interface ListingDraftView {
   result: ListingStepOut;
   readback: string;
+  /**
+   * Her agent's verdict: approved for her, or why she must look
+   */
+  approval?: ListingApprovalOut | null;
 }
 
 export interface ListingReviewIn {
@@ -1381,12 +1659,24 @@ export interface ListingReviewOut {
   reasons?: string[];
 }
 
+export interface ListingStatusUpdate {
+  listing_id: string;
+  vendor_id: string;
+  retailer_id: string;
+  status: "draft" | "needs_review" | "published" | "rejected";
+  /**
+   * Machine codes, if not published
+   */
+  reasons?: string[];
+  ai_enhanced?: boolean;
+}
+
 export interface ListingSubmission {
   vendor_id: string;
   language: string;
   transcript?: string;
   /**
-   * JPEG/PNG, downscaled to ≤1024 px
+   * JPEG/PNG, downscaled to ≤1600 px
    */
   photo_b64?: string | null;
   photo_mime?: string;
@@ -1503,6 +1793,7 @@ export interface Vendor {
    * Optional: for nudges back to the app
    */
   email?: string | null;
+  listing_rules?: ListingRules;
   synthetic?: boolean;
 }
 
@@ -1516,6 +1807,10 @@ export interface VendorDoc {
   status?: "submitted" | "verified" | "failed";
   failure_reason?: string | null;
 }
+/**
+ * What her agent may approve on her behalf when the retailer's agents improve a listing.
+ * Anything outside these rules is shown to her first.
+ */
 
 export interface OnboardOut {
   result: VendorCheckOut;

@@ -88,7 +88,7 @@ async def test_adk_concierge_reads_back_and_takes_her_yes(
     }
     chat = f"/vendors/{MAYA}/chat"
     first = await call(stack.vendor_svc_url, "POST", chat, json={"text": "deals?"})
-    assert first["mode"] == "llm" and "280" in first["reply"]
+    assert first["mode"] == "llm" and "30" in first["reply"]
     assert model.seen_tools == ["list_deals", "explain_decision"]
     second = await call(stack.vendor_svc_url, "POST", chat, json={"text": "అవును"})
     assert (await deal(stack, oid))["deal"]["status"] == "signed", second

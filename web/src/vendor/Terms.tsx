@@ -4,13 +4,17 @@ import { api, VENDOR_URL } from "../lib/api";
 import type { T } from "../lib/i18n";
 import { Icon } from "../lib/icons";
 
-/** Terms retailers propose, with her Guardian's verdict; she accepts or declines. */
-export function Terms({ vendor, t, tick, onChange }: { vendor: Vendor; t: T; tick: number; onChange: () => void }) {
-  const [items, setItems] = useState<VendorTerms[]>([]);
+/** Terms retailers propose, with her Guardian's verdict; she accepts or declines.
+ *  `pendingOnly`: just the offers still waiting on her (the Needs-you panel). */
+export function Terms({ vendor, t, tick, onChange, pendingOnly = false }: {
+  vendor: Vendor; t: T; tick: number; onChange: () => void; pendingOnly?: boolean;
+}) {
+  const [all, setItems] = useState<VendorTerms[]>([]);
   const [error, setError] = useState("");
   useEffect(() => {
     api<VendorTerms[]>(VENDOR_URL, `/vendors/${vendor.id}/terms`).then(setItems).catch(() => setItems([]));
   }, [vendor.id, tick]);
+  const items = pendingOnly ? all.filter((i) => i.status === "proposed") : all;
 
   async function answer(item: VendorTerms, action: "accept" | "decline") {
     setError("");

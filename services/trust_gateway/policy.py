@@ -15,6 +15,7 @@ from vl_core.schemas import (
     InfoRequestMessage,
     InfoResponseMessage,
     Listing,
+    ListingStatusUpdate,
     ListingStepOut,
     ListingSubmission,
     OrderProposal,
@@ -84,6 +85,13 @@ SKILL_POLICY: dict[str, SkillRule] = {
         InfoRequestMessage,
         Ack,
         lambda m: (m.retailer_id, m.vendor_id) if isinstance(m, InfoRequestMessage) else ("", ""),
+    ),
+    "listing.status": SkillRule(
+        "retailer",
+        "vendor",
+        ListingStatusUpdate,
+        Ack,
+        lambda m: (m.retailer_id, m.vendor_id) if isinstance(m, ListingStatusUpdate) else ("", ""),
     ),
     "vendor.invite": SkillRule(
         "retailer",

@@ -1,0 +1,15 @@
+{
+  "note": "Needs real photos in seed/photos/ and FLASH_MODEL. Each case: the photo, acceptable grades (empty = any), flags that must appear (require) and must not (forbid; a trailing * matches a prefix). Config A profiles.",
+  "cases": [
+    {"name": "clean_single_jar", "photo": "seed/photos/candle_clean.jpg", "grades": ["A"], "require": [], "forbid": ["DEFECT_*", "BELOW_MIN_GRADE", "NOT_A_PRODUCT_PHOTO"]},
+    {"name": "even_batch", "photo": "seed/photos/candle_batch_even.jpg", "grades": ["A", "B"], "require": [], "forbid": ["BATCH_INCONSISTENT", "NOT_A_PRODUCT_PHOTO"]},
+    {"name": "mixed_batch", "photo": "seed/photos/candle_batch_mixed.jpg", "grades": [], "require": ["BATCH_INCONSISTENT"], "forbid": []},
+    {"name": "cosmetic_frosting", "photo": "seed/photos/candle_frosting.jpg", "grades": ["B", "C"], "require": [], "forbid": ["NOT_A_PRODUCT_PHOTO"]},
+    {"name": "cracked_surface", "photo": "seed/photos/candle_cracked.jpg", "grades": ["C"], "require": ["BELOW_MIN_GRADE"], "forbid": []},
+    {"name": "off_centre_wick", "photo": "seed/photos/candle_wick_off_centre.jpg", "grades": ["B", "C"], "require": ["DEFECT_OFF_CENTRE_WICK"], "forbid": []},
+    {"name": "sooty_jar", "photo": "seed/photos/candle_soot.jpg", "grades": ["B", "C"], "require": ["DEFECT_SOOT"], "forbid": []},
+    {"name": "soy_wax_label", "photo": "seed/photos/candle_soy_label.jpg", "grades": [], "require": ["UNSUPPORTED_CLAIM_SOY_WAX"], "forbid": ["NOT_A_PRODUCT_PHOTO"]},
+    {"name": "handmade_tag_gift_set", "photo": "seed/photos/gift_set_handmade_tag.jpg", "grades": ["A", "B"], "require": ["UNSUPPORTED_CLAIM_HANDMADE"], "forbid": ["NOT_A_PRODUCT_PHOTO"]},
+    {"name": "not_a_product", "photo": "seed/photos/not_a_product.jpg", "grades": ["C"], "require": ["NOT_A_PRODUCT_PHOTO"], "forbid": []}
+  ]
+}

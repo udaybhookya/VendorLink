@@ -14,6 +14,9 @@ function stripPropertyTitles(node, keep = false) {
   for (const [key, value] of Object.entries(node)) {
     if (key === "$defs") {
       for (const def of Object.values(value)) stripPropertyTitles(def, true);
+    } else if (key === "properties") {
+      // keys here are field names (a field may be called "title"): strip inside each, not here
+      for (const prop of Object.values(value)) stripPropertyTitles(prop);
     } else if (key !== "title") {
       stripPropertyTitles(value);
     }

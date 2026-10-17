@@ -19,4 +19,4 @@ ARG SERVICE
 ENV SERVICE=${SERVICE} PORT=8080 VL_CONFIG_DIR=/app/config VL_DATA_DIR=/tmp/vl_data
 RUN useradd --uid 10001 app && chown -R app /app
 USER app
-CMD ["sh", "-c", "uv run --no-sync uvicorn ${SERVICE}.app:app --host 0.0.0.0 --port ${PORT} --no-access-log"]
+CMD ["sh", "-c", "uv run --no-sync uvicorn ${SERVICE}.app:app --host 0.0.0.0 --port ${PORT} --no-access-log --timeout-graceful-shutdown 5"]

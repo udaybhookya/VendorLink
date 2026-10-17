@@ -1,0 +1,323 @@
+{
+  "$defs": {
+    "ImageCandidate": {
+      "additionalProperties": false,
+      "description": "A photo the listing could use: her original, or an AI-enhanced version of it.",
+      "properties": {
+        "id": {
+          "description": "original, enhanced, or img-1, img-2 …",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "description": "her photo; auto-enhanced in code (light, framing; not AI); or AI-regenerated",
+          "enum": [
+            "original",
+            "enhanced",
+            "generated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blob URI; none when only a prompt exists",
+          "title": "Uri"
+        },
+        "prompt": {
+          "default": "",
+          "description": "Regeneration prompt (also a reshoot tip)",
+          "title": "Prompt",
+          "type": "string"
+        },
+        "preview_b64": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Small JPEG for the apps",
+          "title": "Preview B64"
+        },
+        "look": {
+          "default": "",
+          "description": "The retailer's look this AI version was styled in",
+          "title": "Look",
+          "type": "string"
+        },
+        "look_name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "That look's name, by language",
+          "title": "Look Name",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "title": "ImageCandidate",
+      "type": "object"
+    },
+    "Listing": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "sku_name": {
+          "title": "Sku Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "string"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "grade": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grade"
+        },
+        "shelf_life_days": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Shelf Life Days"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "title": "Attributes",
+          "type": "object"
+        },
+        "photos": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Photos",
+          "type": "array"
+        },
+        "flags": {
+          "items": {
+            "$ref": "#/$defs/ListingFlag"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "confidence": {
+          "default": 0.0,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "needs_review",
+            "published",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "bullets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bullets",
+          "type": "array"
+        },
+        "images": {
+          "description": "Her original first, then enhanced candidates",
+          "items": {
+            "$ref": "#/$defs/ImageCandidate"
+          },
+          "title": "Images",
+          "type": "array"
+        },
+        "sources": {
+          "additionalProperties": {
+            "enum": [
+              "vendor",
+              "answer",
+              "photo",
+              "model"
+            ],
+            "type": "string"
+          },
+          "description": "Where each fact came from (price, qty, attributes …)",
+          "title": "Sources",
+          "type": "object"
+        },
+        "ai_enhanced": {
+          "default": false,
+          "description": "The chosen photo is AI-enhanced",
+          "title": "Ai Enhanced",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "vendor_id",
+        "sku_name",
+        "category",
+        "unit",
+        "price",
+        "currency",
+        "qty"
+      ],
+      "title": "Listing",
+      "type": "object"
+    },
+    "ListingFlag": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "Machine code, e.g. UNSUPPORTED_CLAIM_ORGANIC",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "ListingFlag",
+      "type": "object"
+    },
+    "ListingRules": {
+      "additionalProperties": false,
+      "description": "What her agent may approve on her behalf when the retailer's agents improve a listing.\nAnything outside these rules is shown to her first.",
+      "properties": {
+        "price_must_match": {
+          "default": true,
+          "description": "Price and quantity must be numbers she said or answered",
+          "title": "Price Must Match",
+          "type": "boolean"
+        },
+        "allow_text_rewrite": {
+          "default": true,
+          "description": "Title and description reworded from her own facts",
+          "title": "Allow Text Rewrite",
+          "type": "boolean"
+        },
+        "allow_ai_images": {
+          "default": false,
+          "description": "Use an AI-enhanced photo of her product without asking",
+          "title": "Allow Ai Images",
+          "type": "boolean"
+        }
+      },
+      "title": "ListingRules",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "guardian.review_listing: may her agent approve this improved listing on her behalf?",
+  "properties": {
+    "listing": {
+      "$ref": "#/$defs/Listing"
+    },
+    "transcript": {
+      "default": "",
+      "description": "What she said about the item",
+      "title": "Transcript",
+      "type": "string"
+    },
+    "answers": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Her answers to questions",
+      "title": "Answers",
+      "type": "object"
+    },
+    "rules": {
+      "$ref": "#/$defs/ListingRules"
+    }
+  },
+  "required": [
+    "listing"
+  ],
+  "title": "ListingApprovalIn",
+  "type": "object"
+}

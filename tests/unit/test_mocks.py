@@ -63,7 +63,9 @@ def test_licences(client: TestClient) -> None:
 def test_demand(client: TestClient) -> None:
     r = client.get("/demand", params={"store": "store:hub-4", "for_date": date(2026, 10, 15)})
     lines = r.json()["lines"]
-    assert lines == [{"sku": "spinach", "qty": 350, "unit": "bunch", "pickup_local": "05:30"}]
+    assert lines == [
+        {"sku": "lavender candle", "qty": 50, "unit": "piece", "pickup_local": "08:00"}
+    ]
     assert (
         client.get("/demand", params={"store": "nope", "for_date": "2026-10-15"}).status_code == 404
     )

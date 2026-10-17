@@ -19,6 +19,7 @@ dependencies = [
     "mcp>=2.3.0",
     "aiosqlite>=0.22.1",
     "python-dotenv>=1.2.4",
+    "pillow>=11.0",
 ]
 
 [project.optional-dependencies]

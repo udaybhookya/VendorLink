@@ -1,0 +1,36 @@
+{
+  "additionalProperties": false,
+  "description": "One step in a listing's life, from the audit log.",
+  "properties": {
+    "ts": {
+      "format": "date-time",
+      "title": "Ts",
+      "type": "string"
+    },
+    "action": {
+      "title": "Action",
+      "type": "string"
+    },
+    "actor": {
+      "title": "Actor",
+      "type": "string"
+    },
+    "on_behalf_of": {
+      "title": "On Behalf Of",
+      "type": "string"
+    },
+    "outcome": {
+      "title": "Outcome",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ts",
+    "action",
+    "actor",
+    "on_behalf_of",
+    "outcome"
+  ],
+  "title": "ListingEvent",
+  "type": "object"
+}

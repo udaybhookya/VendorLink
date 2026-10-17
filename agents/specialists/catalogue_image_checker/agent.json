@@ -1,0 +1,22 @@
+{
+  "agent_id": "catalogue-image-checker",
+  "name": "Catalogue Image Checker",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Checks a product photo against the retailer's catalogue standards: size, sharpness and brightness measured in code; background, framing and noise described by a vision model; every flag decided in code.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "image.assess",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "Is this product photo catalogue-ready?"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.catalogue_image_checker.agent:CatalogueImageChecker"
+}

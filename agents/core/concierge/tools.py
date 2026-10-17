@@ -51,6 +51,9 @@ class ListingArgs(BaseModel):
 
 class ListingIdArgs(BaseModel):
     listing_id: str
+    image: str = Field(
+        default="original", description="Photo she chose: original, or img-1, img-2 …"
+    )
 
 
 class DocumentArgs(BaseModel):
@@ -254,16 +257,22 @@ class ConciergeTools:
         self.events.append(
             {"type": "listing", "data": {"listing_id": listing.id if listing else None}}
         )
+        approval = view.approval
         return {
             "say": view.readback,
             "listing_id": listing.id if listing else None,
             "needs_review": view.result.needs_review,
             "flags": [f.code for f in view.result.flags],
+            "approved_by_her_agent": bool(approval and approval.auto_approve),
+            "she_must_check": approval.reasons if approval else [],
+            "photos": [c.id for c in listing.images if c.kind == "generated" and c.uri]
+            if listing
+            else [],
         }
 
     async def confirm_listing(self, args: BaseModel) -> dict[str, Any]:
         assert isinstance(args, ListingIdArgs)
-        ack = await self.port.confirm_listing(self.vendor_id, args.listing_id)
+        ack = await self.port.confirm_listing(self.vendor_id, args.listing_id, args.image)
         return {"ok": ack.ok, "detail": ack.detail}
 
     async def submit_document(self, args: BaseModel) -> dict[str, Any]:

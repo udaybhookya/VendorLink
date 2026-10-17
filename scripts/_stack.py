@@ -39,7 +39,7 @@ def build_stack(data_dir: Path | None = None, *, models: bool = False) -> Settin
     `models=True` keeps the models named in .env (otherwise the agents run without a model)."""
     # Self-contained: the developer's .env must not change what the in-process stack uses.
     if not models:
-        for var in ("FLASH_MODEL", "PRO_MODEL", "LIVE_MODEL"):
+        for var in ("FLASH_MODEL", "PRO_MODEL", "LIVE_MODEL", "IMAGE_MODEL"):
             os.environ[var] = ""
     os.environ["VL_ADMIN_TOKEN"] = "inprocess-admin"
     os.environ["VL_OPERATOR_TOKEN"] = "inprocess-operator"

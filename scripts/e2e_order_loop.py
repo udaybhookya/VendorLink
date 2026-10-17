@@ -1,4 +1,5 @@
-"""Order loop, text only: green, red → counter → amber → "yes" → signed, and amber → "no".
+"""Order loop, text only: red → counter → buyer approves on Slack → "yes" → signed; then, on
+standard terms, green, and amber → "no".
 
 uv run python scripts/e2e_order_loop.py              # in-process (CI, no ports)
 uv run python scripts/e2e_order_loop.py --live       # against `make dev`
@@ -16,10 +17,14 @@ from scripts._demo import (
     call,
     day,
     deal,
+    outbox,
     place,
+    reply,
     reset,
     retailer_order,
     say_yes,
+    tick,
+    use_terms,
 )
 from vl_core.settings import Settings, get_settings
 
@@ -33,30 +38,38 @@ def check(cond: bool, message: str) -> None:
 async def run(s: Settings) -> None:
     await reset(s, "A")
 
-    print("GREEN · Hub 7 orders 100 bunches @ 07:00 (inside Maya's rules, under auto-accept)")
-    o = await place(s, "store:hub-7", day(1))
-    check(
-        o["status"] == "confirmed",
-        f"retailer order confirmed without asking Maya ({o['status']})",
-    )
-    check(o["decisions"][-1]["status"] == "green", "Guardian decision is green")
-
-    print("RED · Hub 4 orders 350 bunches @ 05:30 (demo anchor)")
+    print("RED · the corporate gifting desk orders 50 candles @ 08:00, paid in 45 days (anchor)")
     o = await place(s, "store:hub-4", day(2))
     first = o["decisions"][0]
     check(first["status"] == "red", "Guardian returns red")
     codes = {r["code"] for r in first["reasons"]}
-    check(codes == {"QTY_OVER_DAILY_MAX", "PICKUP_BEFORE_WINDOW"}, f"reasons {sorted(codes)}")
+    expected = {"QTY_OVER_DAILY_MAX", "PICKUP_BEFORE_WINDOW", "PAYMENT_TOO_LATE"}
+    check(codes == expected, f"reasons {sorted(codes)}")
     counter = o["versions"][-1]
+    line = counter["lines"][0]
     check(
-        counter["version"] == 2 and counter["lines"][0]["qty"] == "300",
-        "counter is v2 with 300 bunches",
+        counter["version"] == 2 and line["qty"] == "40" and line["price"] == "220",
+        "counter is v2: 40 candles, price unchanged at ₹220",
     )
     check(
-        "T00:30:00Z" in counter["pickup_at"] or "06:00" in counter["pickup_at"],
-        f"counter pickup 06:00 IST ({counter['pickup_at']})",
+        "T04:30:00Z" in counter["pickup_at"] or "10:00" in counter["pickup_at"],
+        f"counter pickup 10:00 IST ({counter['pickup_at']})",
     )
-    check(o["status"] == "awaiting_vendor", "retailer auto-accepted the counter; waits for Maya")
+    check(counter["payment_days"] == 15, "counter pays in 15 days")
+    check(
+        o["status"] == "queued" and "20%" in o["queue_reason"],
+        f"counter changes value by more than policy allows → approval queue ({o['queue_reason']})",
+    )
+
+    print("SLACK · the Human Liaison asks the gifting buyer; the buyer approves")
+    ask = next(m for m in await outbox(s) if "countered order" in m["message"]["text"])
+    check(ask["message"]["channel"] == "slack", f"asked on Slack ({ask['message']['to']})")
+    await reply(s, ask, "approve")
+    check(bool((await tick(s))["answered"]), "Liaison read the buyer's reply")
+    o = await retailer_order(s, o["order_id"])
+    check(o["status"] == "awaiting_vendor", "counter accepted; waits for Maya")
+
+    print("CONSENT · Maya hears the read-back and says yes")
     view = await deal(s, o["order_id"])
     check(view["deal"]["status"] == "awaiting_consent", "Maya's deal is amber, needs her yes")
     print(f"    read-back: {view['readback']}")
@@ -68,9 +81,23 @@ async def run(s: Settings) -> None:
     m = next(m for m in mandates if m["order_id"] == o["order_id"])
     check(m["final_version"] == 2 and m["consent_ref"], "mandate is for v2 and cites her consent")
 
-    print("AMBER · Hub 9 orders 280 bunches @ 06:30 (inside rules, over auto-accept)")
+    print("TERMS · the buyer moves to standard 15-day terms (Studio)")
+    await use_terms(s, "gift-standard-v1")
+
+    print("GREEN · Hub 7 orders 10 candles @ 11:00 (inside Maya's rules, under auto-accept)")
+    o = await place(s, "store:hub-7", day(1))
+    check(
+        o["status"] == "confirmed",
+        f"retailer order confirmed without asking Maya ({o['status']})",
+    )
+    check(
+        [d["status"] for d in o["decisions"]] == ["green"],
+        "Guardian decision is green, first time",
+    )
+
+    print("AMBER · Hub 9 orders 30 candles @ 12:00 (inside rules, over auto-accept)")
     o = await place(s, "store:hub-9", day(3))
-    check(o["decisions"][-1]["status"] == "amber", "Guardian returns amber")
+    check([d["status"] for d in o["decisions"]] == ["amber"], "Guardian returns amber")
     check(o["status"] == "awaiting_vendor", "retailer waits for Maya")
     refused = await call(
         s.vendor_svc_url,

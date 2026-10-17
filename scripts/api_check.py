@@ -106,9 +106,9 @@ async def journey(s: Settings, operator_token: str) -> None:
         "POST",
         "/vendors",
         json={
-            "display_name": "API Check Farms",
+            "display_name": "API Check Crafts",
             "legal_name": "Maya Thomas",
-            "business_profile": "fresh_produce",
+            "business_profile": "handmade_gifts",
             "country": "IN",
             "language": "en",
         },
@@ -116,7 +116,7 @@ async def journey(s: Settings, operator_token: str) -> None:
     vid = vendor["id"]
     await call(vs, "GET", "/vendors")
     await call(vs, "GET", f"/vendors/{vid}/me")
-    await call(vs, "PATCH", f"/vendors/{vid}/profile", json={"display_name": "API Check Farm"})
+    await call(vs, "PATCH", f"/vendors/{vid}/profile", json={"display_name": "API Check Craft"})
     await call(vs, "GET", f"/vendors/{vid}/required-docs")
     await call(rs, "GET", f"/retailers/{RETAILER}/directory")
     await call(rs, "POST", f"/retailers/{RETAILER}/suppliers/{vid}/invite", json={"message": "hi"})
@@ -134,10 +134,15 @@ async def journey(s: Settings, operator_token: str) -> None:
         f"/vendors/{vid}/rules/draft",
         json={
             "skus": [
-                {"sku": "spinach", "unit": "bunch", "price_floor": "30", "max_qty_per_day": "100"}
+                {
+                    "sku": "beeswax candle",
+                    "unit": "piece",
+                    "price_floor": "200",
+                    "max_qty_per_day": "20",
+                }
             ],
-            "pickup_windows": [{"start": "06:00", "end": "09:00"}],
-            "payment_days_max": 7,
+            "pickup_windows": [{"start": "10:00", "end": "17:00"}],
+            "payment_days_max": 45,
             "approved_buyers": [RETAILER],
             "auto_accept_max_value": "2000",
         },
@@ -173,18 +178,34 @@ async def journey(s: Settings, operator_token: str) -> None:
         json={
             "vendor_id": vid,
             "language": "en",
-            "transcript": "40 bunch of spinach at 35",
+            "transcript": "10 piece of beeswax candle at 250",
             "photo_b64": PIXEL,
             "photo_mime": "image/png",
         },
     )
     listing_id = draft["result"]["listing"]["id"]
-    await call(vs, "POST", f"/vendors/{vid}/listings/{listing_id}/confirm")
+    await call(
+        vs, "POST", f"/vendors/{vid}/listings/{listing_id}/confirm", json={"image": "original"}
+    )
+    await call(vs, "POST", f"/vendors/{vid}/listings/{listing_id}/withdraw")
+    # the catalogue: products, one product, and its photo (the 1-px test image is unreadable)
+    await call(rs, "GET", f"/retailers/{RETAILER}/catalogue", params={"status": "published"})
+    await call(rs, "GET", f"/retailers/{RETAILER}/catalogue/{listing_id}")
+    await call(
+        rs,
+        "GET",
+        f"/retailers/{RETAILER}/catalogue/{listing_id}/images/original",
+        params={"size": "thumb"},
+        expect=422,
+    )
     await call(vs, "GET", f"/vendors/{vid}/listings")
     await call(rs, "GET", f"/retailers/{RETAILER}/listings")
 
-    # the order loop with Maya: red → counter → amber → yes; amber → no
+    # the order loop with Maya: red → counter → buyer approves → amber → yes; amber → no
     order = await place(s, "store:hub-4", day(2))
+    queue = await call(rs, "GET", f"/retailers/{RETAILER}/queue")
+    item = next(q for q in queue if q["ref_id"] == order["order_id"])
+    await call(rs, "POST", f"/retailers/{RETAILER}/queue/{item['id']}/approve")
     view = await deal(s, order["order_id"])
     await call(vs, "GET", f"/vendors/{MAYA}/deals/{order['order_id']}")
     await call(
@@ -204,11 +225,11 @@ async def journey(s: Settings, operator_token: str) -> None:
     await call(rs, "GET", "/retailers")
     await call(rs, "GET", "/config/presets")
     await call(rs, "GET", "/config/retailer_policies")
-    policy = await call(rs, "GET", "/config/retailer_policies/default_qc")
+    policy = await call(rs, "GET", "/config/retailer_policies/default_gifting")
     await call(
         rs,
         "PUT",
-        "/config/retailer_policies/default_qc",
+        "/config/retailer_policies/default_gifting",
         json={**policy, "auto_accept_counter_max_delta": 0.25},
     )
     await call(rs, "GET", "/registry/cards")
@@ -226,9 +247,9 @@ async def journey(s: Settings, operator_token: str) -> None:
         "/receiving",
         json={
             "order_id": order["order_id"],
-            "received_qty": "300",
+            "received_qty": "40",
             "rejected_qty": "0",
-            "received_at": "2026-10-15T06:30:00+05:30",
+            "received_at": "2026-10-15T10:30:00+05:30",
         },
     )
 
@@ -276,12 +297,12 @@ async def journey(s: Settings, operator_token: str) -> None:
     )
 
     # human in the loop: Slack approval via the outbox, console answer, batch job, vendor answer
-    policy = await call(rs, "GET", "/config/retailer_policies/default_qc")
+    policy = await call(rs, "GET", "/config/retailer_policies/default_gifting")
     await call(
         rs,
         "PUT",
-        "/config/retailer_policies/default_qc",
-        json={**policy, "auto_order_max_value": "13000"},
+        "/config/retailer_policies/default_gifting",
+        json={**policy, "auto_order_max_value": "10000"},
     )
     await call(rs, "POST", f"/retailers/{RETAILER}/config/activate", json={"preset": "A"})
     run = await call(
@@ -294,7 +315,7 @@ async def journey(s: Settings, operator_token: str) -> None:
     await call(rs, "GET", f"/retailers/{RETAILER}/jobs/{run['id']}")
     questions = await call(vs, "GET", f"/vendors/{MAYA}/questions")
     supply = next(q for q in questions if q["request"]["field"].startswith("supply:"))
-    await call(vs, "POST", f"/vendors/{MAYA}/questions/{supply['id']}/answer", json={"text": "45"})
+    await call(vs, "POST", f"/vendors/{MAYA}/questions/{supply['id']}/answer", json={"text": "20"})
     await call(rs, "GET", f"/retailers/{RETAILER}/info-responses")
     box = await call(rs, "GET", "/dev/outbox")
     ask = next(m for m in box if "auto-order limit" in m["message"]["text"])

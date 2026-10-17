@@ -10,11 +10,11 @@ import { Deals } from "./Deals";
 import { Activity } from "./Activity";
 import { Products } from "./Products";
 import { Setup } from "./Setup";
+import { NeedsYou, useInbox } from "./NeedsYou";
 
 type Tab = "talk" | "deals" | "products" | "setup" | "activity";
 const TAB_ICONS: Record<Tab, IconName> = { talk: "chat", deals: "deals", products: "products", setup: "setup", activity: "activity" };
-/** On a laptop the assistant is always open beside the page, so "talk" is not a page there. */
-const PAGES: Exclude<Tab, "talk">[] = ["deals", "products", "setup", "activity"];
+const TABS: Tab[] = ["talk", "deals", "products", "setup", "activity"];
 
 export function VendorApp() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -27,8 +27,10 @@ export function VendorApp() {
       return params.get("vendor") ?? "";
     }
   });
-  const [tab, setTab] = useState<Tab>((params.get("tab") as Tab) ?? "talk");
+  const [tab, setTab] = useState<Tab>(() => (TABS.includes(params.get("tab") as Tab) ? (params.get("tab") as Tab) : "talk"));
   const [tick, setTick] = useState(0);
+  /** Bumped by "Add a product" anywhere: the chat opens and asks for the photo. */
+  const [startListing, setStartListing] = useState(0);
   const wide = useWide();
   const [error, setError] = useState("");
 
@@ -52,6 +54,11 @@ export function VendorApp() {
   }
   const t = useMemo(() => strings(vendor?.language ?? "en"), [vendor?.language]);
   const refresh = useCallback(() => setTick((n) => n + 1), []);
+  const inbox = useInbox(vendor, tick);
+  const addProduct = () => {
+    setTab("talk");
+    setStartListing((n) => n + 1);
+  };
 
   useEffect(() => {
     api<Vendor[]>(VENDOR_URL, "/vendors").then(setVendors).catch((e) => setError(String(e)));
@@ -97,45 +104,52 @@ export function VendorApp() {
       <option value="__new">{t("ui.new_supplier")}</option>
     </select>
   );
-  const pages: Record<Tab, JSX.Element | null> = vendor
+  const pages: Record<Exclude<Tab, "talk">, JSX.Element | null> = vendor
     ? {
-        talk: <Talk vendor={vendor} t={t} onChange={refresh} />,
         deals: <Deals vendor={vendor} t={t} tick={tick} onChange={refresh} />,
-        products: <Products vendor={vendor} t={t} tick={tick} onChange={refresh} />,
+        products: <Products vendor={vendor} t={t} tick={tick} onChange={refresh} onAdd={addProduct} />,
         setup: <Setup vendor={vendor} t={t} tick={tick} onChange={refresh} />,
         activity: <Activity vendor={vendor} t={t} tick={tick} />,
       }
-    : { talk: null, deals: null, products: null, setup: null, activity: null };
+    : { deals: null, products: null, setup: null, activity: null };
+  // The chat stays mounted on every tab, so the conversation is still there when she comes back.
+  const talk = vendor && <Talk vendor={vendor} t={t} onChange={refresh} startListing={startListing} />;
+  const needs = vendor && <NeedsYou vendor={vendor} t={t} tick={tick} inbox={inbox} onChange={refresh} />;
+  const badge = (k: Tab) => k === "talk" && inbox.count > 0 && <span className="badge" aria-label={t("ui.needs.title")}>{inbox.count}</span>;
 
   if (wide) {
-    const page = tab === "talk" ? "deals" : tab;
     return (
       <div className="vapp">
         <header className="vapp-head">
           <div className="brand"><Logo size={30} /> VendorLink</div>
           {vendor && <span className="vapp-who">{vendor.display_name} · {vendor.country}</span>}
+          <span className="demo-tag" title={t("ui.simulated")}>{t("ui.demo_tag")}</span>
           <span className="spacer" />
           {languagePicker}
           {vendorPicker}
         </header>
-        <div className="sim-banner">{t("ui.simulated")}</div>
         {error && <div className="error">{error}</div>}
         <div className="vapp-main">
           <nav className="vapp-nav">
-            {PAGES.map((k) => (
-              <button key={k} className={page === k ? "active" : ""} onClick={() => setTab(k)}>
-                <Icon name={TAB_ICONS[k]} size={19} /> {t(`ui.tabs.${k}`)}
+            {TABS.map((k) => (
+              <button key={k} className={tab === k ? "active" : ""} onClick={() => setTab(k)}>
+                <Icon name={TAB_ICONS[k]} size={19} /> {t(`ui.tabs.${k}`)} {badge(k)}
               </button>
             ))}
           </nav>
-          <main className="vapp-page">
-            <h1>{t(`ui.tabs.${page}`)}</h1>
-            {pages[page]}
-          </main>
-          <aside className="vapp-chat" aria-label={t("ui.assistant")}>
-            <div className="vapp-chat-head"><Icon name="chat" /> {t("ui.assistant")}</div>
-            {pages.talk}
-          </aside>
+          <div className="vapp-home" hidden={tab !== "talk"}>
+            <section className="vapp-chat" aria-label={t("ui.assistant")}>{talk}</section>
+            <aside className="needs-rail" aria-label={t("ui.needs.title")}>
+              <h2>{t("ui.needs.title")}{inbox.count > 0 && <span className="badge">{inbox.count}</span>}</h2>
+              {needs}
+            </aside>
+          </div>
+          {tab !== "talk" && (
+            <main className="vapp-page">
+              <h1>{t(`ui.tabs.${tab}`)}</h1>
+              {pages[tab]}
+            </main>
+          )}
         </div>
       </div>
     );
@@ -145,16 +159,27 @@ export function VendorApp() {
     <div className="phone">
       <header className="phone-head">
         <div className="brand"><Logo size={28} /> <span>VendorLink</span></div>
+        <span className="demo-tag" title={t("ui.simulated")}>{t("ui.demo_tag")}</span>
         {languagePicker}
         {vendorPicker}
       </header>
-      <div className="sim-banner">{t("ui.simulated")}</div>
       {error && <div className="error">{error}</div>}
-      <main className="phone-body">{pages[tab]}</main>
+      <main className="phone-body">
+        <div className="phone-home" hidden={tab !== "talk"}>
+          {inbox.count > 0 && (
+            <details className="needs-strip">
+              <summary><span className="badge">{inbox.count}</span> {t("ui.needs.title")}</summary>
+              {needs}
+            </details>
+          )}
+          {talk}
+        </div>
+        {tab !== "talk" && pages[tab]}
+      </main>
       <nav className="tabbar">
-        {(Object.keys(TAB_ICONS) as Tab[]).map((k) => (
+        {TABS.map((k) => (
           <button key={k} className={tab === k ? "active" : ""} onClick={() => setTab(k)}>
-            <Icon name={TAB_ICONS[k]} size={22} />
+            <span className="tab-icon"><Icon name={TAB_ICONS[k]} size={22} />{badge(k)}</span>
             {t(`ui.tabs.${k}`)}
           </button>
         ))}

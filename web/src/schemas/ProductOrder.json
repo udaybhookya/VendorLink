@@ -1,0 +1,58 @@
+{
+  "additionalProperties": false,
+  "description": "An order that includes this product.",
+  "properties": {
+    "order_id": {
+      "title": "Order Id",
+      "type": "string"
+    },
+    "store_id": {
+      "title": "Store Id",
+      "type": "string"
+    },
+    "store_name": {
+      "title": "Store Name",
+      "type": "string"
+    },
+    "qty": {
+      "title": "Qty",
+      "type": "string"
+    },
+    "unit": {
+      "title": "Unit",
+      "type": "string"
+    },
+    "price": {
+      "title": "Price",
+      "type": "string"
+    },
+    "status": {
+      "title": "Status",
+      "type": "string"
+    },
+    "pickup_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Pickup At"
+    }
+  },
+  "required": [
+    "order_id",
+    "store_id",
+    "store_name",
+    "qty",
+    "unit",
+    "price",
+    "status"
+  ],
+  "title": "ProductOrder",
+  "type": "object"
+}

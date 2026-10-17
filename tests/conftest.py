@@ -13,13 +13,14 @@ from vl_core.store import reset_memory_repos
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_DIR = ROOT / "config"
-MODEL_VARS = ("FLASH_MODEL", "PRO_MODEL", "LIVE_MODEL")
+MODEL_VARS = ("FLASH_MODEL", "PRO_MODEL", "LIVE_MODEL", "IMAGE_MODEL")
 
 # Tests are hermetic: models named in the developer's .env (or shell) stay off, so no network and
 # no quota. Done at import, before test modules build their own Settings(); an empty environment
 # variable wins over .env. Only the evals get the real models back: that is what they measure.
-REAL_MODELS = {
-    var: os.environ.get(var) or dotenv_values(ROOT / ".env").get(var) or "" for var in MODEL_VARS
+_DOTENV = dotenv_values(ROOT / ".env")
+REAL_MODELS = {  # a variable set in the shell wins, even when empty ("FLASH_MODEL= make evals")
+    var: os.environ[var] if var in os.environ else (_DOTENV.get(var) or "") for var in MODEL_VARS
 }
 for _var in MODEL_VARS:
     os.environ[_var] = ""

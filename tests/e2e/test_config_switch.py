@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from scripts._demo import RETAILER, call, reset
+from scripts._demo import RETAILER, call, reset, use_terms
 from vl_core.settings import Settings
 
 SARA = "vendor:sara"
@@ -30,10 +30,10 @@ async def submit(
 async def test_switch_a_to_b_changes_specialists_and_flags(stack: Settings) -> None:
     await reset(stack, "A")
     active_a = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/config/active")
-    assert "produce-grader" in active_a["specialists"]
+    assert "craft-quality-checker" in active_a["specialists"]
 
-    # Under A, Maya's spoken listing goes to the catalogue builder and the produce grader.
-    a = await submit(stack, "vendor:maya", "50 bunch of spinach at 40", None, "te")
+    # Under A, Maya's spoken listing goes to the catalogue builder and the craft quality checker.
+    a = await submit(stack, "vendor:maya", "20 piece of rose candle at 210", None, "te")
     codes_a = {f["code"] for f in a["result"]["flags"]}
     assert "NO_PHOTO" in codes_a and "PARSED_WITHOUT_MODEL" in codes_a
 
@@ -62,7 +62,7 @@ async def test_switch_a_to_b_changes_specialists_and_flags(stack: Settings) -> N
     b = await submit(stack, SARA, "50 pack of cassava chips at 15000", LABEL, "id")
     codes_b = {f["code"] for f in b["result"]["flags"]}
     assert "MISSING_REGISTRATION_PIRT" in codes_b
-    assert "NO_PHOTO" not in codes_b  # the produce grader did not run under B
+    assert "NO_PHOTO" not in codes_b  # the craft quality checker did not run under B
     listing = b["result"]["listing"]
     assert listing["currency"] == "IDR" and listing["attributes"]["ingredients"]
 
@@ -89,11 +89,11 @@ async def test_approval_queue_activates_vendor(stack: Settings) -> None:
 
 async def test_order_over_policy_limit_is_queued(stack: Settings) -> None:
     await reset(stack, "A")
-    body = await call(stack.retailer_svc_url, "GET", "/config/retailer_policies/default_qc")
+    body = await call(stack.retailer_svc_url, "GET", "/config/retailer_policies/default_gifting")
     await call(
         stack.retailer_svc_url,
         "PUT",
-        "/config/retailer_policies/default_qc",
+        "/config/retailer_policies/default_gifting",
         json={**body, "auto_order_max_value": "1000"},
     )
     await call(
@@ -119,10 +119,14 @@ async def test_concierge_offline_reads_back_and_takes_consent(stack: Settings) -
 
     await set_language(stack, "te")  # she switches the app to Telugu
     order = await place(stack, "store:hub-4", day(2))
+    # the 50-candle order comes back red; its counter (40 @ 10:00, 15 days) waits on the buyer
+    queue = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/queue")
+    item = next(q for q in queue if q["ref_id"] == order["order_id"])
+    await call(stack.retailer_svc_url, "POST", f"/retailers/{RETAILER}/queue/{item['id']}/approve")
     chat = "/vendors/vendor:maya/chat"
     reply = await call(stack.vendor_svc_url, "POST", chat, json={"text": "నా డీల్స్ ఏమిటి?"})
     assert reply["mode"] == "offline"
-    assert "300" in reply["reply"] and any(e["type"] == "consent_needed" for e in reply["events"])
+    assert "40" in reply["reply"] and any(e["type"] == "consent_needed" for e in reply["events"])
     done = await call(stack.vendor_svc_url, "POST", chat, json={"text": "అవును"})
     assert any(e["type"] == "deal" for e in done["events"]), done
     orders = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/orders")
@@ -133,12 +137,13 @@ async def test_concierge_offline_reads_back_and_takes_consent(stack: Settings) -
 
 async def test_terms_reach_the_vendor_and_her_answer_comes_back(stack: Settings) -> None:
     await reset(stack, "A")
+    await use_terms(stack, "gift-standard-v1")
     proposed = await call(
         stack.retailer_svc_url, "POST", f"/retailers/{RETAILER}/terms/vendor:maya"
     )
     assert proposed["accepted"] and proposed["detail"] == "WITHIN_RULES"
     [offered] = await call(stack.vendor_svc_url, "GET", "/vendors/vendor:maya/terms")
-    assert offered["status"] == "proposed" and offered["terms"]["payment_days"] == 7
+    assert offered["status"] == "proposed" and offered["terms"]["payment_days"] == 15
     tid = offered["terms"]["terms_id"]
     done = await call(stack.vendor_svc_url, "POST", f"/vendors/vendor:maya/terms/{tid}/accept")
     assert done["status"] == "accepted"
@@ -151,21 +156,7 @@ async def test_terms_reach_the_vendor_and_her_answer_comes_back(stack: Settings)
 
 
 async def test_terms_outside_her_rules_cannot_be_accepted(stack: Settings) -> None:
-    await reset(stack, "A")
-    body = await call(stack.retailer_svc_url, "GET", "/config/retailer_profiles/quick_commerce")
-    templates = [{**t, "payment_days": 30} for t in body["term_templates"]]
-    await call(
-        stack.retailer_svc_url,
-        "PUT",
-        "/config/retailer_profiles/quick_commerce",
-        json={**body, "term_templates": templates},
-    )
-    await call(
-        stack.retailer_svc_url,
-        "POST",
-        f"/retailers/{RETAILER}/config/activate",
-        json={"preset": "A"},
-    )
+    await reset(stack, "A")  # corporate gifting pays in 45 days; Maya allows 15
     proposed = await call(
         stack.retailer_svc_url, "POST", f"/retailers/{RETAILER}/terms/vendor:maya"
     )

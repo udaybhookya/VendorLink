@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "title_max_chars": {
+      "default": 70,
+      "minimum": 10,
+      "title": "Title Max Chars",
+      "type": "integer"
+    },
+    "description_min_words": {
+      "default": 25,
+      "minimum": 0,
+      "title": "Description Min Words",
+      "type": "integer"
+    },
+    "bullets": {
+      "default": 3,
+      "maximum": 6,
+      "minimum": 0,
+      "title": "Bullets",
+      "type": "integer"
+    }
+  },
+  "title": "TextStandards",
+  "type": "object"
+}

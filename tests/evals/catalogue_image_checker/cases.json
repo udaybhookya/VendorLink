@@ -1,0 +1,153 @@
+{
+  "note": "Offline: synthetic photos (photo: size, blur, light, bytes) and a scripted description of each (review, merged over the default). Expect is the exact flag set. Config A standards.",
+  "default_review": {
+    "background": "plain",
+    "other_objects": false,
+    "lighting": "even",
+    "noise": "low",
+    "catalogue_ready": true,
+    "confidence": 0.9,
+    "product_size": "good",
+    "cut_off": false
+  },
+  "cases": [
+    {
+      "name": "catalogue_ready",
+      "photo": {},
+      "review": {},
+      "expect": []
+    },
+    {
+      "name": "too_small",
+      "photo": {
+        "size": 400
+      },
+      "review": {},
+      "expect": [
+        "IMAGE_LOW_RESOLUTION"
+      ]
+    },
+    {
+      "name": "blurry",
+      "photo": {
+        "blur": 5
+      },
+      "review": {},
+      "expect": [
+        "IMAGE_BLURRY"
+      ]
+    },
+    {
+      "name": "model_sees_blur",
+      "photo": {},
+      "review": {
+        "blur": "strong",
+        "catalogue_ready": false
+      },
+      "expect": [
+        "IMAGE_BLURRY"
+      ]
+    },
+    {
+      "name": "slight_blur_is_fine",
+      "photo": {},
+      "review": {
+        "blur": "slight"
+      },
+      "expect": []
+    },
+    {
+      "name": "too_dark",
+      "photo": {
+        "light": 0.2
+      },
+      "review": {},
+      "expect": [
+        "IMAGE_TOO_DARK"
+      ]
+    },
+    {
+      "name": "washed_out",
+      "photo": {
+        "light": 1.6
+      },
+      "review": {},
+      "expect": [
+        "IMAGE_TOO_BRIGHT"
+      ]
+    },
+    {
+      "name": "cluttered",
+      "photo": {},
+      "review": {
+        "background": "cluttered",
+        "other_objects": true,
+        "catalogue_ready": false
+      },
+      "expect": [
+        "IMAGE_CLUTTERED_BACKGROUND"
+      ]
+    },
+    {
+      "name": "product_too_small",
+      "photo": {},
+      "review": {
+        "catalogue_ready": false,
+        "product_size": "small"
+      },
+      "expect": [
+        "IMAGE_PRODUCT_TOO_SMALL"
+      ]
+    },
+    {
+      "name": "harsh_light",
+      "photo": {},
+      "review": {
+        "lighting": "harsh",
+        "catalogue_ready": false
+      },
+      "expect": [
+        "IMAGE_POOR_LIGHTING"
+      ]
+    },
+    {
+      "name": "not_ready_otherwise",
+      "photo": {},
+      "review": {
+        "catalogue_ready": false
+      },
+      "expect": [
+        "IMAGE_NOT_CATALOGUE_READY"
+      ]
+    },
+    {
+      "name": "model_failed",
+      "photo": {},
+      "review": null,
+      "expect": [
+        "IMAGE_NEEDS_REVIEW"
+      ]
+    },
+    {
+      "name": "unreadable",
+      "photo": {
+        "bytes": "not an image"
+      },
+      "review": {},
+      "expect": [
+        "IMAGE_UNREADABLE"
+      ]
+    },
+    {
+      "name": "close_up_cut_off",
+      "photo": {},
+      "review": {
+        "cut_off": true,
+        "catalogue_ready": false
+      },
+      "expect": [
+        "IMAGE_PRODUCT_CUT_OFF"
+      ]
+    }
+  ]
+}

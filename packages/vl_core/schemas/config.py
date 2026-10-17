@@ -52,6 +52,60 @@ class QualityThresholds(VLModel):
     max_reject_fraction: Fraction | None = None
 
 
+class ImageLook(VLModel):
+    """One styled direction for an AI version of her photo: the backdrop, light, angle and mood.
+    The product itself never changes; only how it is staged."""
+
+    id: str
+    name: dict[str, str] = Field(description="Shown under the photo, by language code")
+    scene: str = Field(description="For the image model: backdrop, surface, light, angle, mood")
+
+
+class ImageStandards(VLModel):
+    """What a catalogue-ready product photo means to this retailer."""
+
+    min_width: int = Field(default=600, ge=1)
+    min_height: int = Field(default=600, ge=1)
+    min_sharpness: float = Field(
+        default=8.0, ge=0, description="Edge strength vs contrast, ~0-100; below = severely blurry"
+    )
+    min_brightness: float = Field(default=60, ge=0, le=255)
+    max_brightness: float = Field(default=235, ge=0, le=255)
+    background: str = Field(default="plain, light, uncluttered", description="Style guide words")
+    style: str = Field(
+        default="product centred, soft daylight, plain light background",
+        description="How enhanced photos should look; used in regeneration prompts",
+    )
+    allow_ai_enhanced: bool = Field(default=True, description="May agents propose AI photos")
+    classic_enhancement: bool = Field(
+        default=True, description="Also offer her photo cleaned up in code (light, framing)"
+    )
+    ai_images_need_review: bool = Field(
+        default=True, description="A listing using an AI photo goes to a person before publishing"
+    )
+    candidates: int = Field(default=3, ge=1, le=4, description="Regenerated photos to propose")
+    looks: list[ImageLook] = Field(
+        default_factory=list,
+        description="One look per AI version, in order (repeating if fewer); none = `style` only",
+    )
+    aspect_ratio: Literal["1:1", "4:5", "3:4", "4:3"] = Field(
+        default="1:1", description="Shape of regenerated photos (catalogue tiles)"
+    )
+
+
+class TextStandards(VLModel):
+    title_max_chars: int = Field(default=70, ge=10)
+    description_min_words: int = Field(default=25, ge=0)
+    bullets: int = Field(default=3, ge=0, le=6)
+
+
+class CatalogueStandards(VLModel):
+    """The retailer's bar for a listing: photo and text. Checked by the catalogue specialists."""
+
+    image: ImageStandards = Field(default_factory=ImageStandards)
+    text: TextStandards = Field(default_factory=TextStandards)
+
+
 class TermTemplate(VLModel):
     id: str
     payment_days: int = Field(ge=0)
@@ -70,6 +124,9 @@ class RetailerProfile(VLModel):
     workflow_set: str = "default"
     claims_requiring_proof: list[str] = Field(
         default_factory=list, description="Product claims flagged for review, e.g. organic"
+    )
+    catalogue_standards: CatalogueStandards | None = Field(
+        default=None, description="Photo and text standards; none means no catalogue checks"
     )
 
 

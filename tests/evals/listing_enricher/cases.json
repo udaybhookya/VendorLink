@@ -1,0 +1,301 @@
+{
+  "note": "Offline: a scripted enrichment per case (merged over the default). Checks the code's verdicts: where each fact came from, required attributes, claims she never made, text limits. Config A profiles; the listing is 40 piece of lavender candle at 220.",
+  "default": {
+    "title": "Hand-poured lavender candle",
+    "description": "A calm, hand-poured lavender candle in a glass jar, made in small batches for gifting and quiet evenings at home, with a clean even burn and a soft lavender scent.",
+    "bullets": [
+      "Lavender scent",
+      "Glass jar",
+      "Small batches"
+    ],
+    "attributes": [
+      {
+        "key": "scent",
+        "value": "lavender",
+        "source": "vendor",
+        "evidence": "lavender"
+      },
+      {
+        "key": "size",
+        "value": "250 g",
+        "source": "vendor",
+        "evidence": "250 grams"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "all_her_facts",
+      "said": "40 lavender candles at 220, 250 grams",
+      "expect": {
+        "flags": [],
+        "sources": {
+          "price": "vendor",
+          "qty": "vendor",
+          "scent": "vendor",
+          "size": "vendor"
+        }
+      }
+    },
+    {
+      "name": "number_coincidence_not_trusted",
+      "said": "40 lavender candles at 220, 250 grams",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          },
+          {
+            "key": "size",
+            "value": "250 g",
+            "source": "vendor",
+            "evidence": "250 grams"
+          },
+          {
+            "key": "burn_time_hours",
+            "value": "40",
+            "source": "vendor",
+            "evidence": "burns 45 hours"
+          }
+        ]
+      },
+      "expect": {
+        "flags": [],
+        "absent": [
+          "burn_time_hours"
+        ]
+      }
+    },
+    {
+      "name": "optional_guess_left_out",
+      "said": "lavender candles at 220, 250 grams, 40 of them",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          },
+          {
+            "key": "size",
+            "value": "250 g",
+            "source": "vendor",
+            "evidence": "250 grams"
+          },
+          {
+            "key": "burn_time_hours",
+            "value": "55",
+            "source": "vendor",
+            "evidence": "long burning"
+          }
+        ]
+      },
+      "expect": {
+        "flags": [],
+        "absent": [
+          "burn_time_hours"
+        ]
+      }
+    },
+    {
+      "name": "photo_fact_without_photo",
+      "said": "40 lavender candles at 220, 250 grams",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          },
+          {
+            "key": "size",
+            "value": "250 g",
+            "source": "vendor",
+            "evidence": "250 grams"
+          },
+          {
+            "key": "wax_type",
+            "value": "soy",
+            "source": "photo",
+            "evidence": "label"
+          }
+        ]
+      },
+      "expect": {
+        "flags": [],
+        "absent": [
+          "wax_type"
+        ]
+      }
+    },
+    {
+      "name": "answer_wins",
+      "said": "40 lavender candles at 220",
+      "answers": {
+        "size": "300 g"
+      },
+      "expect": {
+        "flags": [],
+        "sources": {
+          "size": "answer"
+        },
+        "attributes": {
+          "size": "300 g"
+        }
+      }
+    },
+    {
+      "name": "claim_she_never_made",
+      "said": "40 lavender candles at 220, 250 grams",
+      "reply": {
+        "description": "A calm, non-toxic lavender candle in a glass jar, made in small batches for gifting and quiet evenings at home, with a clean even burn and soft scent."
+      },
+      "expect": {
+        "flags": [
+          "FACT_NOT_FROM_VENDOR_CLAIM_NON_TOXIC"
+        ]
+      }
+    },
+    {
+      "name": "claim_she_made",
+      "said": "40 lavender candles at 220, 250 grams, handmade",
+      "reply": {
+        "title": "Handmade lavender candle"
+      },
+      "expect": {
+        "flags": []
+      }
+    },
+    {
+      "name": "required_size_missing",
+      "said": "40 lavender candles at 220",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          }
+        ]
+      },
+      "expect": {
+        "flags": [
+          "ATTRIBUTE_MISSING_SIZE"
+        ]
+      }
+    },
+    {
+      "name": "long_title_shortened",
+      "said": "40 lavender candles at 220, 250 grams",
+      "reply": {
+        "title": "Beautiful hand-poured lavender candle in a reusable glass jar with a white label, perfect for gifting"
+      },
+      "expect": {
+        "flags": [],
+        "title_max": 70
+      }
+    },
+    {
+      "name": "short_description",
+      "said": "40 lavender candles at 220, 250 grams",
+      "reply": {
+        "description": "Lavender candle."
+      },
+      "expect": {
+        "flags": [
+          "TEXT_DESCRIPTION_SHORT"
+        ]
+      }
+    },
+    {
+      "name": "wrong_enum_dropped",
+      "said": "40 lavender candles at 220, 250 grams, gel wax",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          },
+          {
+            "key": "size",
+            "value": "250 g",
+            "source": "vendor",
+            "evidence": "250 grams"
+          },
+          {
+            "key": "wax_type",
+            "value": "gel",
+            "source": "vendor",
+            "evidence": "gel wax"
+          }
+        ]
+      },
+      "expect": {
+        "flags": [],
+        "absent": [
+          "wax_type"
+        ]
+      }
+    },
+    {
+      "name": "model_failed",
+      "said": "40 lavender candles at 220",
+      "reply": null,
+      "expect": {
+        "flags": [
+          "TEXT_NEEDS_REVIEW"
+        ],
+        "sources": {
+          "price": "vendor"
+        }
+      }
+    },
+    {
+      "name": "price_she_never_said",
+      "said": "40 lavender candles, 250 grams",
+      "expect": {
+        "flags": [],
+        "sources": {
+          "price": "model",
+          "qty": "vendor"
+        }
+      }
+    },
+    {
+      "name": "required_guess_flagged",
+      "said": "40 lavender candles at 220",
+      "reply": {
+        "attributes": [
+          {
+            "key": "scent",
+            "value": "lavender",
+            "source": "vendor",
+            "evidence": "lavender"
+          },
+          {
+            "key": "size",
+            "value": "250 g",
+            "source": "model",
+            "evidence": ""
+          }
+        ]
+      },
+      "expect": {
+        "flags": [
+          "FACT_NOT_FROM_VENDOR_SIZE"
+        ],
+        "sources": {
+          "size": "model"
+        }
+      }
+    }
+  ]
+}

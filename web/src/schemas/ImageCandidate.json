@@ -1,0 +1,73 @@
+{
+  "additionalProperties": false,
+  "description": "A photo the listing could use: her original, or an AI-enhanced version of it.",
+  "properties": {
+    "id": {
+      "description": "original, enhanced, or img-1, img-2 …",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "description": "her photo; auto-enhanced in code (light, framing; not AI); or AI-regenerated",
+      "enum": [
+        "original",
+        "enhanced",
+        "generated"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "uri": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Blob URI; none when only a prompt exists",
+      "title": "Uri"
+    },
+    "prompt": {
+      "default": "",
+      "description": "Regeneration prompt (also a reshoot tip)",
+      "title": "Prompt",
+      "type": "string"
+    },
+    "preview_b64": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Small JPEG for the apps",
+      "title": "Preview B64"
+    },
+    "look": {
+      "default": "",
+      "description": "The retailer's look this AI version was styled in",
+      "title": "Look",
+      "type": "string"
+    },
+    "look_name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "That look's name, by language",
+      "title": "Look Name",
+      "type": "object"
+    }
+  },
+  "required": [
+    "id",
+    "kind"
+  ],
+  "title": "ImageCandidate",
+  "type": "object"
+}

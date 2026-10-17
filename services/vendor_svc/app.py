@@ -37,6 +37,7 @@ from vl_core.schemas import (
     DocumentUpload,
     HumanTask,
     Listing,
+    ListingConfirmRequest,
     ListingDraftView,
     ListingSubmission,
     ProfileUpdate,
@@ -116,6 +117,7 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
                 "order.counter_response": services.on_counter_response,
                 "terms.propose": services.on_terms,
                 "vendor.status": services.on_vendor_status,
+                "listing.status": services.on_listing_status,
                 "vendor.invite": services.on_invite,
                 "info.request": services.hitl.on_info_request,
             },
@@ -222,8 +224,15 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
         return await services.listing_draft_view(vendor_id, sub)
 
     @app.post("/vendors/{vendor_id}/listings/{listing_id}/confirm")
-    async def confirm_listing(vendor_id: str, listing_id: str) -> Ack:
-        return await services.confirm_listing(vendor_id, listing_id)
+    async def confirm_listing(
+        vendor_id: str, listing_id: str, req: ListingConfirmRequest | None = None
+    ) -> Ack:
+        image = req.image if req else "original"
+        return await services.confirm_listing(vendor_id, listing_id, image=image)
+
+    @app.post("/vendors/{vendor_id}/listings/{listing_id}/withdraw")
+    async def withdraw_listing(vendor_id: str, listing_id: str) -> Listing:
+        return await services.withdraw_listing(vendor_id, listing_id)
 
     # onboarding
     @app.post("/vendors/{vendor_id}/documents")

@@ -13,13 +13,14 @@ from pydantic import BaseModel, Field
 
 from vl_core.a2a import agent_id_for
 from vl_core.errors import Problem
-from vl_core.obs import trace_id_var
+from vl_core.obs import get_logger, trace_id_var
 from vl_core.readback import party_name
 from vl_core.schemas import (
     A2AEnvelope,
     Ack,
     AnswerIn,
     AskRequest,
+    Choice,
     Contact,
     ContactBook,
     Deal,
@@ -27,6 +28,7 @@ from vl_core.schemas import (
     InfoRequest,
     InfoRequestMessage,
     InfoResponseMessage,
+    Listing,
     ListingSubmission,
     OutboxMessage,
     TaskList,
@@ -38,6 +40,8 @@ from vl_core.store import get_repo
 
 if TYPE_CHECKING:
     from vendor_svc.operations import VendorOperations
+
+log = get_logger("vendor.hitl")
 
 
 class PendingListing(BaseModel):
@@ -135,6 +139,65 @@ class VendorHumanLoop:
                 task_id=f"{pending.id}-{r.field}",
             )
 
+    async def ask_listing_review(
+        self, vendor: Vendor, retailer: str, listing: Listing, reasons: list[str]
+    ) -> None:
+        """Her agent could not approve the improved listing alone: ask her, in the app, which
+        photo to use (her own or an enhanced version) after reading the listing back."""
+        strings = self.s.strings(vendor)
+        rendered = [c for c in listing.images if c.kind == "generated" and c.uri]
+        enhanced = [c for c in listing.images if c.kind == "enhanced" and c.uri]
+        choices = [
+            Choice(
+                id="original",
+                label=strings.t("hitl.choice.my_photo"),
+                words=strings.words("hitl.choice_words.my_photo"),
+            ),
+            *(
+                Choice(
+                    id=c.id,
+                    label=strings.t("hitl.choice.enhanced"),
+                    words=strings.words("hitl.choice_words.enhanced"),
+                )
+                for c in enhanced
+            ),
+            *(
+                # a styled version is named by its look ("Warm wood"), so she can say it back
+                Choice(
+                    id=c.id,
+                    label=c.look_name.get(strings.lang)
+                    or c.look_name.get("en")
+                    or strings.t("hitl.choice.photo", n=n),
+                    words=[w for w in (c.look_name.get(strings.lang), c.look_name.get("en")) if w],
+                )
+                for n, c in enumerate(rendered, start=1)
+            ),
+            Choice(
+                id="reject",
+                label=strings.t("hitl.choice.dont_list"),
+                words=strings.words("negatives"),
+            ),
+        ]
+        await self.ask(
+            vendor,
+            InfoRequest(
+                field="listing_review",
+                ask="vendor",
+                kind="review",
+                answer_type="choice",
+                question_key="hitl.q.listing_review_vendor",
+                params={
+                    "sku": listing.title or listing.sku_name,
+                    "retailer": party_name(retailer),
+                    "reasons": "; ".join(strings.t(f"listing_reason.{r}") for r in reasons),
+                },
+                choices=choices,
+            ),
+            subject_ref=listing.id,
+            resume=f"listing_review:{listing.id}",
+            task_id=f"review-{listing.id}",
+        )
+
     async def ask_docs(self, vendor: Vendor, retailer: str, requests: list[InfoRequest]) -> None:
         for r in requests:
             await self.ask(
@@ -215,6 +278,14 @@ class VendorHumanLoop:
             if all(f in answers for f in pending.fields):
                 sub = pending.submission.model_copy(update={"answers": answers})
                 await self.s.draft_listing(pending.vendor_id, sub, pending.retailer_id)
+        elif kind == "listing_review" and task.status == "answered":
+            if task.answered_via != "inapp":  # her listing choice counts only from the app
+                log.warning("listing choice ignored: not from the app", task=task.id)
+                return
+            if task.answer_value == "reject":
+                await self.s.withdraw_listing(task.party, rest)
+            else:
+                await self.s.confirm_listing(task.party, rest, image=str(task.answer_value))
         elif kind == "doc" and task.status == "answered":
             retailer, field = rest.split("|", 1)  # party ids contain ':'
             await self.s.submit_document(

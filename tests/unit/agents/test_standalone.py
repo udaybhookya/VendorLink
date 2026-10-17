@@ -65,9 +65,12 @@ def test_standalone_specialist_invoke_and_bad_input() -> None:
 
 @pytest.fixture
 def split_out_specialists() -> Iterator[AgentRegistry]:
-    """The catalogue builder and produce grader run as their own services; the orchestrator
+    """The catalogue builder and craft quality checker run as their own services; the orchestrator
     reaches them over A2A purely because config says so."""
-    urls = {"catalogue-builder": "http://catalogue.test", "produce-grader": "http://grader.test"}
+    urls = {
+        "catalogue-builder": "http://catalogue.test",
+        "craft-quality-checker": "http://grader.test",
+    }
     set_transport(AppRouter({url: create_agent_app(aid, SETTINGS) for aid, url in urls.items()}))
     registry = AgentRegistry(SETTINGS, host="retailer-svc")
     for entry in ConfigLoader(CONFIG_DIR).load_agents_config().agents:
@@ -91,7 +94,7 @@ async def test_orchestrator_uses_split_out_specialists_over_a2a(
     step = ListingStepIn(
         vendor_id="v",
         language="en",
-        transcript="20 bunch of mint at 12",
+        transcript="20 piece of rose candle at 210",
         business_profile=a.business_profile,
         retailer_profile=a.retailer_profile,
         country_pack=a.country_pack,
@@ -99,6 +102,12 @@ async def test_orchestrator_uses_split_out_specialists_over_a2a(
     out = await registry.call(
         "orchestrator.build_listing", BuildListingIn(active_config=a, step_in=step), BuildListingOut
     )
-    assert out.ran == ["catalogue-builder", "produce-grader"]
-    assert out.result.listing is not None and out.result.listing.sku_name == "mint"
+    assert out.ran == [
+        "catalogue-builder",
+        "craft-quality-checker",
+        "catalogue-image-checker",
+        "image-enhancer",
+        "listing-enricher",
+    ]
+    assert out.result.listing is not None and out.result.listing.sku_name == "rose candle"
     assert "NO_PHOTO" in {f.code for f in out.result.flags}

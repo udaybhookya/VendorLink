@@ -166,6 +166,20 @@
       "title": "BusinessProfile",
       "type": "object"
     },
+    "CatalogueStandards": {
+      "additionalProperties": false,
+      "description": "The retailer's bar for a listing: photo and text. Checked by the catalogue specialists.",
+      "properties": {
+        "image": {
+          "$ref": "#/$defs/ImageStandards"
+        },
+        "text": {
+          "$ref": "#/$defs/TextStandards"
+        }
+      },
+      "title": "CatalogueStandards",
+      "type": "object"
+    },
     "Category": {
       "additionalProperties": false,
       "properties": {
@@ -418,6 +432,135 @@
       "title": "GradingRules",
       "type": "object"
     },
+    "ImageLook": {
+      "additionalProperties": false,
+      "description": "One styled direction for an AI version of her photo: the backdrop, light, angle and mood.\nThe product itself never changes; only how it is staged.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Shown under the photo, by language code",
+          "title": "Name",
+          "type": "object"
+        },
+        "scene": {
+          "description": "For the image model: backdrop, surface, light, angle, mood",
+          "title": "Scene",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "scene"
+      ],
+      "title": "ImageLook",
+      "type": "object"
+    },
+    "ImageStandards": {
+      "additionalProperties": false,
+      "description": "What a catalogue-ready product photo means to this retailer.",
+      "properties": {
+        "min_width": {
+          "default": 600,
+          "minimum": 1,
+          "title": "Min Width",
+          "type": "integer"
+        },
+        "min_height": {
+          "default": 600,
+          "minimum": 1,
+          "title": "Min Height",
+          "type": "integer"
+        },
+        "min_sharpness": {
+          "default": 8.0,
+          "description": "Edge strength vs contrast, ~0-100; below = severely blurry",
+          "minimum": 0,
+          "title": "Min Sharpness",
+          "type": "number"
+        },
+        "min_brightness": {
+          "default": 60,
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Min Brightness",
+          "type": "number"
+        },
+        "max_brightness": {
+          "default": 235,
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Max Brightness",
+          "type": "number"
+        },
+        "background": {
+          "default": "plain, light, uncluttered",
+          "description": "Style guide words",
+          "title": "Background",
+          "type": "string"
+        },
+        "style": {
+          "default": "product centred, soft daylight, plain light background",
+          "description": "How enhanced photos should look; used in regeneration prompts",
+          "title": "Style",
+          "type": "string"
+        },
+        "allow_ai_enhanced": {
+          "default": true,
+          "description": "May agents propose AI photos",
+          "title": "Allow Ai Enhanced",
+          "type": "boolean"
+        },
+        "classic_enhancement": {
+          "default": true,
+          "description": "Also offer her photo cleaned up in code (light, framing)",
+          "title": "Classic Enhancement",
+          "type": "boolean"
+        },
+        "ai_images_need_review": {
+          "default": true,
+          "description": "A listing using an AI photo goes to a person before publishing",
+          "title": "Ai Images Need Review",
+          "type": "boolean"
+        },
+        "candidates": {
+          "default": 3,
+          "description": "Regenerated photos to propose",
+          "maximum": 4,
+          "minimum": 1,
+          "title": "Candidates",
+          "type": "integer"
+        },
+        "looks": {
+          "description": "One look per AI version, in order (repeating if fewer); none = `style` only",
+          "items": {
+            "$ref": "#/$defs/ImageLook"
+          },
+          "title": "Looks",
+          "type": "array"
+        },
+        "aspect_ratio": {
+          "default": "1:1",
+          "description": "Shape of regenerated photos (catalogue tiles)",
+          "enum": [
+            "1:1",
+            "4:5",
+            "3:4",
+            "4:3"
+          ],
+          "title": "Aspect Ratio",
+          "type": "string"
+        }
+      },
+      "title": "ImageStandards",
+      "type": "object"
+    },
     "QualityThresholds": {
       "additionalProperties": false,
       "properties": {
@@ -572,6 +715,18 @@
           },
           "title": "Claims Requiring Proof",
           "type": "array"
+        },
+        "catalogue_standards": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CatalogueStandards"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Photo and text standards; none means no catalogue checks"
         }
       },
       "required": [
@@ -608,6 +763,32 @@
         "payment_days"
       ],
       "title": "TermTemplate",
+      "type": "object"
+    },
+    "TextStandards": {
+      "additionalProperties": false,
+      "properties": {
+        "title_max_chars": {
+          "default": 70,
+          "minimum": 10,
+          "title": "Title Max Chars",
+          "type": "integer"
+        },
+        "description_min_words": {
+          "default": 25,
+          "minimum": 0,
+          "title": "Description Min Words",
+          "type": "integer"
+        },
+        "bullets": {
+          "default": 3,
+          "maximum": 6,
+          "minimum": 0,
+          "title": "Bullets",
+          "type": "integer"
+        }
+      },
+      "title": "TextStandards",
       "type": "object"
     },
     "Workflow": {

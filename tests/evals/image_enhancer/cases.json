@@ -1,0 +1,227 @@
+{
+  "note": "Offline: a scripted edit plan and a fake image model. Each case: the photo flags already on the listing, the plan (null = the model failed), whether an image model is configured and whether it fails, standards overrides; expect: rendered and prompt-only counts, and flags. enhanced: the auto-enhanced (not AI) version, offered whenever the photo misses a standard. Every AI version must be in a different look (when the retailer has enough looks) and carry the faithfulness guard.",
+  "default_plan": {
+    "product": "a purple lavender candle in a glass jar",
+    "keep": [
+      "purple wax",
+      "glass jar",
+      "white label"
+    ],
+    "fixes": [
+      "remove the clutter around the jar",
+      "sharpen the label"
+    ],
+    "scenes": [
+      "warm off-white backdrop that lets the purple wax stand out",
+      "pale oak tabletop, light from the left so the jar glows",
+      "sage surface complementing the lavender colour",
+      "linen folds below the jar"
+    ]
+  },
+  "cases": [
+    {
+      "name": "photo_fine_nothing_to_do",
+      "flags": [],
+      "expect": {
+        "rendered": 0,
+        "prompts": 0,
+        "flags": [],
+        "enhanced": 0
+      }
+    },
+    {
+      "name": "cluttered_two_versions",
+      "flags": [
+        "IMAGE_CLUTTERED_BACKGROUND"
+      ],
+      "expect": {
+        "rendered": 2,
+        "prompts": 2,
+        "flags": [],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "no_image_model_tips_only",
+      "flags": [
+        "IMAGE_BLURRY"
+      ],
+      "gen": false,
+      "expect": {
+        "rendered": 0,
+        "prompts": 2,
+        "flags": [],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "retailer_forbids_ai_photos",
+      "flags": [
+        "IMAGE_TOO_DARK"
+      ],
+      "standards": {
+        "allow_ai_enhanced": false
+      },
+      "expect": {
+        "rendered": 0,
+        "prompts": 0,
+        "flags": [],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "plan_failed_rules_used",
+      "flags": [
+        "IMAGE_CLUTTERED_BACKGROUND",
+        "IMAGE_TOO_DARK"
+      ],
+      "plan": null,
+      "expect": {
+        "rendered": 2,
+        "prompts": 2,
+        "flags": [
+          "IMAGE_EDITS_FROM_RULES"
+        ],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "image_model_fails",
+      "flags": [
+        "IMAGE_NOISY"
+      ],
+      "gen": "fail",
+      "expect": {
+        "rendered": 0,
+        "prompts": 2,
+        "flags": [
+          "IMAGE_GENERATION_FAILED"
+        ],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "retailer_wants_three",
+      "flags": [
+        "IMAGE_POOR_LIGHTING"
+      ],
+      "standards": {
+        "candidates": 3
+      },
+      "expect": {
+        "rendered": 3,
+        "prompts": 3,
+        "flags": [],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "unreadable_photo",
+      "flags": [
+        "IMAGE_UNREADABLE"
+      ],
+      "expect": {
+        "rendered": 0,
+        "prompts": 0,
+        "flags": [],
+        "enhanced": 0
+      }
+    },
+    {
+      "name": "plan_too_long_capped",
+      "flags": [
+        "IMAGE_PRODUCT_TOO_SMALL"
+      ],
+      "plan": {
+        "product": "candle",
+        "keep": [
+          "jar"
+        ],
+        "fixes": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ],
+        "scenes": [
+          "s1",
+          "s2",
+          "s3",
+          "s4",
+          "s5"
+        ]
+      },
+      "expect": {
+        "rendered": 2,
+        "prompts": 2,
+        "flags": [],
+        "enhanced": 1
+      }
+    },
+    {
+      "name": "other_flags_ignored",
+      "flags": [
+        "UNSUPPORTED_CLAIM_SOY_WAX"
+      ],
+      "expect": {
+        "rendered": 0,
+        "prompts": 0,
+        "flags": [],
+        "enhanced": 0
+      }
+    },
+    {
+      "name": "classic_off_ai_only",
+      "flags": [
+        "IMAGE_CLUTTERED_BACKGROUND"
+      ],
+      "standards": {
+        "classic_enhancement": false
+      },
+      "expect": {
+        "rendered": 2,
+        "prompts": 2,
+        "enhanced": 0,
+        "flags": []
+      }
+    },
+    {
+      "name": "both_off_nothing",
+      "flags": [
+        "IMAGE_TOO_DARK"
+      ],
+      "standards": {
+        "classic_enhancement": false,
+        "allow_ai_enhanced": false
+      },
+      "expect": {
+        "rendered": 0,
+        "prompts": 0,
+        "enhanced": 0,
+        "flags": []
+      }
+    },
+    {
+      "name": "plan_without_scenes_looks_hold",
+      "flags": [
+        "IMAGE_CLUTTERED_BACKGROUND"
+      ],
+      "plan": {
+        "product": "candle",
+        "keep": [
+          "jar"
+        ]
+      },
+      "standards": {
+        "candidates": 3
+      },
+      "expect": {
+        "rendered": 3,
+        "prompts": 3,
+        "flags": [],
+        "enhanced": 1
+      }
+    }
+  ]
+}

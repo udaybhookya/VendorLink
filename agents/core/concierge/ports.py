@@ -15,6 +15,7 @@ from vl_core.schemas import (
     DealView,
     DocumentUpload,
     HumanTask,
+    ListingConfirmRequest,
     ListingDraftView,
     ListingSubmission,
     ProfileUpdate,
@@ -39,7 +40,9 @@ class VendorPort(Protocol):
     async def draft_rules(self, vendor_id: str, draft: RulesDraft) -> RulesView: ...
     async def consent_rules(self, vendor_id: str, req: ConsentRequest) -> StandingMandate: ...
     async def draft_listing(self, vendor_id: str, sub: ListingSubmission) -> ListingDraftView: ...
-    async def confirm_listing(self, vendor_id: str, listing_id: str) -> Ack: ...
+    async def confirm_listing(
+        self, vendor_id: str, listing_id: str, image: str = "original"
+    ) -> Ack: ...
     async def submit_document(self, vendor_id: str, upload: DocumentUpload) -> VendorDoc: ...
     async def update_profile(self, vendor_id: str, update: ProfileUpdate) -> Vendor: ...
     async def today(self, vendor_id: str, language: str) -> list[str]: ...
@@ -138,11 +141,14 @@ class HttpVendorPort:
             sub,
         )
 
-    async def confirm_listing(self, vendor_id: str, listing_id: str) -> Ack:
+    async def confirm_listing(
+        self, vendor_id: str, listing_id: str, image: str = "original"
+    ) -> Ack:
         return await self._call(
             "POST",
             f"/vendors/{vendor_id}/listings/{listing_id}/confirm",
             Ack,
+            ListingConfirmRequest(image=image),
         )
 
     async def submit_document(self, vendor_id: str, upload: DocumentUpload) -> VendorDoc:

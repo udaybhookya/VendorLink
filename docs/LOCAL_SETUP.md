@@ -141,6 +141,7 @@ for m in json.load(sys.stdin)["models"]:
 | `FLASH_MODEL` | the newest **stable** `text` model with `flash` in the name (not `lite`, `tts`, `image` or `preview`) | catalogue builder, produce grader, label reader |
 | `PRO_MODEL` | the newest `text` model with `pro` in the name | the Concierge's chat (Google ADK) |
 | `LIVE_MODEL` | a `live` model (supports `bidiGenerateContent`) | voice: vendor app → Chat → hold the 🎙️ button |
+| `IMAGE_MODEL` (optional) | an `image` model that edits photos, e.g. `gemini-3.1-flash-image` (tested: about 10–15 s per photo) | AI-regenerated versions of a vendor's product photo. Empty: she still gets an auto-enhanced version (code, not AI) and retake tips |
 
 > Avoid `gemini-2.0-*` and `gemini-2.5-*`. Google's schedule retires the 2.5 family on
 > 16 Oct 2026 and the 2.0 Flash models are already retired. A preview `live` model is fine.
@@ -149,6 +150,7 @@ for m in json.load(sys.stdin)["models"]:
 FLASH_MODEL=<name from the list>
 PRO_MODEL=<name from the list>
 LIVE_MODEL=<name from the list>
+IMAGE_MODEL=gemini-3.1-flash-image   # optional; any image model from the list
 ```
 
 ### B3. Check
@@ -166,20 +168,26 @@ restart `make dev`.
 | `404 … not found` | The model name is wrong or retired; pick again from the list |
 | `429` | Free-tier rate limit; wait a minute or enable billing on the project |
 
-### B4. Photos for the grader (optional, for the eval score)
+### B4. Photos for the Craft Quality Checker (optional, for the eval score)
 
-The Produce Grader eval needs 10 photos in `seed/photos/` with exactly these names (expected
-grade in brackets):
+The Craft Quality Checker eval needs 10 JPEG photos in `seed/photos/` with exactly these names
+(`tests/evals/craft_quality_checker/cases.json` has the exact expectations):
 
-| File | Grade | File | Grade |
-|---|---|---|---|
-| `spinach_fresh.jpg` | A | `tomato_spoiled.jpg` | C |
-| `spinach_day_old.jpg` | A or B | `mint_fresh.jpg` | A |
-| `spinach_wilting.jpg` | C | `tomato_bruised.jpg` | B or C |
-| `tomato_fresh.jpg` | A | `carrot_fresh.jpg` | A |
-| `tomato_mixed.jpg` | B | `not_produce.jpg` (anything that isn't produce) | C |
+| File | Shows | Expect |
+|---|---|---|
+| `candle_clean.jpg` | one jar candle, smooth top, centred wick | grade A, no defects |
+| `candle_batch_even.jpg` | several identical candles side by side | A or B, batch consistent |
+| `candle_batch_mixed.jpg` | candles with clearly different fill, colour or size | `BATCH_INCONSISTENT` |
+| `candle_frosting.jpg` | white frosting or a small sinkhole (cosmetic) | B or C |
+| `candle_cracked.jpg` | cracks across the wax | C, `BELOW_MIN_GRADE` |
+| `candle_wick_off_centre.jpg` | wick clearly off centre | `DEFECT_OFF_CENTRE_WICK` |
+| `candle_soot.jpg` | black soot on the jar | `DEFECT_SOOT` |
+| `candle_soy_label.jpg` | label printed "soy wax" | `UNSUPPORTED_CLAIM_SOY_WAX` |
+| `gift_set_handmade_tag.jpg` | boxed set with a "handmade" tag | A or B, `UNSUPPORTED_CLAIM_HANDMADE` |
+| `not_a_product.jpg` | anything that isn't a handmade product | C, `NOT_A_PRODUCT_PHOTO` |
 
-Then run `make evals` and aim for 8/10 or better. For the label demo, also keep one or two photos
+Then run `make evals` and aim for 8/10 or better. Without the photos (or `FLASH_MODEL`) the eval
+is skipped, not failed. For the label demo, also keep one or two photos
 of packaged-food labels handy: one with a P-IRT number, one without.
 
 ---
@@ -238,8 +246,8 @@ its tool names match `config/channels/slack.json`. (The original reference serve
    curl -s -H "Authorization: Bearer xoxb-YOUR-TOKEN" https://slack.com/api/auth.test
    ```
    Copy `team_id` from the answer (it starts with `T`).
-5. Create three channels, for example `#freshcart-buying`, `#freshcart-catalogue` and
-   `#freshcart-ops`. In **each** one:
+5. Create four channels, for example `#freshcart-buying`, `#freshcart-catalogue`,
+   `#freshcart-category-lead` and `#freshcart-ops`. In **each** one:
    - type `/invite @VendorLink`;
    - open the channel name → **About** and copy the **Channel ID** (it starts with `C`). Use the
      ID, not the `#name`.
@@ -254,7 +262,8 @@ MCP_SLACK_ENV_PASSTHROUGH=SLACK_BOT_TOKEN,SLACK_TEAM_ID
 
 FRESHCART_BUYER_SLACK=C...        # order approvals over the auto-order limit, counters
 FRESHCART_CATEGORY_SLACK=C...     # new suppliers, listing reviews
-FRESHCART_OPS_SLACK=C...          # escalations when nobody answers in time
+FRESHCART_CATEGORY_LEAD_SLACK=C...  # approvals the buyer leaves unanswered for 4 hours
+FRESHCART_OPS_SLACK=C...          # other escalations
 ```
 
 **Check:** `uv run python -m agents mcp-tools SLACK` lists `slack_post_message`,
@@ -314,13 +323,13 @@ checklist of what must happen.
 
 | # | Do | Expect | Level |
 |---|---|---|---|
-| 1 | Console → **Orders**: Maya, Hub 4, tomorrow → Place | **red**: the Guardian counters 300 @ 06:00 (v2); the retailer auto-accepts | A |
+| 1 | Console → **Orders**: Maya, Corporate gifting desk, tomorrow → Place | **red** (qty, pickup, payment): the Guardian counters 40 @ 10:00, 15 days (v2); the counter waits in **Queue** and the buyer is asked on Slack → reply `approve` in **Outbox (dev)** | A |
 | 2 | Vendor app → **Deals**: read the read-back (English by default; 🌐 → తెలుగు switches everything to Telugu) → tap Yes, or type **yes** / **అవును** in Chat | deal **signed**; console → Trust shows the mandate | A |
 | 3 | Console → **Trust** → Verify, then Tamper → Verify | ✓ verified, then the broken record's number | A |
-| 4 | `uv run python scripts/demo_reset.py --scene waiting` | console → **Tasks**: run waiting on the buyer; Maya → Deals: a question about mint, plus FreshCart's terms | A |
-| 5 | Answer the buyer: **Outbox (dev)** → reply `approve` (Level A), or reply `approve` in the Slack thread (Level C) | within about 15 s the job resumes and the Hub 4 order goes out | A / C |
-| 6 | Maya answers the mint question (`45`) and accepts the terms | console → Tasks → responses shows 45; Suppliers shows *terms approved* | A |
-| 7 | Vendor app → **Products**: photo of spinach + "50 bunches spinach at 40 rupees" | a draft listing with a grade and price; flags if the photo is poor | B |
+| 4 | `uv run python scripts/demo_reset.py --scene waiting` | console → **Tasks**: run waiting on the buyer; Maya → Deals: a question about rose candles, plus FreshCart's terms | A |
+| 5 | Answer the buyer: **Outbox (dev)** → reply `approve` (Level A), or reply `approve` in the Slack thread (Level C) | within about 15 s the job resumes and the gifting desk's order goes out | A / C |
+| 6 | Maya answers the rose candle question (`20`); she tries to accept the 45-day terms | console → Tasks → responses shows 20; accepting is refused (`outside_your_rules`): 45 days is past her 15 | A |
+| 7 | Vendor app → **Products**: photo of a candle + "20 pieces of rose candle at 210 rupees, soy wax" | a draft listing with a grade, finish and price; `UNSUPPORTED_CLAIM_SOY_WAX`; flags if the photo shows defects | B |
 | 8 | Vendor app → **Chat**: type "what deals do I have?"; switch 🌐 to తెలుగు and hold 🎙️ to ask again by voice | the Concierge answers from her real deals, in the language she picked, by text and voice | B |
 | 9 | Console → **Studio** → activate preset **B** (or `demo_reset.py --scene sara`) | specialists switch to the label checker and compliance auditor; Sara's label is flagged `MISSING_REGISTRATION_PIRT` | A |
 | 10 | Sara (`/vendor?vendor=vendor:sara`) → **Products**: photo of a real food label | label fields read from the photo; P-IRT checked | B |
@@ -337,10 +346,10 @@ To start over at any point: `uv run python scripts/demo_reset.py` (or `--scene w
 `make dev` prints every service's log in one terminal, one line per event:
 
 ```
-12:04:48.289 INFO  vendor-svc    agents        guardian guardian.decide  status=red reasons=QTY_OVER_DAILY_MAX,PICKUP_BEFORE_WINDOW  vendor:maya · 689482c9
-12:04:48.289 INFO  vendor-svc    vendor        deal ord-hub-4-… v1 (350 bunch spinach): Guardian says red → countered  counter="300 bunch spinach"
+12:04:48.289 INFO  vendor-svc    agents        guardian guardian.decide  status=red reasons=QTY_OVER_DAILY_MAX,PICKUP_BEFORE_WINDOW,PAYMENT_TOO_LATE  vendor:maya · 689482c9
+12:04:48.289 INFO  vendor-svc    vendor        deal ord-hub-4-… v1 (50 piece lavender candle): Guardian says red → countered  counter="40 piece lavender candle"
 12:04:48.289 INFO  trust-gateway gateway       relay order.propose: retailer:freshcart → vendor:maya  status=red ms=2
-12:04:48.290 INFO  retailer-svc  retailer      counter accepted by policy  order_id=ord-hub-4-… delta=14%
+12:04:48.290 INFO  retailer-svc  retailer      counter needs the buyer  order_id=ord-hub-4-… delta=20%
 ```
 
 Columns: time, level, service, area, what happened, details, then who it was for and the trace

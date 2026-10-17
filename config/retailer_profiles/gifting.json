@@ -1,0 +1,139 @@
+{
+  "id": "gifting",
+  "version": 1,
+  "retailer_type": "gifting",
+  "ordering_mode": "manual",
+  "workflow_set": "gifting",
+  "categories": [
+    {
+      "id": "candles",
+      "name": {
+        "en": "Candles",
+        "te": "కొవ్వొత్తులు"
+      },
+      "units": [
+        "piece",
+        "gift_set"
+      ]
+    },
+    {
+      "id": "home_decor",
+      "name": {
+        "en": "Home décor",
+        "te": "గృహాలంకరణ"
+      },
+      "units": [
+        "piece"
+      ]
+    },
+    {
+      "id": "gift_sets",
+      "name": {
+        "en": "Gift sets",
+        "te": "బహుమతి సెట్లు"
+      },
+      "units": [
+        "gift_set"
+      ]
+    }
+  ],
+  "quality_thresholds": {
+    "min_grade": "B",
+    "max_reject_fraction": 0.05
+  },
+  "term_templates": [
+    {
+      "id": "gift-corporate-v1",
+      "payment_days": 45,
+      "description": {
+        "en": "Corporate gifting order: pickup on the agreed date, paid within 45 days",
+        "te": "కార్పొరేట్ బహుమతి ఆర్డర్: అంగీకరించిన రోజున పికప్, 45 రోజుల్లో చెల్లింపు",
+        "id": "Pesanan hadiah korporat: dijemput pada tanggal yang disepakati, dibayar dalam 45 hari"
+      }
+    },
+    {
+      "id": "gift-standard-v1",
+      "payment_days": 15,
+      "description": {
+        "en": "Standard order: pickup on the agreed date, paid within 15 days",
+        "te": "సాధారణ ఆర్డర్: అంగీకరించిన రోజున పికప్, 15 రోజుల్లో చెల్లింపు",
+        "id": "Pesanan standar: dijemput pada tanggal yang disepakati, dibayar dalam 15 hari"
+      }
+    }
+  ],
+  "specialists": [
+    "onboarding-verifier",
+    "catalogue-builder",
+    "catalogue-image-checker",
+    "image-enhancer",
+    "listing-enricher",
+    "terms-agent",
+    "replenishment-planner"
+  ],
+  "catalogue_standards": {
+    "image": {
+      "min_width": 600,
+      "min_height": 600,
+      "min_sharpness": 8,
+      "min_brightness": 60,
+      "max_brightness": 235,
+      "background": "uncluttered: one surface against a plain or softly blurred backdrop, light and even",
+      "style": "product centred and sharp, soft even light, gift-catalogue look",
+      "allow_ai_enhanced": true,
+      "ai_images_need_review": true,
+      "candidates": 2,
+      "aspect_ratio": "1:1",
+      "looks": [
+        {
+          "id": "studio",
+          "name": {
+            "en": "Clean studio",
+            "te": "శుభ్రమైన స్టూడియో",
+            "id": "Studio bersih"
+          },
+          "scene": "seamless warm off-white backdrop, soft diffused light from the front-left, product centred at eye level and straight-on, gentle natural contact shadow, bright and airy"
+        },
+        {
+          "id": "warm_wood",
+          "name": {
+            "en": "Warm wood",
+            "te": "చెక్క బల్లపై",
+            "id": "Kayu hangat"
+          },
+          "scene": "standing on a light natural-wood tabletop in front of a plain, softly blurred warm-beige wall, soft window daylight from the side, slightly raised three-quarter view, shallow depth of field, cosy and homely"
+        },
+        {
+          "id": "pastel",
+          "name": {
+            "en": "Soft pastel",
+            "te": "లేత రంగుల నేపథ్యం",
+            "id": "Pastel lembut"
+          },
+          "scene": "on a smooth pale sage-green surface with a matching seamless backdrop, even diffused light from above, camera about 30 degrees above the product, calm and fresh gift-shop mood"
+        },
+        {
+          "id": "linen",
+          "name": {
+            "en": "Linen",
+            "te": "నార వస్త్రంపై",
+            "id": "Linen"
+          },
+          "scene": "resting on smooth off-white linen with a plain light-grey backdrop, soft even top light, close framing that fills most of the frame, gentle and natural"
+        }
+      ]
+    },
+    "text": {
+      "title_max_chars": 70,
+      "description_min_words": 25,
+      "bullets": 3
+    }
+  },
+  "claims_requiring_proof": [
+    "soy wax",
+    "beeswax",
+    "handmade",
+    "natural",
+    "organic",
+    "non-toxic"
+  ]
+}

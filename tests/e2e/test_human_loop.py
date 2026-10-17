@@ -4,41 +4,31 @@ resume the waiting work. Slack and Gmail go to the local outbox here (VL_CHANNEL
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 from agents.resources import CLOCK
-from scripts._demo import MAYA, RETAILER, call, day, deal, place, reset, set_language
+from scripts._demo import (
+    MAYA,
+    RETAILER,
+    call,
+    day,
+    deal,
+    outbox,
+    place,
+    reply,
+    reset,
+    set_language,
+    tick,
+)
 from scripts._stack import APPS
 from vl_core.settings import Settings
 
 
-async def outbox(s: Settings, base: str | None = None) -> list[dict[str, Any]]:
-    return list(await call(base or s.retailer_svc_url, "GET", "/dev/outbox"))
-
-
-async def reply(
-    s: Settings, msg: dict[str, Any], text: str, by: str = "U-asha", base: str | None = None
-) -> None:
-    channel = msg["message"]["channel"]
-    await call(
-        base or s.retailer_svc_url,
-        "POST",
-        f"/dev/outbox/{channel}/{msg['id']}/reply",
-        json={"text": text, "by": by},
-    )
-
-
-async def tick(s: Settings) -> dict[str, Any]:
-    await call(s.vendor_svc_url, "POST", "/dev/tick")
-    return dict(await call(s.retailer_svc_url, "POST", "/dev/tick"))
-
-
 async def set_limit(s: Settings, limit: str) -> None:
-    body = await call(s.retailer_svc_url, "GET", "/config/retailer_policies/default_qc")
+    body = await call(s.retailer_svc_url, "GET", "/config/retailer_policies/default_gifting")
     await call(
         s.retailer_svc_url,
         "PUT",
-        "/config/retailer_policies/default_qc",
+        "/config/retailer_policies/default_gifting",
         json={**body, "auto_order_max_value": limit},
     )
     await call(
@@ -79,7 +69,7 @@ async def test_deciding_in_the_console_stops_the_slack_ask(stack: Settings) -> N
 async def test_batch_run_pauses_for_people_and_resumes(stack: Settings) -> None:
     await reset(stack, "A")
     await set_language(stack, "te")  # questions reach her in the language she chose
-    await set_limit(stack, "13000")  # Hub 4 (350 × 40 = 14000) needs the buyer; others go
+    await set_limit(stack, "10000")  # the gifting desk (50 × 220 = 11000) needs the buyer
     run = await call(
         stack.retailer_svc_url,
         "POST",
@@ -89,50 +79,50 @@ async def test_batch_run_pauses_for_people_and_resumes(stack: Settings) -> None:
     assert run["status"] == "waiting" and len(run["waiting_on"]) == 1
     sent = {o["store"]: o["status"] for o in run["summary"]["orders"]}
     assert sent["store:hub-7"] == "confirmed"  # within policy: not held behind the buyer
-    assert run["summary"]["asked_vendor"] == ["mint"]
+    assert run["summary"]["asked_vendor"] == ["rose candle"]
 
-    # Maya is asked about mint in the app, in Telugu; her answer goes back to FreshCart.
+    # Maya is asked about rose candles in the app, in Telugu; her answer goes back to FreshCart.
     questions = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/questions")
-    mint = next(q for q in questions if q["request"]["field"] == "supply:mint")
-    assert "mint" in mint["question"] and mint["language"] == "te"
+    rose = next(q for q in questions if q["request"]["field"] == "supply:rose candle")
+    assert "rose candle" in rose["question"] and rose["language"] == "te"
     # she switches to English: the same open question now reads in English
     await set_language(stack, "en")
     again = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/questions")
-    english = next(q for q in again if q["id"] == mint["id"])
-    assert english["language"] == "en" and "can you supply mint" in english["question"]
+    english = next(q for q in again if q["id"] == rose["id"])
+    assert english["language"] == "en" and "can you supply rose candle" in english["question"]
     await set_language(stack, "te")
     await call(
         stack.vendor_svc_url,
         "POST",
-        f"/vendors/{MAYA}/questions/{mint['id']}/answer",
-        json={"text": "45"},
+        f"/vendors/{MAYA}/questions/{rose['id']}/answer",
+        json={"text": "20"},
     )
     answers = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/info-responses")
-    assert answers[0]["answer_value"] == "45" and answers[0]["vendor_id"] == MAYA
+    assert answers[0]["answer_value"] == "20" and answers[0]["vendor_id"] == MAYA
 
-    # The buyer approves Hub 4 on Slack, hours later; the job resumes where it paused.
+    # The buyer approves the gifting desk's order on Slack, hours later; the job resumes.
     msg = next(
         m
         for m in await outbox(stack)
-        if "Hub" in m["message"]["text"] and "auto-order limit" in m["message"]["text"]
+        if "gifting desk" in m["message"]["text"] and "auto-order limit" in m["message"]["text"]
     )
     await reply(stack, msg, "approve")
     await tick(stack)
     run = await call(stack.retailer_svc_url, "GET", f"/retailers/{RETAILER}/jobs/{run['id']}")
     assert run["status"] == "done"
     hub4 = next(o for o in run["summary"]["orders"] if o["store"] == "store:hub-4")
-    # Hub 7 already used part of Maya's daily max, so Hub 4 comes back red with a larger
-    # counter than auto-accept allows: a second human decision, routed to the buyer again.
-    assert hub4["status"] in ("awaiting_vendor", "queued")
+    # 50 candles @ 08:00 on 45 days comes back red; Hub 7's signed 10 already used part of
+    # Maya's 40 for the day, so the counter (30) is past auto-accept: the buyer decides again.
+    assert hub4["status"] == "queued"
     if hub4["status"] == "queued":
         assert any("countered order" in m["message"]["text"] for m in await outbox(stack))
     texts = [m["message"]["text"] for m in await outbox(stack)]
-    assert any("Replenishment run" in t for t in texts)  # ops told on Slack
+    assert any("Order run" in t for t in texts)  # ops told on Slack
 
 
 async def test_consent_is_never_answered_by_text(stack: Settings) -> None:
     await reset(stack, "A")
-    order = await place(stack, "store:hub-9", day(3))  # 280 bunches: amber, needs her yes
+    order = await place(stack, "store:hub-9", day(3))  # 30 candles: needs her yes
     questions = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/questions")
     consent = next(q for q in questions if q["kind"] == "consent")
     assert consent["subject_ref"] == order["order_id"]
@@ -165,7 +155,7 @@ async def test_missing_listing_details_are_asked_and_the_listing_completes(stack
         stack.vendor_svc_url,
         "POST",
         f"/vendors/{MAYA}/listings/draft",
-        json={"vendor_id": MAYA, "language": "te", "transcript": "I have fresh mint today"},
+        json={"vendor_id": MAYA, "language": "te", "transcript": "I have new rose candles"},
     )
     [q] = [
         q
@@ -176,11 +166,11 @@ async def test_missing_listing_details_are_asked_and_the_listing_completes(stack
         stack.vendor_svc_url,
         "POST",
         f"/vendors/{MAYA}/questions/{q['id']}/answer",
-        json={"text": "40 bunch of mint at 12"},
+        json={"text": "20 piece of rose candle at 210"},
     )
     listings = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/listings")
-    mint = next(item for item in listings if item["sku_name"] == "mint")
-    assert mint["price"] == "12" and mint["qty"] == "40"
+    rose = next(item for item in listings if item["sku_name"] == "rose candle")
+    assert rose["price"] == "210" and rose["qty"] == "20"
 
 
 async def test_missing_document_is_asked_then_application_reruns(stack: Settings) -> None:
@@ -192,7 +182,7 @@ async def test_missing_document_is_asked_then_application_reruns(stack: Settings
         json={
             "display_name": "Meena",
             "legal_name": "Maya Thomas",
-            "business_profile": "fresh_produce",
+            "business_profile": "handmade_gifts",
             "country": "IN",
             "language": "en",
             "email": "meena@example.com",
@@ -245,15 +235,17 @@ async def test_concierge_reads_questions_and_takes_her_spoken_answer(stack: Sett
         stack.vendor_svc_url,
         "POST",
         f"/vendors/{MAYA}/listings/draft",
-        json={"vendor_id": MAYA, "language": "te", "transcript": "I have fresh mint today"},
+        json={"vendor_id": MAYA, "language": "te", "transcript": "I have new rose candles"},
     )
     chat = f"/vendors/{MAYA}/chat"
     asked = await call(stack.vendor_svc_url, "POST", chat, json={"text": "నాకు ఏమైనా ప్రశ్నలు ఉన్నాయా?"})
     assert asked["mode"] == "offline" and "ఏమి అమ్ముతున్నారు" in asked["reply"]
-    done = await call(stack.vendor_svc_url, "POST", chat, json={"text": "40 bunch of mint at 12"})
+    done = await call(
+        stack.vendor_svc_url, "POST", chat, json={"text": "20 piece of rose candle at 210"}
+    )
     assert "పంపాను" in done["reply"]
     listings = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/listings")
-    assert any(item["sku_name"] == "mint" and item["price"] == "12" for item in listings)
+    assert any(item["sku_name"] == "rose candle" and item["price"] == "210" for item in listings)
     after = await call(stack.vendor_svc_url, "POST", chat, json={"text": "ప్రశ్నలు?"})
     assert "ఎవరూ ఎదురుచూడటం లేదు" in after["reply"]
 
@@ -265,7 +257,7 @@ async def test_demo_scenes_leave_work_waiting_on_people(stack: Settings) -> None
     run = await SCENES["waiting"][1](stack)
     assert run["status"] == "waiting" and len(run["waiting_on"]) == 1
     questions = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/questions")
-    assert any(q["request"]["field"] == "supply:mint" for q in questions)
+    assert any(q["request"]["field"] == "supply:rose candle" for q in questions)
     assert any("auto-order limit" in m["message"]["text"] for m in await outbox(stack))
     [terms] = await call(stack.vendor_svc_url, "GET", f"/vendors/{MAYA}/terms")
     assert terms["status"] == "proposed"

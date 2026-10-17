@@ -25,7 +25,7 @@
         }
       ],
       "default": null,
-      "description": "JPEG/PNG, downscaled to ≤1024 px",
+      "description": "JPEG/PNG, downscaled to ≤1600 px",
       "title": "Photo B64"
     },
     "photo_mime": {

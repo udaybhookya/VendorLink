@@ -9,13 +9,29 @@ if [[ ! -f .env ]]; then
   echo "created .env from .env.example (local defaults)"
 fi
 
+# Refuse to start over another stack: our servers would fail to bind, the health check below
+# would pass against the old one, and its logs would go wherever that one writes them.
+busy=""
+for port in 8000 8001 8002 8009 5173; do
+  if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+    busy+=" $port (pid $(lsof -tiTCP:"$port" -sTCP:LISTEN | head -1))"
+  fi
+done
+if [[ -n "$busy" ]]; then
+  echo "ports already in use:$busy"
+  echo "another VendorLink stack is running; stop it first: lsof -tiTCP:8000-8009,5173 -sTCP:LISTEN | xargs kill"
+  exit 1
+fi
+
 pids=()
 cleanup() { kill "${pids[@]}" 2>/dev/null || true; }
 trap cleanup EXIT INT TERM
 
 run() {
   local module=$1 port=$2
-  uv run uvicorn "$module:app" --port "$port" --no-access-log --reload --reload-dir packages --reload-dir services --reload-dir agents &
+  # The screens keep live event streams open; without a bounded shutdown a reload waits for them
+  # forever and the service stops answering (agents.control "status refresh failed" timeouts).
+  uv run uvicorn "$module:app" --port "$port" --no-access-log --timeout-graceful-shutdown 3 --reload --reload-dir packages --reload-dir services --reload-dir agents &
   pids+=($!)
 }
 

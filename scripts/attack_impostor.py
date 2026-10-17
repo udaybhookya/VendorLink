@@ -29,11 +29,13 @@ def forged_order() -> SignedOrder:
         retailer_id=RETAILER,
         vendor_id=MAYA,
         store_id="store:hub-4",
-        lines=(OrderLine(sku="spinach", qty=Decimal(1000), unit="bunch", price=Decimal(1)),),
+        lines=(
+            OrderLine(sku="lavender candle", qty=Decimal(1000), unit="piece", price=Decimal(1)),
+        ),
         pickup_at=datetime.now(UTC),
         payment_days=90,
         currency="INR",
-        terms_version="qc-standard-v1",
+        terms_version="gift-corporate-v1",
     )
     return SignedOrder(proposal=proposal, vendor_sig="forged")
 

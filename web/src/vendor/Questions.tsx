@@ -6,7 +6,9 @@ import { speak } from "../lib/speech";
 import { Icon } from "../lib/icons";
 
 /** Questions agents are asking her. Answers resume the waiting work. Consent stays on the deal. */
-export function Questions({ vendor, t, tick, onChange }: { vendor: Vendor; t: T; tick: number; onChange: () => void }) {
+export function Questions({ vendor, t, tick, onChange, skipConsent = false }: {
+  vendor: Vendor; t: T; tick: number; onChange: () => void; skipConsent?: boolean;
+}) {
   const [tasks, setTasks] = useState<HumanTask[]>([]);
   const [text, setText] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
@@ -25,7 +27,9 @@ export function Questions({ vendor, t, tick, onChange }: { vendor: Vendor; t: T;
     }
   }
 
-  const open = tasks.filter((q) => q.kind !== "notice");
+  // a listing to check is shown with its photos (Chat → Needs you, Products), not as a text question
+  // (`skipConsent`: the deal card waiting for her yes is shown right beside this list)
+  const open = tasks.filter((q) => q.kind !== "notice" && q.request.field !== "listing_review" && !(skipConsent && q.kind === "consent"));
   if (!open.length) return null;
   return (
     <section className="questions">

@@ -1,12 +1,12 @@
 {
-  "_note": "Synthetic vendors for the demo. No real people.",
+  "_note": "Synthetic vendors for the demo. No real people. Maya pours candles by hand at home in Hyderabad; she speaks Telugu (the app opens in English, the language picker switches it).",
   "vendors": [
     {
       "vendor": {
         "id": "vendor:maya",
         "display_name": "Maya",
         "legal_name": "Maya Thomas",
-        "business_profile": "fresh_produce",
+        "business_profile": "handmade_gifts",
         "country": "IN",
         "language": "en",
         "status": "active",
@@ -31,29 +31,29 @@
       "rules": {
         "skus": [
           {
-            "sku": "spinach",
-            "unit": "bunch",
-            "price_floor": "35",
-            "max_qty_per_day": "300"
+            "sku": "lavender candle",
+            "unit": "piece",
+            "price_floor": "180",
+            "max_qty_per_day": "40"
           },
           {
-            "sku": "tomato",
-            "unit": "kg",
-            "price_floor": "60",
-            "max_qty_per_day": "100"
+            "sku": "candle gift set",
+            "unit": "gift_set",
+            "price_floor": "550",
+            "max_qty_per_day": "10"
           }
         ],
         "pickup_windows": [
           {
-            "start": "06:00",
-            "end": "10:00"
+            "start": "10:00",
+            "end": "18:00"
           }
         ],
-        "payment_days_max": 7,
+        "payment_days_max": 15,
         "approved_buyers": [
           "retailer:freshcart"
         ],
-        "auto_accept_max_value": "10000"
+        "auto_accept_max_value": "5000"
       },
       "consent": {
         "transcript": "yes, okay",
@@ -61,30 +61,37 @@
       },
       "listings": [
         {
-          "id": "lst-maya-spinach",
+          "id": "lst-maya-lavender",
           "vendor_id": "vendor:maya",
-          "sku_name": "spinach",
-          "category": "leafy_greens",
-          "unit": "bunch",
-          "price": "40",
+          "sku_name": "lavender candle",
+          "category": "candles",
+          "unit": "piece",
+          "price": "220",
           "currency": "INR",
-          "qty": "300",
+          "qty": "40",
           "grade": "A",
-          "shelf_life_days": 2,
+          "attributes": {
+            "scent": "lavender",
+            "size": "200 g jar",
+            "burn_time_hours": 40
+          },
           "confidence": 0.92,
           "status": "published"
         },
         {
-          "id": "lst-maya-tomato",
+          "id": "lst-maya-giftset",
           "vendor_id": "vendor:maya",
-          "sku_name": "tomato",
-          "category": "vegetables",
-          "unit": "kg",
-          "price": "70",
+          "sku_name": "candle gift set",
+          "category": "gift_sets",
+          "unit": "gift_set",
+          "price": "650",
           "currency": "INR",
-          "qty": "100",
+          "qty": "10",
           "grade": "A",
-          "shelf_life_days": 3,
+          "attributes": {
+            "scent": "jasmine, sandalwood, rose",
+            "size": "3 × 100 g"
+          },
           "confidence": 0.9,
           "status": "published"
         }
@@ -129,7 +136,7 @@
         "id": "vendor:sam",
         "display_name": "Sam",
         "legal_name": "Sam Daniel",
-        "business_profile": "fresh_produce",
+        "business_profile": "handmade_gifts",
         "country": "IN",
         "language": "en",
         "status": "draft",

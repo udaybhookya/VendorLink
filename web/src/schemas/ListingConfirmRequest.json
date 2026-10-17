@@ -1,0 +1,14 @@
+{
+  "additionalProperties": false,
+  "description": "She confirms a draft, choosing which photo to use (her original or an enhanced one).",
+  "properties": {
+    "image": {
+      "default": "original",
+      "description": "An ImageCandidate id",
+      "title": "Image",
+      "type": "string"
+    }
+  },
+  "title": "ListingConfirmRequest",
+  "type": "object"
+}

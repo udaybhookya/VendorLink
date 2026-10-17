@@ -1,0 +1,68 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "original, enhanced, img-1 …",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "original",
+        "enhanced",
+        "generated"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Full image, served by the retailer API",
+      "title": "Url"
+    },
+    "thumb_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Thumb Url"
+    },
+    "prompt": {
+      "default": "",
+      "description": "The regeneration prompt, for AI versions",
+      "title": "Prompt",
+      "type": "string"
+    },
+    "look_name": {
+      "default": "",
+      "description": "The look an AI version was styled in",
+      "title": "Look Name",
+      "type": "string"
+    },
+    "chosen": {
+      "default": false,
+      "description": "The photo the listing uses",
+      "title": "Chosen",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "id",
+    "kind"
+  ],
+  "title": "CatalogueImage",
+  "type": "object"
+}

@@ -4,22 +4,60 @@
   "kind": "core",
   "tenant": "vendor",
   "description": "Keeps each vendor's rules (standing mandate), decides green/amber/red/decline, counters, and is the only agent that signs. Deterministic: no LLM.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "skills": [
-    {"capability": "guardian.evaluate", "input_schema": "EvaluateIn", "output_schema": "Decision",
-     "description": "Pure check of a proposal against a given mandate. Never signs."},
-    {"capability": "guardian.decide", "input_schema": "DecideIn", "output_schema": "Decision",
-     "description": "Decide against the vendor's stored mandate; signs when green.", "internal": true},
-    {"capability": "guardian.sign_order", "input_schema": "SignOrderIn", "output_schema": "SignOrderOut",
-     "description": "Sign an amber/red version the vendor consented to (consent hash must match).", "internal": true},
-    {"capability": "guardian.sign_mandate", "input_schema": "SignMandateIn", "output_schema": "StandingMandate",
-     "description": "Sign the vendor's rules after consent (not yet in force).", "internal": true},
-    {"capability": "guardian.install_mandate", "input_schema": "StandingMandate", "output_schema": "MandateOut",
-     "description": "Put a mandate this Guardian signed into force.", "internal": true},
-    {"capability": "guardian.mandate", "input_schema": "MandateQuery", "output_schema": "MandateOut",
-     "description": "The vendor's rules currently in force.", "internal": true}
+    {
+      "capability": "guardian.evaluate",
+      "input_schema": "EvaluateIn",
+      "output_schema": "Decision",
+      "description": "Pure check of a proposal against a given mandate. Never signs."
+    },
+    {
+      "capability": "guardian.decide",
+      "input_schema": "DecideIn",
+      "output_schema": "Decision",
+      "description": "Decide against the vendor's stored mandate; signs when green.",
+      "internal": true
+    },
+    {
+      "capability": "guardian.sign_order",
+      "input_schema": "SignOrderIn",
+      "output_schema": "SignOrderOut",
+      "description": "Sign an amber/red version the vendor consented to (consent hash must match).",
+      "internal": true
+    },
+    {
+      "capability": "guardian.sign_mandate",
+      "input_schema": "SignMandateIn",
+      "output_schema": "StandingMandate",
+      "description": "Sign the vendor's rules after consent (not yet in force).",
+      "internal": true
+    },
+    {
+      "capability": "guardian.install_mandate",
+      "input_schema": "StandingMandate",
+      "output_schema": "MandateOut",
+      "description": "Put a mandate this Guardian signed into force.",
+      "internal": true
+    },
+    {
+      "capability": "guardian.mandate",
+      "input_schema": "MandateQuery",
+      "output_schema": "MandateOut",
+      "description": "The vendor's rules currently in force.",
+      "internal": true
+    },
+    {
+      "capability": "guardian.review_listing",
+      "input_schema": "ListingApprovalIn",
+      "output_schema": "ListingApprovalOut",
+      "description": "Approve an improved listing within her listing rules, or say why she must look. Never signs.",
+      "internal": true
+    }
   ],
-  "permissions": ["sign"],
+  "permissions": [
+    "sign"
+  ],
   "transport": "local",
   "entrypoint": "agents.core.guardian.agent:Guardian"
 }

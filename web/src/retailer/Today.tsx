@@ -4,6 +4,7 @@ import { c } from "../lib/i18n";
 import { type PageProps, Pill, useLoad } from "./Console";
 import { Link } from "react-router-dom";
 import { Icon } from "../lib/icons";
+import { explain } from "./codes";
 
 export function Today({ retailer, active, tick }: PageProps) {
   const [queue] = useLoad(() => api<QueueItem[]>(RETAILER_URL, `/retailers/${retailer.id}/queue`), [tick], []);
@@ -16,10 +17,10 @@ export function Today({ retailer, active, tick }: PageProps) {
     <div className="page">
       <h1>{c("nav.today")}</h1>
       <div className="tiles">
-        <div className="tile">
+        <Link to="/retailer/inbox" className={`tile tile-link ${pending.length ? "alert-soft" : ""}`}>
           <div className="tile-num">{pending.length}</div>
           <div>{c("today.pending")}</div>
-        </div>
+        </Link>
         <div className="tile">
           <div className="tile-num">{orders.length}</div>
           <div>{c("today.orders")}</div>
@@ -47,12 +48,9 @@ export function Today({ retailer, active, tick }: PageProps) {
           <ul className="item-list">
             {pending.map((q) => (
               <li key={q.id}>
-                <Pill status={q.kind} />
-                <div>
-                  <div>{q.reason}</div>
-                  <code>{q.ref_id}</code>
-                </div>
-                <Link to="/retailer/queue" className="item-link">{c("nav.queue")} <Icon name="send" size={14} /></Link>
+                <span className="pill">{c(`inbox.kind_${q.kind}`)}</span>
+                <div>{inWords(q.reason)}</div>
+                <Link to={`/retailer/inbox?item=${encodeURIComponent(q.id)}`} className="item-link">{c("nav.inbox")} <Icon name="send" size={14} /></Link>
               </li>
             ))}
           </ul>
@@ -61,3 +59,9 @@ export function Today({ retailer, active, tick }: PageProps) {
     </div>
   );
 }
+
+/** A queue reason with its machine codes said in words. */
+const inWords = (reason: string) => {
+  const codes = reason.match(/\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/g);
+  return codes ? codes.map(explain).join(" · ") : reason;
+};

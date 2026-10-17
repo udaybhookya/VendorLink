@@ -1,0 +1,23 @@
+{
+  "id": "handmade_gifts",
+  "version": 1,
+  "name": {"en": "Handmade gifts and home décor", "te": "చేతితో చేసిన బహుమతులు మరియు గృహాలంకరణ", "id": "Hadiah dan dekorasi rumah buatan tangan"},
+  "attributes": [
+    {"key": "scent", "label": {"en": "Scent", "te": "సువాసన", "id": "Aroma"}, "type": "str"},
+    {"key": "wax_type", "label": {"en": "Wax type", "te": "మైనం రకం", "id": "Jenis lilin"}, "type": "enum", "options": ["soy", "paraffin", "beeswax", "blend", "unknown"]},
+    {"key": "size", "label": {"en": "Size", "te": "పరిమాణం", "id": "Ukuran"}, "type": "str", "required": true},
+    {"key": "burn_time_hours", "label": {"en": "Burn time (hours)", "te": "కాలే సమయం (గంటలు)", "id": "Waktu bakar (jam)"}, "type": "int"}
+  ],
+  "units": ["piece", "gift_set"],
+  "grading_rules": {
+    "scale": ["A", "B", "C"],
+    "params": {
+      "grade_guide": "A = smooth, even surface, centred wick, clean container and label; B = small cosmetic flaws a buyer would accept; C = visible defects or untidy finish.",
+      "defects": ["sinkhole", "frosting", "wet spots", "off-centre wick", "cracks", "air bubbles", "soot", "chipped container", "smudged label"],
+      "blocking_defects": ["cracks", "off-centre wick", "chipped container", "soot"],
+      "require_batch_consistency": true
+    }
+  },
+  "required_docs": ["identity", "bank_account"],
+  "specialists": ["craft-quality-checker"]
+}

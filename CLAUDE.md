@@ -26,7 +26,7 @@ Full design: `docs/solution_approach_v1.docx` (the why) and `docs/PLAN.md` (the 
 | `mocks` | `services/mocks/` | simulated ID / bank / FSSAI / P-IRT registries, demand feed, receiving |
 | agents | `agents/` | `core/` (Guardian, Concierge on Google ADK, Orchestrator, Human Liaison), `channels/` (Slack and Gmail over MCP, in-app), `specialists/`, `registry.py`, standalone `host.py`, CLI. Configured by `config/agents.json`; see `agents/README.md` |
 | shared lib | `packages/vl_core/` | schemas, config resolver, capability matching, crypto, store, llm, a2a, obs |
-| web | `web/` | React + Vite + TS; two installable apps: `/vendor` (laptop layout with the assistant docked, phone layout with tabs) and `/retailer` (console) |
+| web | `web/` | React + Vite + TS; two installable apps: `/vendor` (chat-first: Chat + "Needs you" is home, products are added in the chat; side nav on a laptop, tabs on a phone; ADR 0010) and `/retailer` (console: one Inbox for every decision, shown with its product, order or supplier; ADR 0011) |
 
 ## Repository layout
 
@@ -64,7 +64,7 @@ Local ports: vendor-svc 8001 · retailer-svc 8002 · trust-gateway 8000 · mocks
 
 ## Environment flags
 
-`VL_STORE=memory|firestore` · `VL_BLOB=local|gcs` · `VL_SIGNER=local|kms` · `VL_SCREEN=heuristic|model_armor` · `LIVE_MODEL`, `PRO_MODEL`, `FLASH_MODEL` (never hardcode model names) · `VL_TRACE=off|console|cloud` · `VL_OPERATOR_TOKEN` (control API) · `VL_CHANNELS=local|mcp`, `MCP_<SERVER>_*` (Slack/Gmail MCP servers) · `VL_HITL_TICK_SECONDS` · `VL_CHECKPOINTS=memory|sqlite|postgres`, `VL_CHECKPOINT_DSN` · `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` · `ACTIVE_CONFIG` (`A` or `B` for seeding).
+`VL_STORE=memory|firestore` · `VL_BLOB=local|gcs` · `VL_SIGNER=local|kms` · `VL_SCREEN=heuristic|model_armor` · `LIVE_MODEL`, `PRO_MODEL`, `FLASH_MODEL`, `IMAGE_MODEL` (never hardcode model names) · `VL_TRACE=off|console|cloud` · `VL_OPERATOR_TOKEN` (control API) · `VL_CHANNELS=local|mcp`, `MCP_<SERVER>_*` (Slack/Gmail MCP servers) · `VL_HITL_TICK_SECONDS` · `VL_CHECKPOINTS=memory|sqlite|postgres`, `VL_CHECKPOINT_DSN` · `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` · `ACTIVE_CONFIG` (`A` or `B` for seeding).
 
 ## Code conventions
 
@@ -105,12 +105,13 @@ Local ports: vendor-svc 8001 · retailer-svc 8002 · trust-gateway 8000 · mocks
 
 ## Demo anchors (keep seed data consistent)
 
-- **Config A:** fresh produce · India (Telugu, English, INR, FSSAI) · quick commerce → Produce Grader + Replenishment Planner.
+- **Config A:** handmade gifts (candles, home décor) · India (Telugu, English, INR; no FSSAI, it is not food) · gifting buyer → Craft Quality Checker + Ordering (`order.create`, the Replenishment Planner's one-off skill).
 - **Config B:** packaged food · Indonesia (Bahasa Indonesia, IDR, P-IRT, halal) · grocery chain → Label & Food-Safety Checker + Supplier Compliance Auditor.
-- **Maya** (spinach, tomatoes, mint): mandate ≤ 300 bunches/day, pickup ≥ 06:00, price floor set, paid ≤ 7 days.
-- **Hub 4** order: 350 bunches @ 05:30 → Guardian returns **red**, counter **300 @ 06:00** → retailer accepts → Maya says "yes" → signed Order Mandate.
+- **Maya** (hand-poured candles, Hyderabad, Telugu): mandate lavender candle ≥ ₹180/piece, ≤ 40/day, pickup ≥ 10:00, paid ≤ 15 days, auto-accept ≤ ₹5,000. Listed at ₹220.
+- **Hero order** (corporate gifting desk, `store:hub-4`): 50 candles @ 08:00, ₹220, paid in 45 days → Guardian **red** with exactly `QTY_OVER_DAILY_MAX`, `PICKUP_BEFORE_WINDOW`, `PAYMENT_TOO_LATE` → counter **40 @ 10:00, 15 days** → value changes 20% > `auto_accept_counter_max_delta` 0.10 → approval queue → Human Liaison asks the buyer on Slack → approved → Maya says "yes" → signed Order Mandate. Gifting term template 1 is net-45, so every config A order starts there; `use_terms()` in `scripts/_demo.py` switches to net-15 for green/amber.
+- **Listing enrichment** (config A, ADR 0008): a cluttered candle photo → Catalogue Image Checker flags it → Image Enhancer makes an auto-enhanced version and 2 AI versions of *her* photo (`candidates` in the retailer profile), each staged in its own look (`looks`: clean studio, warm wood, …; ADR 0012) (`IMAGE_MODEL`; retake tips without it) → Listing Enricher writes copy from her facts, each fact tagged with its source → her Guardian (`guardian.review_listing`, deterministic) approves within `listing_rules` or she picks the photo in the app → the retailer re-checks her chosen photo → AI photo → category manager approves on Slack → published, her side told (`listing.status`) → Console → Catalogue (ADR 0009).
 - **Sara:** label missing the P-IRT number → flagged by the Label Checker.
-- All vendors, retailers and registries are synthetic or simulated; the UI says so.
+- All vendors, retailers and registries are synthetic or simulated; the UI says so (a "Demo data" tag in each app header, the full sentence on hover).
 
 ## Scope guardrails
 

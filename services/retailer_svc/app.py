@@ -4,11 +4,12 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
 from starlette.requests import Request
 
 from agents.registry import AgentBlocked
+from retailer_svc.catalogue import Catalogue, ImageSize
 from retailer_svc.operations import RetailerOperations
 from retailer_svc.seed import seed_retailer
 from retailer_svc.store import PREFIX, RetailerStore
@@ -26,6 +27,8 @@ from vl_core.schemas import (
     ActiveConfig,
     AgentCard,
     AgentStatus,
+    CatalogueEntry,
+    CatalogueItem,
     ConfigPreset,
     DirectoryEntry,
     HumanTask,
@@ -220,6 +223,29 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
     async def listings(retailer_id: str) -> list[Listing]:
         await orch.active(retailer_id)
         return await store.listings.query()
+
+    # catalogue: products with their photos, copy, history and orders
+    catalogue = Catalogue(orch)
+
+    @app.get("/retailers/{retailer_id}/catalogue")
+    async def catalogue_items(
+        retailer_id: str,
+        status: str | None = None,
+        vendor_id: str | None = None,
+        sku: str | None = None,
+    ) -> list[CatalogueItem]:
+        return await catalogue.items(retailer_id, status, vendor_id, sku)
+
+    @app.get("/retailers/{retailer_id}/catalogue/{listing_id}")
+    async def catalogue_entry(retailer_id: str, listing_id: str) -> CatalogueEntry:
+        return await catalogue.entry(retailer_id, listing_id)
+
+    @app.get("/retailers/{retailer_id}/catalogue/{listing_id}/images/{image_id}")
+    async def catalogue_image(
+        retailer_id: str, listing_id: str, image_id: str, size: ImageSize = "full"
+    ) -> Response:
+        data, mime = await catalogue.image(retailer_id, listing_id, image_id, size)
+        return Response(data, media_type=mime, headers={"cache-control": "private, max-age=300"})
 
     @app.post("/retailers/{retailer_id}/terms/{vendor_id}")
     async def terms(retailer_id: str, vendor_id: str) -> TermsResult:

@@ -1,0 +1,30 @@
+{
+  "additionalProperties": false,
+  "description": "One styled direction for an AI version of her photo: the backdrop, light, angle and mood.\nThe product itself never changes; only how it is staged.",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Shown under the photo, by language code",
+      "title": "Name",
+      "type": "object"
+    },
+    "scene": {
+      "description": "For the image model: backdrop, surface, light, angle, mood",
+      "title": "Scene",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "scene"
+  ],
+  "title": "ImageLook",
+  "type": "object"
+}

@@ -20,12 +20,13 @@ agents/
 │  └─ inapp/          vendor app / console
 └─ specialists/       capability providers, found by capability only
    ├─ catalogue_builder/      catalogue.build
-   ├─ produce_grader/         grade.produce        (config A)
+   ├─ craft_quality_checker/  grade.craft          (config A)
+   ├─ produce_grader/         grade.produce        (spare: in no preset)
    ├─ label_checker/          grade.label          (config B)
    ├─ compliance_auditor/     compliance.check     (config B)
    ├─ onboarding_verifier/    vendor.verify
    ├─ terms_agent/            terms.propose
-   └─ replenishment_planner/  order.replenish, order.create   (config A)
+   └─ replenishment_planner/  order.replenish (config B), order.create (config A)
 ```
 
 Each agent folder:

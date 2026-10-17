@@ -46,8 +46,8 @@ export function Join() {
     <div className="phone">
       <header className="phone-head">
         <div className="brand">VendorLink</div>
+        <span className="demo-tag" title={t("ui.simulated")}>{t("ui.demo_tag")}</span>
       </header>
-      <div className="sim-banner">{t("ui.simulated")}</div>
       <main className="phone-body">
         <h2>{t("ui.register.title")}</h2>
         {error && <div className="error">{error}</div>}

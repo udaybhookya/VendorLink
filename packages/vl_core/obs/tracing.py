@@ -4,6 +4,7 @@ agents and services (Cloud Trace in deploy; the dashboard uses the same trace id
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 import time
@@ -106,12 +107,13 @@ class TracingMiddleware:
         party_token = party_var.set(party)
         service_token = service_var.set(self.service)
         status = 500
+        started_response = False
         started = time.perf_counter()
 
         async def send_status(message: Message) -> None:
-            nonlocal status
+            nonlocal status, started_response
             if message["type"] == "http.response.start":
-                status = int(message["status"])
+                status, started_response = int(message["status"]), True
             await send(message)
 
         try:
@@ -123,11 +125,16 @@ class TracingMiddleware:
             ):
                 try:
                     await self.app(scope, receive, send_status)
-                except Exception:
+                except Exception as exc:
                     self.log.exception(
                         f"{method} {path} failed", ms=_ms(started), caller=_caller(carrier)
                     )
-                    raise
+                    if started_response:
+                        raise
+                    # Answer here, inside the CORS layer, so the browser shows the error
+                    # instead of a bare "Failed to fetch".
+                    await _internal_error(send, exc)
+                    return
                 if path not in QUIET_PATHS:
                     self._log_request(method, path, status, started, carrier)
         finally:
@@ -161,3 +168,17 @@ def _ms(started: float) -> int:
 def _caller(headers: dict[str, str]) -> str | None:
     """The calling agent, when the request is signed (service-to-service calls)."""
     return headers.get("x-vl-agent") or None
+
+
+async def _internal_error(send: Send, exc: Exception) -> None:
+    body = json.dumps(
+        {"detail": {"error": "internal_error", "detail": type(exc).__name__}}
+    ).encode()
+    await send(
+        {
+            "type": "http.response.start",
+            "status": 500,
+            "headers": [(b"content-type", b"application/json")],
+        }
+    )
+    await send({"type": "http.response.body", "body": body})

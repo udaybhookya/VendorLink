@@ -16,6 +16,12 @@
       "email": "${FRESHCART_CATEGORY_EMAIL:-category@freshcart.example}"
     },
     {
+      "role": "category_lead",
+      "name": "Category lead",
+      "slack": "${FRESHCART_CATEGORY_LEAD_SLACK:-#freshcart-category-lead}",
+      "email": "${FRESHCART_CATEGORY_LEAD_EMAIL:-category-lead@freshcart.example}"
+    },
+    {
       "role": "ops",
       "name": "Operations",
       "slack": "${FRESHCART_OPS_SLACK:-#freshcart-ops}",

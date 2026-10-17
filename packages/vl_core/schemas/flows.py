@@ -9,7 +9,7 @@ from pydantic import Field
 
 from vl_core.schemas.common import Money, Qty, VLModel
 from vl_core.schemas.config import ConfigRefs
-from vl_core.schemas.jobs import DocCheck, ListingStepOut
+from vl_core.schemas.jobs import DocCheck, ListingApprovalOut, ListingStepOut
 from vl_core.schemas.mandate import StandingMandate, TimeWindow
 from vl_core.schemas.order import Deal
 from vl_core.schemas.vendor import Vendor, VendorStatus
@@ -21,7 +21,7 @@ class ListingSubmission(VLModel):
     vendor_id: str
     language: str
     transcript: str = ""
-    photo_b64: str | None = Field(default=None, description="JPEG/PNG, downscaled to ≤1024 px")
+    photo_b64: str | None = Field(default=None, description="JPEG/PNG, downscaled to ≤1600 px")
     photo_mime: str = "image/jpeg"
     label_text: str | None = None
     answers: dict[str, str] = Field(
@@ -144,6 +144,15 @@ class RulesView(VLModel):
 class ListingDraftView(VLModel):
     result: ListingStepOut
     readback: str
+    approval: ListingApprovalOut | None = Field(
+        default=None, description="Her agent's verdict: approved for her, or why she must look"
+    )
+
+
+class ListingConfirmRequest(VLModel):
+    """She confirms a draft, choosing which photo to use (her original or an enhanced one)."""
+
+    image: str = Field(default="original", description="An ImageCandidate id")
 
 
 class PlaceOrderRequest(VLModel):

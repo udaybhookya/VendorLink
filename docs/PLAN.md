@@ -78,8 +78,8 @@ vendorlink/
 │  ├─ trust_gateway/           # identity/, policy/, screening/, mandates/, audit/, containment/, relay.py
 │  └─ mocks/                   # registries.py, demand.py, fixtures/
 ├─ config/
-│  ├─ business_profiles/       # fresh_produce.json, packaged_food.json
-│  ├─ retailer_profiles/       # quick_commerce.json, grocery_chain.json, marketplace.json, horeca.json
+│  ├─ business_profiles/       # handmade_gifts.json, packaged_food.json, fresh_produce.json (spare)
+│  ├─ retailer_profiles/       # gifting.json, grocery_chain.json, quick_commerce.json (spare)
 │  ├─ country_packs/           # IN.json, ID.json
 │  ├─ retailer_policies/       # default_qc.json, default_grocery.json
 │  ├─ agent_cards/             # one JSON per specialist + vendor agent
@@ -163,7 +163,7 @@ Each module: **purpose → interfaces → internals → done when**. Track = sug
   - `sign_standing_mandate(mandate, consent) -> signature`
   - A2A skills exposed: `order.propose`, `order.counter_response`, `terms.propose`, `quality.report`
 - **Internals:** pure functions + a small state store (committed qty per day). Counter algorithm: clamp qty to `max_qty_per_day - committed`; move pickup to the earliest allowed window; raise price to floor; cap payment days; buyer not approved ⇒ `decline`. Within mandate and under `auto_accept.max_value` ⇒ green; within mandate but over auto-accept ⇒ amber; outside ⇒ red + counter.
-- **Done when:** the 350 bunches @ 5:30am case returns red + counter 300 @ 6:00; property tests (Hypothesis) prove it never signs outside the mandate without matching consent.
+- **Done when:** the 50 candles @ 08:00, 45-day case returns red (qty, pickup, payment) + counter 40 @ 10:00, 15 days; property tests (Hypothesis) prove it never signs outside the mandate without matching consent.
 
 ### M3 · Vendor Concierge + voice  *(V, Day 2 text, Day 3–4 voice)*
 - **Purpose:** the vendor's only interface — talk, collect, read back, ask for consent.
@@ -195,7 +195,8 @@ Each lives in `retailer_svc/specialists/<name>/` with `card.json`, `handler.py` 
 |---|---|---|---|---|---|
 | Onboarding & Verification | `vendor.verify` | 2 | doc photos → extracted fields, registry results, plain-language failure reasons | Flash vision extraction | Must |
 | Catalogue Builder | `catalogue.build` | 2 | photo + transcript → `Listing` draft in retailer categories/units, claim flags | Flash vision + JSON | Must |
-| Produce Grader | `grade.produce` | 2 | photo → grade A–C, freshness, shelf-life days, confidence | Flash vision | Must (A) |
+| Craft Quality Checker | `grade.craft` | 2 | photo → grade A–C, finish, defects, batch consistency, claims on the label, confidence | Flash vision | Must (A) |
+| Produce Grader | `grade.produce` | 2 | photo → grade A–C, freshness, shelf-life days, confidence | Flash vision | Spare (in no preset) |
 | Terms | `terms.propose` | 3 | vendor + template → terms proposal | none (template) | Must |
 | Ordering / Replenishment Planner | `order.create` / `order.replenish` | 3 | demand feed + slots → `OrderProposal` per store | none (rules) | Must |
 | Label & Food-Safety Checker | `grade.label` | 5 | label photo → ingredients, allergens, expiry, reg. number; check vs Country Pack regex | Flash vision | Must (B) |
@@ -225,7 +226,7 @@ Each lives in `retailer_svc/specialists/<name>/` with `card.json`, `handler.py` 
 - **Done when:** the switch from A to B and the blocked attack are both visible live during the demo.
 
 ### M11 · Seed data, demo scripts, tests  *(U + all, continuous)*
-- **Seed:** configs A/B; Maya (Telugu, spinach + tomatoes, mandate: ≤ 300 bunches/day, pickup ≥ 6:00, floor price, paid ≤ 7 days); Sara (Bahasa Indonesia, snack with label missing P-IRT number); QC store "Hub 4" with demand 350 bunches @ 5:30.
+- **Seed:** configs A/B; Maya (Telugu, hand-poured candles in Hyderabad, mandate: lavender candle ≥ ₹180, ≤ 40/day, pickup ≥ 10:00, paid ≤ 15 days); Sara (Bahasa Indonesia, snack with label missing P-IRT number); corporate gifting desk (`store:hub-4`) with demand 50 candles @ 08:00 on net-45 terms.
 - **Scripts:** `demo_reset.py`, `e2e_order_loop.py` (text-only, runs in CI), `attack_impostor.py`, `attack_injected_doc.py` (+ `injected.pdf`).
 - **Tests:** unit (Guardian, audit chain, policy, canonical JSON), contract (every Agent Card in/out schema), e2e (order loop green/amber/red), attack suite, specialist evals.
 
@@ -238,12 +239,12 @@ Each lives in `retailer_svc/specialists/<name>/` with `card.json`, `handler.py` 
 
 ```
 retailer-svc  Orchestrator.run(place_order)
-  └─ Registry.invoke(order.replenish) → OrderProposal v1 (350 @ 05:30)
+  └─ Registry.invoke(order.create) → OrderProposal v1 (50 @ 08:00, 45 days)
   └─ policy check (value ≤ auto_order_max) ─────────────── else → approval queue
   └─ gateway POST /tokens (scope=order.propose, aud=vendor-agent:maya)
   └─ gateway POST /relay/vendor-agent:maya/order.propose  [signed]
         trust-gateway: verify token+sig → scope/policy → screen → audit → forward
-vendor-svc  Guardian.evaluate → red, counter v2 (300 @ 06:00) → audit
+vendor-svc  Guardian.evaluate → red, counter v2 (40 @ 10:00, 15 days) → audit
   └─ returns Decision via gateway → retailer-svc
 retailer-svc  Orchestrator.run(handle_counter) → within delta → accept v2 (else queue)
   └─ relay order.counter_response(accept v2)

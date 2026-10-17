@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "auto_approve": {
+      "title": "Auto Approve",
+      "type": "boolean"
+    },
+    "image": {
+      "default": "original",
+      "description": "The photo to confirm with",
+      "title": "Image",
+      "type": "string"
+    },
+    "reasons": {
+      "description": "Machine codes: why she must look first",
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "auto_approve"
+  ],
+  "title": "ListingApprovalOut",
+  "type": "object"
+}

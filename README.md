@@ -17,20 +17,20 @@ This is our entry for the **AI Builder Cup 2026 (Retail & Commerce)**. All vendo
 
   | | Config A | Config B |
   |---|---|---|
-  | Business | Fresh produce | Packaged food |
-  | Country | India (FSSAI, INR) | Indonesia (P-IRT, halal, IDR) |
+  | Business | Handmade gifts (candles, home décor) | Packaged food |
+  | Country | India (INR) | Indonesia (P-IRT, halal, IDR) |
   | Languages | English, Telugu | English, Bahasa Indonesia |
-  | Retailer | Quick commerce | Grocery chain |
-  | Specialists | Produce Grader, Replenishment Planner | Label & Food-Safety Checker, Supplier Compliance Auditor |
+  | Retailer | Gifting buyer | Grocery chain |
+  | Specialists | Craft Quality Checker, Ordering (`order.create`) | Label & Food-Safety Checker, Supplier Compliance Auditor |
 
 - **People stay in the loop.** When an agent needs a person, the Human Liaison sends the question to the right role in the app, on Slack or by Gmail (over MCP), then sends reminders, escalates and expires the request as configured.
 - **Text first, voice optional.** The vendor app opens in English with a chat assistant. Voice and the local languages are one tap away.
 
 ## The demo story
 
-1. **Maya** grows spinach, tomatoes and mint. Her mandate: at most 300 bunches a day, pickup from 06:00, a price floor, payment within 7 days.
-2. Retailer FreshCart's **Hub 4** orders 350 bunches for pickup at 05:30. The Guardian returns **red** and counters with **300 bunches at 06:00**.
-3. The retailer accepts the counter. Maya hears the read-back and says "yes", and the Guardian signs the order mandate.
+1. **Maya** pours candles by hand at home in Hyderabad. Her mandate: at least ₹180 a candle, at most 40 a day, pickup from 10:00, payment within 15 days.
+2. FreshCart's **corporate gifting desk** orders 50 candles for pickup at 08:00, paid in 45 days. The Guardian returns **red** (too many, too early, paid too late) and counters with **40 candles at 10:00, paid in 15 days**.
+3. The counter changes the order by more than FreshCart's policy allows, so the Human Liaison asks the gifting buyer on Slack. The buyer approves. Maya hears the read-back and says "yes", and the Guardian signs the order mandate.
 4. **Sara** onboards a packaged snack under config B. Her label is missing the P-IRT number, and the Label Checker flags it.
 5. **Sam** tries to join with an expired licence and an injected document. The gateway blocks both attempts.
 
@@ -44,15 +44,17 @@ The scene-by-scene script is in [docs/DEMO.md](docs/DEMO.md).
 | `vendor-svc` | 8001 | The Guardian and Concierge agents; vendor REST API, voice WebSocket bridge, A2A server |
 | `retailer-svc` | 8002 | The Orchestrator, specialist agents and Human Liaison; orders, approval queue, config studio, retailer REST API |
 | `mocks` | 8009 | Simulated ID, bank, FSSAI and P-IRT registries, demand feed, receiving |
-| `web` | 5173 | Two installable apps: `/vendor` (laptop layout with a docked assistant, phone layout with tabs) and `/retailer` (operations console with observability) |
+| `web` | 5173 | Two installable apps: `/vendor` (chat-first: Chat with Needs you is home; Deals, Products, My shop, Activity) and `/retailer` (operations console: an Inbox of decisions with full context; observability under Admin) |
 
-**Agents (14).** These are found and called by capability through `AgentRegistry`, never imported directly. The list and settings are in `config/agents.json`.
+**Agents (17).** These are found and called by capability through `AgentRegistry`, never imported directly. The list and settings are in `config/agents.json`.
 
 - Core: Guardian, Concierge (Google ADK), Orchestrator, Human Liaison
 - Channels: in-app, Slack (MCP), Gmail (MCP)
-- Specialists: Catalogue Builder, Produce Grader, Label Checker, Onboarding Verifier, Compliance Auditor, Replenishment Planner, Terms Agent
+- Specialists: Catalogue Builder, Craft Quality Checker, Catalogue Image Checker, Image Enhancer, Listing Enricher, Produce Grader (spare, in no preset), Label Checker, Onboarding Verifier, Compliance Auditor, Replenishment Planner, Terms Agent
 
-Four of the agents call an LLM: the Concierge, Catalogue Builder, Produce Grader and Label Checker. Every decision that matters (signing, policy, blocking, audit) is deterministic code.
+Eight of the agents call an AI model: the Concierge, Catalogue Builder, Craft Quality Checker, Catalogue Image Checker, Image Enhancer (plus an image model), Listing Enricher, Produce Grader and Label Checker. Every decision that matters (signing, approving on her behalf, policy, blocking, audit) is deterministic code.
+
+**Listing enrichment.** When a vendor's photo or description misses the retailer's catalogue standards (`catalogue_standards` in the retailer profile), the retailer's agents prepare an auto-enhanced version and AI-regenerated versions (two in config A, set by `catalogue_standards.image.candidates`) of *her own* photo and catalogue copy written from *her own* facts, each fact tagged with where it came from. Her Guardian approves it on her behalf when it stays within her listing rules; otherwise she picks the photo in the app. The retailer re-checks whichever photo she picks, then publishes, or a category manager reviews on Slack; her side is told either way. Published products appear in the console's **Catalogue** with their photos, copy, history and orders. See [ADR 0008](docs/adr/0008-listing-enrichment.md) and [ADR 0009](docs/adr/0009-catalogue-and-photo-pipeline.md).
 
 **Shared library.** `packages/vl_core` holds the schemas, config resolver, capability matching, crypto, storage, LLM wrapper, A2A client, checkpoints and observability. Every cloud dependency sits behind a `vl_core` interface with a local fallback:
 
@@ -125,7 +127,7 @@ docs/            plan, ADRs, local setup, demo script, deploy guide
 | [docs/LOCAL_SETUP.md](docs/LOCAL_SETUP.md) | Getting keys, filling `.env`, running and testing locally |
 | [docs/DEMO.md](docs/DEMO.md) | Recording setup and the demo scenes |
 | [docs/PLAN.md](docs/PLAN.md) | Modules, data model and build plan |
-| [docs/adr/](docs/adr/) | Architecture decisions (interfaces, agents package, control plane, human in the loop, cloud adapters, logging) |
+| [docs/adr/](docs/adr/) | Architecture decisions (interfaces, agents package, control plane, human in the loop, cloud adapters, logging, handmade-gifts pivot, listing enrichment, catalogue) |
 | [agents/README.md](agents/README.md) | How agents work and how to add a specialist |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Deploying to Google Cloud Run (optional) |
 | [CLAUDE.md](CLAUDE.md) | Project rules and conventions for contributors and coding agents |

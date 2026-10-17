@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "Retailer → vendor (gateway skill listing.status): what became of her listing, so her copy\nstays true when a person decides later (review queue).",
+  "properties": {
+    "listing_id": {
+      "title": "Listing Id",
+      "type": "string"
+    },
+    "vendor_id": {
+      "title": "Vendor Id",
+      "type": "string"
+    },
+    "retailer_id": {
+      "title": "Retailer Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "needs_review",
+        "published",
+        "rejected"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reasons": {
+      "description": "Machine codes, if not published",
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "ai_enhanced": {
+      "default": false,
+      "title": "Ai Enhanced",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "listing_id",
+    "vendor_id",
+    "retailer_id",
+    "status"
+  ],
+  "title": "ListingStatusUpdate",
+  "type": "object"
+}

@@ -23,14 +23,14 @@ from scripts._demo import MAYA, SCENES, reset
 from vl_core.settings import get_settings
 
 VENDOR_TABS = ["talk", "deals", "products", "setup", "activity"]
-LAPTOP_PAGES = ["deals", "products", "setup", "activity"]  # the assistant is docked beside each
+LAPTOP_PAGES = ["talk", "deals", "products", "setup", "activity"]  # talk: chat + Needs you
 CONSOLE_PAGES = [
     "today",
-    "tasks",
+    "inbox",
     "studio",
     "suppliers",
-    "queue",
     "orders",
+    "catalogue",
     "observability",
     "trust",
     "outbox",
@@ -119,24 +119,60 @@ async def switch_language(browser: Browser, web: str) -> list[str]:
 
 
 async def laptop_chat(browser: Browser, web: str) -> list[str]:
-    """On a laptop: nav + page + the assistant always open; chatting there works beside Deals."""
+    """On a laptop: side nav; Chat is the home page with Needs you beside it; chatting works and
+    "Add a product" starts the photo-first listing flow in the chat."""
     page = await browser.new_page(viewport=DESKTOP)  # type: ignore[arg-type]
     screen = Screen(page, "flow-laptop-chat")
-    await page.goto(f"{web}/vendor?vendor={MAYA}&tab=deals")
+    await page.goto(f"{web}/vendor?vendor={MAYA}&tab=talk")
     await page.wait_for_load_state("networkidle")
     problems: list[str] = []
     if not await page.locator(".vapp-nav").is_visible() or await page.locator(".tabbar").count():
         problems.append("laptop: expected the side navigation, not the phone tab bar")
+    if not await page.locator(".needs-rail").is_visible():
+        problems.append("laptop: Needs you is not beside the chat")
     chat = page.locator(".vapp-chat")
     if not await chat.is_visible():
-        problems.append("laptop: the assistant panel is not open beside the page")
+        problems.append("laptop: the chat is not the home page")
     else:
         before = await chat.locator(".bubble.model").count()
         await chat.locator(".composer input:not([type=file])").fill("deals")
         await chat.locator(".composer input:not([type=file])").press("Enter")
-        await page.wait_for_timeout(1500)
-        if await chat.locator(".bubble.model").count() <= before:
+        # a configured model takes several seconds a turn; offline intents answer at once
+        for _ in range(60):
+            await page.wait_for_timeout(500)
+            if await chat.locator(".bubble.model").count() > before:
+                break
+        after = await chat.locator(".bubble.model").count()
+        if after <= before:
             problems.append("laptop: the assistant did not answer")
+        await chat.get_by_role("button", name="Add a product").click()
+        await page.wait_for_timeout(300)
+        if await chat.locator(".bubble.model").count() <= after:
+            problems.append("chat: Add a product did not ask for the photo")
+        if not await chat.locator(".camera.nudge").count():
+            problems.append("chat: the camera is not highlighted while adding a product")
+    await screen.check(phone=False)
+    await page.close()
+    return problems + screen.problems
+
+
+async def inbox_review(browser: Browser, web: str) -> list[str]:
+    """The waiting scene leaves decisions for people: the Inbox shows one with why it is there and
+    approve / reject beside its context, and the nav badge counts them."""
+    page = await browser.new_page(viewport=DESKTOP)  # type: ignore[arg-type]
+    screen = Screen(page, "flow-inbox")
+    await page.goto(f"{web}/retailer/inbox")
+    await page.wait_for_load_state("networkidle")
+    problems: list[str] = []
+    if not await page.locator(".inbox-list button").count():
+        problems.append("inbox: no decision listed in the waiting scene")
+    else:
+        if not await page.locator(".decision-bar .actions button").count():
+            problems.append("inbox: the selected item has no decide buttons")
+        if not await page.locator(".why").is_visible():
+            problems.append("inbox: the selected item does not say why it needs a person")
+        if not await page.locator(".sidebar .badge").count():
+            problems.append("inbox: no count on the Inbox link")
     await screen.check(phone=False)
     await page.close()
     return problems + screen.problems
@@ -172,6 +208,10 @@ async def accept_terms(browser: Browser, web: str) -> list[str]:
     accept = page.get_by_role("button", name="Accept")
     if not await accept.count():
         return ["terms: no Accept button on Maya's Deals tab"]
+    if not await accept.first.is_enabled():
+        # her Guardian found the terms outside her rules (e.g. net-45 against her 15 days)
+        await page.close()
+        return ["terms: the offered terms are outside Maya's rules, so Accept is disabled"]
     await accept.click()
     await page.wait_for_load_state("networkidle")
     await screen.check(phone=True)
@@ -209,6 +249,7 @@ async def main(web: str, headed: bool) -> int:
                 browser, url, f"vendor-laptop-{page}", DESKTOP
             )
         results["flow-laptop-chat"] = await laptop_chat(browser, web)
+        results["flow-inbox"] = await inbox_review(browser, web)
         results["installable"] = await installable(browser, web)
         results["flow-language"] = await switch_language(browser, web)
         results["flow-terms"] = await accept_terms(browser, web)

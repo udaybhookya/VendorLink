@@ -23,7 +23,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from vl_core.a2a import make_client
 from vl_core.crypto import Signer
-from vl_core.llm import Llm, get_llm
+from vl_core.llm import ImageGen, Llm, get_image_gen, get_llm
 from vl_core.obs import get_logger
 from vl_core.schemas import AgentCard
 from vl_core.settings import Settings
@@ -76,6 +76,10 @@ class AgentContext:
 
     def llm(self, tier: Literal["flash", "pro"]) -> Llm:
         return get_llm(tier, self.settings)
+
+    def images(self) -> ImageGen | None:
+        """The image model, or None when IMAGE_MODEL is not set."""
+        return get_image_gen(self.settings)
 
     def http(self, base_url: str) -> httpx.AsyncClient:
         return make_client(base_url)

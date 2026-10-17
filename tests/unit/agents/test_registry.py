@@ -41,7 +41,7 @@ def test_every_agent_is_registered_with_a_card_next_to_its_code() -> None:
 
 def test_grade_wildcard_follows_active_config() -> None:
     registry = AgentRegistry.load(SETTINGS, host="retailer-svc")
-    assert registry.find("grade.*", active("A")).agent_id == "produce-grader"
+    assert registry.find("grade.*", active("A")).agent_id == "craft-quality-checker"
     assert registry.find("grade.*", active("B")).agent_id == "label-checker"
     with pytest.raises(RegistryError):
         registry.find("compliance.check", active("A"))

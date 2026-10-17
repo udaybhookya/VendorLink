@@ -30,6 +30,7 @@ from vl_core.schemas import (
     BuildListingIn,
     BuildListingOut,
     BusinessProfile,
+    CatalogueStandards,
     ConfigRefs,
     CounterResponse,
     CounterReviewIn,
@@ -39,8 +40,10 @@ from vl_core.schemas import (
     DecisionStatus,
     DirectoryEntry,
     Listing,
+    ListingFlag,
     ListingReviewIn,
     ListingReviewOut,
+    ListingStatusUpdate,
     ListingStepIn,
     ListingStepOut,
     ListingSubmission,
@@ -77,6 +80,47 @@ log = get_logger("retailer")
 
 def _now() -> datetime:
     return datetime.now(UTC)
+
+
+def original_photo(listing: Listing) -> str | None:
+    """The photo she sent (the first image our agents kept as `original`)."""
+    original = next((c.uri for c in listing.images if c.kind == "original" and c.uri), None)
+    return original or (listing.photos[0] if listing.photos else None)
+
+
+def with_photo_choice(
+    stored: Listing, confirmed: Listing, standards: CatalogueStandards | None
+) -> Listing:
+    """Apply the photo she (or her Guardian) chose. Only photos our agents built are accepted.
+    A new photo drops the old photo's flags; `RetailerOperations._recheck_photo` then checks the
+    new one. An AI photo may need a person (retailer policy). Facts only the model supplied were
+    confirmed by her (her Guardian never approves those)."""
+    offered = {c.uri for c in stored.images if c.uri} | set(stored.photos)
+    if not set(confirmed.photos) <= offered:
+        raise Problem(409, "photo_not_offered", "choose her photo or one of the versions offered")
+    chosen = confirmed.photos[0] if confirmed.photos else original_photo(stored)
+    new_photo = chosen is not None and chosen != original_photo(stored)
+    generated = {c.uri for c in stored.images if c.kind == "generated" and c.uri}
+    ai_photo = chosen in generated
+    flags = [
+        f
+        for f in stored.flags
+        if not f.code.startswith("FACT_NOT_FROM_VENDOR_")
+        and not (new_photo and f.code.startswith("IMAGE_"))
+    ]
+    if ai_photo and standards is not None and standards.image.ai_images_need_review:
+        flags.append(ListingFlag(code="AI_PHOTO_NEEDS_REVIEW", detail="AI-enhanced photo"))
+    sources = {
+        k: ("vendor" if v == "model" else v) for k, v in stored.sources.items()
+    }  # she confirmed them
+    return stored.model_copy(
+        update={
+            "photos": [chosen] if chosen else stored.photos,
+            "ai_enhanced": ai_photo,
+            "flags": flags,
+            "sources": sources,
+        }
+    )
 
 
 class RetailerOperations:
@@ -303,6 +347,56 @@ class RetailerOperations:
         )
         return out
 
+    async def _tell_vendor(self, retailer_id: str, listing: Listing) -> None:
+        """A person decided on her listing later (review queue): her side keeps its copy true."""
+        await self.gateway(retailer_id).relay(
+            agent_id_for(listing.vendor_id),
+            "listing.status",
+            ListingStatusUpdate(
+                listing_id=listing.id,
+                vendor_id=listing.vendor_id,
+                retailer_id=retailer_id,
+                status=listing.status,
+                reasons=[f.code for f in listing.flags] if listing.status != "published" else [],
+                ai_enhanced=listing.ai_enhanced,
+            ),
+            on_behalf_of=retailer_id,
+            response_model=Ack,
+        )
+
+    async def _recheck_photo(
+        self, listing: Listing, vendor: RetailerVendor, active: ActiveConfig
+    ) -> Listing:
+        """She chose a version of her photo: check that photo against our standards with the
+        same agent that checked the original. Never assume the new photo fixed everything."""
+        chosen = listing.photos[0] if listing.photos else None
+        if chosen is None or chosen == original_photo(listing):
+            return listing
+        if not self.agents.find_all("image.assess", active):
+            return listing  # no catalogue checks in this configuration
+        bp, cp = self._profiles_for(vendor.business_profile, vendor.country)
+        out = await self.agents.call(
+            "image.assess",
+            ListingStepIn(
+                vendor_id=listing.vendor_id,
+                language="en",  # a retailer-side check; no text for her
+                photo_uri=chosen,
+                listing=listing,
+                business_profile=bp,
+                retailer_profile=active.retailer_profile,
+                country_pack=cp,
+            ),
+            ListingStepOut,
+            active,
+        )
+        rechecked = out.listing or listing
+        log.info(
+            "chosen photo rechecked",
+            listing_id=listing.id,
+            flags=",".join(f.code for f in out.flags) or None,
+        )
+        return rechecked
+
     async def on_listing_confirm(self, env: A2AEnvelope) -> Ack:
         confirmed = Listing.model_validate(env.body)
         retailer_id = party_id_for(env.to_agent)
@@ -310,12 +404,26 @@ class RetailerOperations:
         stored = await self.store.listings.get(confirmed.id)
         if stored is None or stored.vendor_id != confirmed.vendor_id:
             raise Problem(404, "unknown_listing", confirmed.id)
-        fields = {"sku_name", "category", "unit", "price", "qty", "grade", "flags"}
+        fields = {
+            "sku_name",
+            "category",
+            "unit",
+            "price",
+            "qty",
+            "grade",
+            "flags",
+            "title",
+            "description",
+            "bullets",
+            "attributes",
+        }
         if hash_obj(stored.model_dump(include=fields)) != hash_obj(
             confirmed.model_dump(include=fields)
         ):
             raise Problem(409, "listing_changed", "confirm the draft exactly as built")
+        stored = with_photo_choice(stored, confirmed, active.retailer_profile.catalogue_standards)
         vendor = await self._vendor_record(stored.vendor_id)
+        stored = await self._recheck_photo(stored, vendor, active)
         review = await self.agents.call(
             "orchestrator.review_listing",
             ListingReviewIn(
@@ -611,6 +719,7 @@ class RetailerOperations:
                     update={"status": "published" if approve else "rejected"}
                 )
                 await self.store.listings.put(listing.id, listing)
+                await self._tell_vendor(retailer_id, listing)
                 self._publish("listing", listing)
         resolved = item.model_copy(update={"status": "approved" if approve else "rejected"})
         await self.store.queue.put(item.id, resolved)

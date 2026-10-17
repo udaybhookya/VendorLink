@@ -1,0 +1,408 @@
+{
+  "$defs": {
+    "CatalogueImage": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "original, enhanced, img-1 …",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "original",
+            "enhanced",
+            "generated"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Full image, served by the retailer API",
+          "title": "Url"
+        },
+        "thumb_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Thumb Url"
+        },
+        "prompt": {
+          "default": "",
+          "description": "The regeneration prompt, for AI versions",
+          "title": "Prompt",
+          "type": "string"
+        },
+        "look_name": {
+          "default": "",
+          "description": "The look an AI version was styled in",
+          "title": "Look Name",
+          "type": "string"
+        },
+        "chosen": {
+          "default": false,
+          "description": "The photo the listing uses",
+          "title": "Chosen",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "title": "CatalogueImage",
+      "type": "object"
+    },
+    "CatalogueItem": {
+      "additionalProperties": false,
+      "description": "One product card in the catalogue.",
+      "properties": {
+        "listing_id": {
+          "title": "Listing Id",
+          "type": "string"
+        },
+        "vendor_id": {
+          "title": "Vendor Id",
+          "type": "string"
+        },
+        "vendor_name": {
+          "title": "Vendor Name",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "sku_name": {
+          "title": "Sku Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "category_name": {
+          "title": "Category Name",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "string"
+        },
+        "currency": {
+          "title": "Currency",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "grade": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grade"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "needs_review",
+            "published",
+            "rejected"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "ai_enhanced": {
+          "default": false,
+          "title": "Ai Enhanced",
+          "type": "boolean"
+        },
+        "image_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image Url"
+        },
+        "thumb_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Thumb Url"
+        },
+        "flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Updated At"
+        }
+      },
+      "required": [
+        "listing_id",
+        "vendor_id",
+        "vendor_name",
+        "title",
+        "sku_name",
+        "category",
+        "category_name",
+        "unit",
+        "price",
+        "currency",
+        "qty",
+        "status"
+      ],
+      "title": "CatalogueItem",
+      "type": "object"
+    },
+    "ListingEvent": {
+      "additionalProperties": false,
+      "description": "One step in a listing's life, from the audit log.",
+      "properties": {
+        "ts": {
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "action": {
+          "title": "Action",
+          "type": "string"
+        },
+        "actor": {
+          "title": "Actor",
+          "type": "string"
+        },
+        "on_behalf_of": {
+          "title": "On Behalf Of",
+          "type": "string"
+        },
+        "outcome": {
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ts",
+        "action",
+        "actor",
+        "on_behalf_of",
+        "outcome"
+      ],
+      "title": "ListingEvent",
+      "type": "object"
+    },
+    "ListingFlag": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "Machine code, e.g. UNSUPPORTED_CLAIM_ORGANIC",
+          "title": "Code",
+          "type": "string"
+        },
+        "detail": {
+          "default": "",
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "ListingFlag",
+      "type": "object"
+    },
+    "ProductOrder": {
+      "additionalProperties": false,
+      "description": "An order that includes this product.",
+      "properties": {
+        "order_id": {
+          "title": "Order Id",
+          "type": "string"
+        },
+        "store_id": {
+          "title": "Store Id",
+          "type": "string"
+        },
+        "store_name": {
+          "title": "Store Name",
+          "type": "string"
+        },
+        "qty": {
+          "title": "Qty",
+          "type": "string"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "pickup_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pickup At"
+        }
+      },
+      "required": [
+        "order_id",
+        "store_id",
+        "store_name",
+        "qty",
+        "unit",
+        "price",
+        "status"
+      ],
+      "title": "ProductOrder",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Everything about one product: the card, the copy, the photos, facts and their sources,\nwhat the agents and people decided, and the orders for it.",
+  "properties": {
+    "item": {
+      "$ref": "#/$defs/CatalogueItem"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "bullets": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Bullets",
+      "type": "array"
+    },
+    "attributes": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "title": "Attributes",
+      "type": "object"
+    },
+    "sources": {
+      "additionalProperties": {
+        "enum": [
+          "vendor",
+          "answer",
+          "photo",
+          "model"
+        ],
+        "type": "string"
+      },
+      "title": "Sources",
+      "type": "object"
+    },
+    "flag_details": {
+      "items": {
+        "$ref": "#/$defs/ListingFlag"
+      },
+      "title": "Flag Details",
+      "type": "array"
+    },
+    "images": {
+      "items": {
+        "$ref": "#/$defs/CatalogueImage"
+      },
+      "title": "Images",
+      "type": "array"
+    },
+    "history": {
+      "items": {
+        "$ref": "#/$defs/ListingEvent"
+      },
+      "title": "History",
+      "type": "array"
+    },
+    "orders": {
+      "items": {
+        "$ref": "#/$defs/ProductOrder"
+      },
+      "title": "Orders",
+      "type": "array"
+    }
+  },
+  "required": [
+    "item"
+  ],
+  "title": "CatalogueEntry",
+  "type": "object"
+}

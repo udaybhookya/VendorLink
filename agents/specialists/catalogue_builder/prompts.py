@@ -13,7 +13,7 @@ Allowed units: $units
 Vendor said: """$transcript"""
 
 Rules:
-- sku_name: short product name in English, lower case (e.g. "spinach", "mango pickle").
+- sku_name: short product name in English, lower case (e.g. "lavender candle", "mango pickle").
 - category: one of the category ids above. unit: one of the allowed units.
 - price and qty: numbers exactly as the vendor said them, as strings; null if not said.
 - claims: any quality claims the vendor or the packaging makes (e.g. "organic", "homemade").

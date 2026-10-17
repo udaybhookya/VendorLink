@@ -11,7 +11,7 @@ import base64
 import re
 import uuid
 from datetime import UTC, datetime
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from agents.control import HostControl
 from agents.registry import AgentRegistry
@@ -52,7 +52,11 @@ from vl_core.schemas import (
     Decision,
     DecisionStatus,
     DirectoryEntry,
+    Listing,
+    ListingApprovalIn,
+    ListingApprovalOut,
     ListingDraftView,
+    ListingStatusUpdate,
     ListingStepOut,
     ListingSubmission,
     MandateOut,
@@ -503,7 +507,7 @@ class VendorOperations:
 
     async def draft_listing(
         self, vendor_id: str, sub: ListingSubmission, retailer_id: str | None = None
-    ) -> tuple[ListingStepOut, str]:
+    ) -> tuple[ListingStepOut, str, ListingApprovalOut | None]:
         vendor = await self.vendor(vendor_id)
         retailer = await self._retailer(vendor, retailer_id)
         if sub.photo_b64:
@@ -526,6 +530,7 @@ class VendorOperations:
             response_model=ListingStepOut,
         )
         text = ""
+        approval = None
         if out.requests:
             await self.hitl.ask_listing(vendor, retailer, sub, out.requests)
         if out.listing is not None:
@@ -536,27 +541,106 @@ class VendorOperations:
                 vendor_id,
                 {"listing": out.listing.model_dump(mode="json"), "readback": text},
             )
-        return out, text
+            if not out.requests:  # complete: her Guardian approves, or she is asked
+                approval = await self._approve_listing(vendor, retailer, sub, out.listing)
+        return out, text, approval
+
+    async def _approve_listing(
+        self, vendor: Vendor, retailer: str, sub: ListingSubmission, listing: Listing
+    ) -> ListingApprovalOut:
+        """Her Guardian approves an improved listing within her listing rules; otherwise the
+        Liaison asks her in the app (photo choice and read-back). Never from Slack or email."""
+        approval = await self.agents.call(
+            "guardian.review_listing",
+            ListingApprovalIn(
+                listing=listing,
+                transcript=sub.transcript,
+                answers=sub.answers,
+                rules=vendor.listing_rules,
+            ),
+            ListingApprovalOut,
+        )
+        if approval.auto_approve:
+            log.info(
+                "listing approved within her rules", listing_id=listing.id, image=approval.image
+            )
+            await self.confirm_listing(
+                vendor.id, listing.id, retailer, image=approval.image, by="guardian"
+            )
+        else:
+            log.info(
+                "listing needs her look", listing_id=listing.id, reasons=",".join(approval.reasons)
+            )
+            await self.hitl.ask_listing_review(vendor, retailer, listing, approval.reasons)
+        return approval
 
     async def confirm_listing(
-        self, vendor_id: str, listing_id: str, retailer_id: str | None = None
+        self,
+        vendor_id: str,
+        listing_id: str,
+        retailer_id: str | None = None,
+        *,
+        image: str = "original",
+        by: Literal["vendor", "guardian"] = "vendor",
     ) -> Ack:
+        """Send the listing to the retailer with the photo she (or her Guardian) chose."""
         vendor = await self.vendor(vendor_id)
         listing = await self.store.listings.get(listing_id)
         if listing is None or listing.vendor_id != vendor_id:
             raise Problem(404, "unknown_listing", listing_id)
+        chosen = next((c for c in listing.images if c.id == image), None)
+        if image != "original" and (chosen is None or not chosen.uri):
+            raise Problem(422, "unknown_image", image)
+        generated = chosen is not None and chosen.kind == "generated"
+        # any version she picked (auto-enhanced or AI) replaces her original photo
+        new_photo = chosen is not None and chosen.kind != "original" and chosen.uri
+        photos = [chosen.uri] if new_photo and chosen and chosen.uri else listing.photos
         retailer = await self._retailer(vendor, retailer_id)
+        sent = listing.model_copy(
+            update={
+                "photos": photos,
+                "ai_enhanced": generated,
+                # the retailer keeps the full images; previews need not travel back
+                "images": [c.model_copy(update={"preview_b64": None}) for c in listing.images],
+            }
+        )
         ack = await self.gateway(vendor_id).relay(
             agent_id_for(retailer),
             "listing.confirm",
-            listing,
+            sent,
             on_behalf_of=vendor_id,
             response_model=Ack,
         )
-        updated = listing.model_copy(update={"status": "published" if ack.ok else "needs_review"})
+        updated = listing.model_copy(
+            update={
+                "status": "published" if ack.ok else "needs_review",
+                "photos": photos,
+                "ai_enhanced": generated,
+            }
+        )
         await self.store.listings.put(listing_id, updated)
+        await self.hitl.close(listing_id, "answered", f"confirmed by {by}")
+        await self._audit(
+            vendor_id,
+            "listing.approved_by_guardian" if by == "guardian" else "listing.confirmed",
+            listing_id,
+            {"image": image, "ai_enhanced": generated},
+            retailer,
+        )
         self._publish("listing", vendor_id, {"listing": updated.model_dump(mode="json")})
         return ack
+
+    async def withdraw_listing(self, vendor_id: str, listing_id: str) -> Listing:
+        """She does not want this listing sent (answered "no" to the review)."""
+        listing = await self.store.listings.get(listing_id)
+        if listing is None or listing.vendor_id != vendor_id:
+            raise Problem(404, "unknown_listing", listing_id)
+        withdrawn = listing.model_copy(update={"status": "rejected"})
+        await self.store.listings.put(listing_id, withdrawn)
+        await self.hitl.close(listing_id, "answered", "withdrawn by her")
+        await self._audit(vendor_id, "listing.withdrawn", listing_id, {"by": "vendor"})
+        self._publish("listing", vendor_id, {"listing": withdrawn.model_dump(mode="json")})
+        return withdrawn
 
     # ---- onboarding -------------------------------------------------------------------------
 
@@ -642,6 +726,24 @@ class VendorOperations:
         self._publish("status", vendor_id, result)
         return result
 
+    async def on_listing_status(self, env: A2AEnvelope) -> Ack:
+        """The retailer decided on her listing (published or rejected after a review)."""
+        update = ListingStatusUpdate.model_validate(env.body)
+        listing = await self.store.listings.get(update.listing_id)
+        if listing is None or listing.vendor_id != update.vendor_id:
+            raise Problem(404, "unknown_listing", update.listing_id)
+        updated = listing.model_copy(
+            update={"status": update.status, "ai_enhanced": update.ai_enhanced}
+        )
+        await self.store.listings.put(listing.id, updated)
+        log.info(
+            f"retailer {update.status} her listing",
+            listing_id=listing.id,
+            reasons=",".join(update.reasons) or None,
+        )
+        self._publish("listing", listing.vendor_id, {"listing": updated.model_dump(mode="json")})
+        return Ack()
+
     async def on_vendor_status(self, env: A2AEnvelope) -> Ack:
         update = VendorStatusUpdate.model_validate(env.body)
         vendor = await self.vendor(update.vendor_id)
@@ -670,8 +772,8 @@ class VendorOperations:
         )
 
     async def listing_draft_view(self, vendor_id: str, sub: ListingSubmission) -> ListingDraftView:
-        result, text = await self.draft_listing(vendor_id, sub)
-        return ListingDraftView(result=result, readback=text)
+        result, text, approval = await self.draft_listing(vendor_id, sub)
+        return ListingDraftView(result=result, readback=text, approval=approval)
 
     async def update_profile(self, vendor_id: str, update: ProfileUpdate) -> Vendor:
         vendor = await self.vendor(vendor_id)

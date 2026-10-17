@@ -1,0 +1,22 @@
+{
+  "agent_id": "listing-enricher",
+  "name": "Listing Enricher",
+  "kind": "specialist",
+  "tenant": "retailer",
+  "description": "Writes the catalogue title, description, bullet points and attributes from the vendor's own facts; code records where each fact came from and flags anything only the model supplied, missing required attributes and claims she never made.",
+  "version": "0.1.0",
+  "skills": [
+    {
+      "capability": "listing.enrich",
+      "input_schema": "ListingStepIn",
+      "output_schema": "ListingStepOut",
+      "description": "Catalogue copy and attributes from her own facts, with the source of each"
+    }
+  ],
+  "permissions": [
+    "blob.read",
+    "llm"
+  ],
+  "transport": "local",
+  "entrypoint": "agents.specialists.listing_enricher.agent:ListingEnricher"
+}

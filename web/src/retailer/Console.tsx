@@ -8,15 +8,18 @@ import { Today } from "./Today";
 import { Studio } from "./Studio";
 import { Suppliers } from "./Suppliers";
 import { Observability } from "./Observability";
-import { Tasks } from "./Tasks";
 import { Outbox } from "./Outbox";
-import { Queue } from "./Queue";
+import { Inbox, useInboxCount } from "./Inbox";
 import { Orders } from "./Orders";
 import { Trust } from "./Trust";
+import { Catalogue } from "./Catalogue";
 
+/** Day-to-day work first; setup and the under-the-hood pages below, under Admin. */
 const NAV: [string, IconName][] = [
-  ["today", "dashboard"], ["tasks", "tasks"], ["studio", "setup"], ["suppliers", "users"], ["queue", "inbox"],
-  ["orders", "orders"], ["observability", "pulse"], ["trust", "shield"], ["outbox", "send"],
+  ["today", "dashboard"], ["inbox", "inbox"], ["orders", "orders"], ["catalogue", "products"], ["suppliers", "users"],
+];
+const ADMIN: [string, IconName][] = [
+  ["studio", "setup"], ["observability", "pulse"], ["trust", "shield"], ["outbox", "send"],
 ];
 
 export type PageProps = { retailer: Retailer; active: ActiveConfig | null; tick: number; refresh: () => void };
@@ -50,17 +53,22 @@ export function Console() {
   }, [retailer, refresh]);
 
   const props = retailer ? { retailer, active, tick, refresh } : null;
+  const waiting = useInboxCount(retailer, tick);
+  const link = ([k, icon]: [string, IconName]) => (
+    <NavLink key={k} to={`/retailer/${k}`}>
+      <Icon name={icon} size={18} /> {c(`nav.${k}`)}
+      {k === "inbox" && waiting > 0 && <span className="badge">{waiting}</span>}
+    </NavLink>
+  );
   return (
     <div className="console">
       <aside className="sidebar">
         <div className="brand"><Logo size={30} tone="console" /> VendorLink</div>
-        <div className="muted small">{retailer?.display_name}</div>
+        <div className="muted small">{retailer?.display_name} <span className="demo-tag" title={c("simulated")}>{c("demo_tag")}</span></div>
         <nav>
-          {NAV.map(([k, icon]) => (
-            <NavLink key={k} to={`/retailer/${k}`}>
-              <Icon name={icon} size={18} /> {c(`nav.${k}`)}
-            </NavLink>
-          ))}
+          {NAV.map(link)}
+          <div className="nav-group">{c("nav.admin")}</div>
+          {ADMIN.map(link)}
         </nav>
         <div className="config-chip">
           <div className="muted small">{c("today.config")}</div>
@@ -69,7 +77,6 @@ export function Console() {
         </div>
       </aside>
       <section className="content">
-        <div className="sim-banner">{c("simulated")}</div>
         {error && <div className="error">{error}</div>}
         {props && (
           <Routes>
@@ -77,9 +84,11 @@ export function Console() {
             <Route path="studio" element={<Studio {...props} />} />
             <Route path="suppliers" element={<Suppliers {...props} />} />
             <Route path="observability" element={<Observability {...props} />} />
-            <Route path="tasks" element={<Tasks {...props} />} />
+            <Route path="inbox" element={<Inbox {...props} />} />
+            <Route path="tasks" element={<Navigate to="../inbox" replace />} />
+            <Route path="queue" element={<Navigate to="../inbox" replace />} />
+            <Route path="catalogue" element={<Catalogue {...props} />} />
             <Route path="outbox" element={<Outbox {...props} />} />
-            <Route path="queue" element={<Queue {...props} />} />
             <Route path="orders" element={<Orders {...props} />} />
             <Route path="trust" element={<Trust {...props} />} />
             <Route path="*" element={<Navigate to="today" replace />} />

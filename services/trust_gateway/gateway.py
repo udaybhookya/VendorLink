@@ -496,7 +496,8 @@ class Gateway:
                 self.signer, GATEWAY_AGENT_ID, "POST", forward_path, body, envelope.jti
             ),
         }
-        async with make_client(target.endpoint) as client:
+        wait = self.settings.vl_relay_timeout_seconds  # the target's agents may call models
+        async with make_client(target.endpoint, timeout=wait) as client:
             response = await client.post(forward_path, content=body, headers=forward_headers)
         try:
             if response.status_code >= 400:

@@ -20,9 +20,11 @@ def test_all_config_files_validate(loader: ConfigLoader) -> None:
 def test_configs_a_and_b_differ(loader: ConfigLoader) -> None:
     a = resolve_active_config("retailer:demo", loader.load_preset("A").refs, loader)
     b = resolve_active_config("retailer:demo", loader.load_preset("B").refs, loader)
-    assert "produce-grader" in a.specialists and "replenishment-planner" in a.specialists
+    assert "craft-quality-checker" in a.specialists and "replenishment-planner" in a.specialists
     assert "label-checker" in b.specialists and "compliance-auditor" in b.specialists
-    assert "produce-grader" not in b.specialists and "label-checker" not in a.specialists
+    assert "craft-quality-checker" not in b.specialists and "label-checker" not in a.specialists
+    assert a.workflows.get("place_order").steps[0].capability == "order.create"  # type: ignore[union-attr]
+    assert b.workflows.get("place_order").steps[0].capability == "order.replenish"  # type: ignore[union-attr]
     assert a.config_hash != b.config_hash
     assert (a.country_pack.currency, b.country_pack.currency) == ("INR", "IDR")
 
@@ -44,9 +46,9 @@ def tmp_config(tmp_path: Path) -> Path:
 
 
 def test_older_version_loads_and_changes_hash(tmp_config: Path) -> None:
-    current = tmp_config / "retailer_policies" / "default_qc.json"
+    current = tmp_config / "retailer_policies" / "default_gifting.json"
     data = json.loads(current.read_text())
-    (tmp_config / "retailer_policies" / "default_qc@1.json").write_text(json.dumps(data))
+    (tmp_config / "retailer_policies" / "default_gifting@1.json").write_text(json.dumps(data))
     current.write_text(json.dumps({**data, "version": 2, "auto_accept_counter_max_delta": 0.05}))
 
     loader = ConfigLoader(tmp_config)
@@ -64,11 +66,11 @@ def test_disabled_specialist_is_an_error(tmp_config: Path) -> None:
     path = tmp_config / "agents.json"
     data = json.loads(path.read_text())
     for entry in data["agents"]:
-        if entry["id"] == "produce-grader":
+        if entry["id"] == "craft-quality-checker":
             entry["enabled"] = False
     path.write_text(json.dumps(data))
     loader = ConfigLoader(tmp_config)
-    with pytest.raises(ConfigError, match="produce-grader"):
+    with pytest.raises(ConfigError, match="craft-quality-checker"):
         resolve_active_config("r", loader.load_preset("A").refs, loader)
 
 

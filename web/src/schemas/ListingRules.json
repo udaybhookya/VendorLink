@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "description": "What her agent may approve on her behalf when the retailer's agents improve a listing.\nAnything outside these rules is shown to her first.",
+  "properties": {
+    "price_must_match": {
+      "default": true,
+      "description": "Price and quantity must be numbers she said or answered",
+      "title": "Price Must Match",
+      "type": "boolean"
+    },
+    "allow_text_rewrite": {
+      "default": true,
+      "description": "Title and description reworded from her own facts",
+      "title": "Allow Text Rewrite",
+      "type": "boolean"
+    },
+    "allow_ai_images": {
+      "default": false,
+      "description": "Use an AI-enhanced photo of her product without asking",
+      "title": "Allow Ai Images",
+      "type": "boolean"
+    }
+  },
+  "title": "ListingRules",
+  "type": "object"
+}

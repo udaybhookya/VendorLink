@@ -56,6 +56,7 @@ class Env:
             party=RETAILER,
             contacts=[
                 Contact(role="buyer", slack="#buying", email="buyer@freshcart.example"),
+                Contact(role="category_lead", slack="#lead", email="lead@freshcart.example"),
                 Contact(role="ops", slack="#ops", email="ops@freshcart.example"),
                 Contact(role="vendor", inapp=True, email="maya@example.com"),
             ],
@@ -131,7 +132,7 @@ async def test_approval_goes_to_slack_and_a_thread_reply_resumes_work(env: Env) 
     assert (done.status, done.answer_value, done.answered_via) == ("answered", "approve", "slack")
 
 
-async def test_reminder_then_escalation_to_ops(env: Env) -> None:
+async def test_reminder_then_escalation_to_category_lead(env: Env) -> None:
     task = await env.ask()
     env.clock.advance(61)
     out = await env.liaison.tick(TickIn())
@@ -144,7 +145,7 @@ async def test_reminder_then_escalation_to_ops(env: Env) -> None:
     assert [(d.channel, d.to) for d in stored.deliveries] == [
         ("slack", "#buying"),
         ("gmail", "buyer@freshcart.example"),
-        ("slack", "#ops"),
+        ("slack", "#lead"),
     ]
 
 

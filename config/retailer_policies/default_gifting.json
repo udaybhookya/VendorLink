@@ -1,0 +1,8 @@
+{
+  "id": "default_gifting",
+  "version": 1,
+  "auto_order_max_value": "25000",
+  "auto_accept_counter_max_delta": 0.1,
+  "new_vendor_needs_human": true,
+  "listing_publish_min_confidence": 0.8
+}
