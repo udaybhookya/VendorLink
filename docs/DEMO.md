@@ -22,6 +22,10 @@ uv run python scripts/e2e_order_loop.py           # smoke test: must print ORDER
 uv run python scripts/demo_reset.py               # reset again after the smoke test
 ```
 
+**Hosted demo** (docs/DEPLOY.md): `source infra/cloud_env.sh` first, then the same
+`demo_reset.py` commands reset and seed the cloud services. Slack messages go to the real
+workspace, so the buyer answers on Slack. The hosted console has no Outbox page.
+
 `DEMO_SCENE=waiting make dev` starts straight into a scene. Start any scene only after the
 "VendorLink ready" line; `make dev` resets once on startup and would wipe an earlier one.
 

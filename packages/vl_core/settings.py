@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     vl_admin_token: str = ""
     # Enables /dev/* endpoints (reset, seed, tamper). Never enable in a deployed environment.
     vl_dev_endpoints: bool = False
+    # Hosted demo: /dev/reset, /dev/tick and /dev/tamper answer only callers with the admin token
+    # (tamper also the operator token). The dev outbox stays closed. ADR 0014.
+    vl_demo_endpoints: bool = False
     token_ttl_seconds: int = 300
     # Gateway: calls per minute for an agent with no limit of its own (control API can set one).
     vl_rate_limit_per_minute: int = Field(default=120, ge=1)

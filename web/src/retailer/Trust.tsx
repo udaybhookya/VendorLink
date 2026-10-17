@@ -5,6 +5,16 @@ import { c } from "../lib/i18n";
 import { type PageProps, Pill, useLoad } from "./Console";
 import { Icon } from "../lib/icons";
 
+// A hosted demo opens /dev/tamper to the operator signed in on Observability (ADR 0014).
+function operatorHeader(): Record<string, string> {
+  try {
+    const token = (JSON.parse(sessionStorage.getItem("vl.operator") ?? "{}") as { token?: string }).token;
+    return token ? { "X-VL-Operator-Token": token } : {};
+  } catch {
+    return {};
+  }
+}
+
 export function Trust({ tick, refresh }: PageProps) {
   const [creds] = useLoad(() => api<AgentCredential[]>(GATEWAY_URL, "/credentials"), [tick], []);
   const [events] = useLoad(() => api<SecurityEvent[]>(GATEWAY_URL, "/security-events"), [tick], []);
@@ -18,7 +28,7 @@ export function Trust({ tick, refresh }: PageProps) {
   }
   async function tamper() {
     const seq = Math.max(0, Math.floor(audit.length / 2));
-    await api(GATEWAY_URL, `/dev/tamper/${seq}`, { method: "POST" });
+    await api(GATEWAY_URL, `/dev/tamper/${seq}`, { method: "POST", headers: operatorHeader() });
     setVerify(null);
     refresh();
   }

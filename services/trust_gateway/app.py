@@ -12,6 +12,7 @@ from trust_gateway.errors import Denied
 from trust_gateway.gateway import Gateway
 from vl_core.a2a import GATEWAY_AGENT_ID, GATEWAY_KEY_PATH, HEADER_AGENT
 from vl_core.crypto import Signer, get_signer
+from vl_core.devguard import require_demo
 from vl_core.events import sse_response
 from vl_core.obs import log_startup
 from vl_core.obs.tracing import TracingMiddleware
@@ -93,10 +94,6 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
         expected = settings.vl_operator_token
         if not expected or not token or not hmac.compare_digest(token, expected):
             raise HTTPException(403, {"error": "operator_only"})
-
-    def require_dev() -> None:
-        if not settings.vl_dev_endpoints:
-            raise HTTPException(404)
 
     async def signed(request: Request) -> tuple[AgentCredential, bytes]:
         body = await request.body()
@@ -353,19 +350,23 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
     async def list_party_configs() -> list[PartyConfig]:
         return await gw.store.parties.query()
 
-    # dev only
+    # dev only (a hosted demo: with the admin token, see vl_core.devguard)
     @app.post("/dev/reset")
-    async def dev_reset() -> Ack:
-        require_dev()
+    async def dev_reset(x_vl_admin_token: str | None = Header(default=None)) -> Ack:
+        require_demo(settings, "gateway.reset", x_vl_admin_token)
         await reset_repos(prefix="gw.")
         gw.audit.forget_head()
         gw.control.events.clear()
         return Ack(detail="gateway state cleared")
 
     @app.post("/dev/tamper/{seq}")
-    async def dev_tamper(seq: int) -> dict[str, Any]:
+    async def dev_tamper(
+        seq: int,
+        x_vl_admin_token: str | None = Header(default=None),
+        x_vl_operator_token: str | None = Header(default=None),
+    ) -> dict[str, Any]:
         """Demo only: edit one stored audit record in place so /audit/verify can catch it."""
-        require_dev()
+        require_demo(settings, "gateway.tamper", x_vl_admin_token, x_vl_operator_token)
         doc_id = f"{seq:012d}"
         record = await gw.store.audit.get(doc_id)
         if record is None:

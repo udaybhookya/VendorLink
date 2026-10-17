@@ -18,8 +18,10 @@ import { Catalogue } from "./Catalogue";
 const NAV: [string, IconName][] = [
   ["today", "dashboard"], ["inbox", "inbox"], ["orders", "orders"], ["catalogue", "products"], ["suppliers", "users"],
 ];
+// The dev outbox exists only locally (VL_CHANNELS=local); a hosted build sends to real Slack.
 const ADMIN: [string, IconName][] = [
-  ["studio", "setup"], ["observability", "pulse"], ["trust", "shield"], ["outbox", "send"],
+  ["studio", "setup"], ["observability", "pulse"], ["trust", "shield"],
+  ...(import.meta.env.VITE_HOSTED === "true" ? [] : [["outbox", "send"] as [string, IconName]]),
 ];
 
 export type PageProps = { retailer: Retailer; active: ActiveConfig | null; tick: number; refresh: () => void };

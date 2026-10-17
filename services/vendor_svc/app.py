@@ -4,7 +4,7 @@ import base64
 from collections.abc import AsyncIterator
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, WebSocket
+from fastapi import FastAPI, Header, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.requests import Request
@@ -18,6 +18,7 @@ from vendor_svc.seed import seed_vendors
 from vendor_svc.store import PREFIX
 from vl_core.a2a import GatewayError, GatewayVerifier, a2a_router
 from vl_core.crypto import Signer, get_signer
+from vl_core.devguard import require_demo
 from vl_core.errors import Problem, error_response
 from vl_core.hitl_http import outbox_router, tick_lifespan
 from vl_core.i18n import Strings
@@ -302,20 +303,18 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
             stream(), media_type="text/event-stream", headers={"cache-control": "no-cache"}
         )
 
-    # dev only
-    def require_dev() -> None:
-        if not settings.vl_dev_endpoints:
-            raise HTTPException(404)
-
+    # dev only (a hosted demo: with the admin token, see vl_core.devguard)
     @app.post("/dev/tick")
-    async def dev_tick() -> TickOut:
+    async def dev_tick(x_vl_admin_token: str | None = Header(default=None)) -> TickOut:
         """Run one Liaison pass now (the background loop does this every VL_HITL_TICK_SECONDS)."""
-        require_dev()
+        require_demo(settings, "vendor.tick", x_vl_admin_token)
         return await tick()
 
     @app.post("/dev/reset")
-    async def dev_reset(seed: bool = True) -> dict[str, list[str]]:
-        require_dev()
+    async def dev_reset(
+        seed: bool = True, x_vl_admin_token: str | None = Header(default=None)
+    ) -> dict[str, list[str]]:
+        require_demo(settings, "vendor.reset", x_vl_admin_token)
         await reset_repos(prefix=PREFIX)  # vendor.* includes the Guardian's own collections
         concierge().sessions.clear()
         return {"seeded": await seed_vendors(services) if seed else []}

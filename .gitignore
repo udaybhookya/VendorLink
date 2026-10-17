@@ -25,3 +25,6 @@ web/*.tsbuildinfo
 .DS_Store
 .idea/
 .vscode/
+
+# Deploy-time contacts (infra/deploy.env.example)
+infra/deploy.env

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
@@ -17,6 +17,7 @@ from retailer_svc.studio import ConfigStudio, config_kind
 from vl_core.a2a import GatewayError, GatewayVerifier, a2a_router, party_id_for
 from vl_core.config import ConfigError, ConfigLoader
 from vl_core.crypto import Signer, get_signer
+from vl_core.devguard import require_demo
 from vl_core.errors import Problem, error_response
 from vl_core.events import sse_response
 from vl_core.hitl_http import outbox_router, tick_lifespan
@@ -296,20 +297,20 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
         return run
 
     @app.post("/dev/tick")
-    async def dev_tick() -> TickOut:
-        if not settings.vl_dev_endpoints:
-            raise HTTPException(404)
+    async def dev_tick(x_vl_admin_token: str | None = Header(default=None)) -> TickOut:
+        require_demo(settings, "retailer.tick", x_vl_admin_token)
         return await tick()
 
     @app.get("/retailers/{retailer_id}/events")
     async def events(retailer_id: str) -> StreamingResponse:
         return sse_response(orch.bus)
 
-    # dev only
+    # dev only (a hosted demo: with the admin token, see vl_core.devguard)
     @app.post("/dev/reset")
-    async def dev_reset(preset: str | None = None) -> dict[str, str]:
-        if not settings.vl_dev_endpoints:
-            raise HTTPException(404)
+    async def dev_reset(
+        preset: str | None = None, x_vl_admin_token: str | None = Header(default=None)
+    ) -> dict[str, str]:
+        require_demo(settings, "retailer.reset", x_vl_admin_token)
         await reset_repos(prefix=PREFIX)
         await studio.refresh()
         chosen = preset or settings.active_config

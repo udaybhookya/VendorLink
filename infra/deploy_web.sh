@@ -8,7 +8,7 @@ url() { gcloud run services describe "$1" --region "$REGION" --format 'value(sta
 
 cd "$(dirname "$0")/.."
 export VITE_VENDOR_URL=$(url vendor-svc) VITE_RETAILER_URL=$(url retailer-svc) \
-  VITE_GATEWAY_URL=$(url trust-gateway)
+  VITE_GATEWAY_URL=$(url trust-gateway) VITE_HOSTED=true
 (cd web && npm ci && npm run build)
 firebase deploy --only hosting --project "$GOOGLE_CLOUD_PROJECT"
 echo "web: https://${GOOGLE_CLOUD_PROJECT}.web.app (set WEB_ORIGIN for deploy.sh if you use another domain)"

@@ -21,5 +21,9 @@ steps:
             -t ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/$$name:${_TAG} . || exit 1
           docker push ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/$$name:${_TAG} || exit 1
         done
+        # The Slack MCP server the deployed Liaison calls over HTTP (infra/slack_mcp).
+        docker build -f infra/slack_mcp/Dockerfile \
+          -t ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/slack-mcp:${_TAG} infra/slack_mcp || exit 1
+        docker push ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/slack-mcp:${_TAG} || exit 1
 options:
   logging: CLOUD_LOGGING_ONLY

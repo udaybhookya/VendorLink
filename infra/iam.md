@@ -6,12 +6,19 @@
 | `vl-vendor-tenant` | vendor-svc | Firestore (`vendor.*`), KMS keyring `vl-vendor` (sign), GCS bucket `vl-vendor-*`, Vertex AI |
 | `vl-retailer-tenant` | retailer-svc | Firestore (`retailer.*`), KMS keyring `vl-retailer` (sign), GCS bucket `vl-retailer-*`, Vertex AI |
 | `vl-mocks` | mocks | nothing |
+| `vl-slack-mcp` | slack-mcp | secrets `vl-slack-bot-token`, `vl-slack-team-id`, `vl-slack-mcp-auth` |
+| `vl-scheduler` | Cloud Scheduler | `roles/run.invoker` |
+
+`infra/bootstrap.sh` creates these accounts and every binding on this page (ADR 0014).
 
 - Vendor and retailer tenants have **separate keyrings and buckets**; neither SA can use the
   other's keys. In the MVP they share one GCP project: **say so openly**. Production: one project
   per tenant.
 - Secrets (`vl-admin-token`, model names) live in Secret Manager and are mounted as env vars.
-- `VL_DEV_ENDPOINTS=false` in every deployed service (no reset/tamper endpoints).
+- `VL_DEV_ENDPOINTS=false` in every deployed service. The hosted demo sets `VL_DEMO_ENDPOINTS=true`:
+  `/dev/reset|tick|tamper` then answer only the admin token (tamper also the operator token), and
+  the dev outbox stays closed (ADR 0014).
+- All tenant services also get `roles/cloudtrace.agent`; vendor and retailer get `roles/aiplatform.user`.
 - Cloud adapters (ADR 0005), each tested against a fake client:
   - KMS: `roles/cloudkms.signerVerifier` **and** `roles/cloudkms.admin` scoped to the tenant's own
     keyring (keys are created on first use; rotation adds a version and disables the old one).

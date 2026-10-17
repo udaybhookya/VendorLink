@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any
 
-from vl_core.a2a import make_client
-from vl_core.settings import Settings
+from vl_core.a2a import ADMIN_HEADER, make_client
+from vl_core.settings import Settings, get_settings
 
 RETAILER = "retailer:freshcart"
 MAYA = "vendor:maya"
@@ -17,6 +17,9 @@ class DemoError(AssertionError):
 
 
 async def call(base: str, method: str, path: str, *, expect: int | None = 200, **kw: Any) -> Any:
+    # A hosted demo opens /dev/* only to the admin token (VL_DEMO_ENDPOINTS, ADR 0014).
+    if token := get_settings().vl_admin_token:
+        kw["headers"] = {ADMIN_HEADER: token, **kw.get("headers", {})}
     async with make_client(base, timeout=60) as client:
         response = await client.request(method, path, **kw)
     if expect is not None and response.status_code != expect:

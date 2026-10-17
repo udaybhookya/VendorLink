@@ -208,5 +208,6 @@ def log_startup(service: str, settings: Any) -> None:
         pro_model=settings.pro_model or "off",
         live_model=settings.live_model or "off",
         dev_endpoints=settings.vl_dev_endpoints,
+        demo_endpoints=settings.vl_demo_endpoints,
         log_level=settings.log_level,
     )
