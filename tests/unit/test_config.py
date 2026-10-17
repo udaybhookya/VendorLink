@@ -22,6 +22,7 @@ def test_configs_a_and_b_differ(loader: ConfigLoader) -> None:
     b = resolve_active_config("retailer:demo", loader.load_preset("B").refs, loader)
     assert "craft-quality-checker" in a.specialists and "replenishment-planner" in a.specialists
     assert "label-checker" in b.specialists and "compliance-auditor" in b.specialists
+    assert "replenishment-planner" in b.specialists  # B orders by replenishment
     assert "craft-quality-checker" not in b.specialists and "label-checker" not in a.specialists
     assert a.workflows.get("place_order").steps[0].capability == "order.create"  # type: ignore[union-attr]
     assert b.workflows.get("place_order").steps[0].capability == "order.replenish"  # type: ignore[union-attr]
@@ -72,6 +73,43 @@ def test_disabled_specialist_is_an_error(tmp_config: Path) -> None:
     loader = ConfigLoader(tmp_config)
     with pytest.raises(ConfigError, match="craft-quality-checker"):
         resolve_active_config("r", loader.load_preset("A").refs, loader)
+
+
+def _edit_specialists(root: Path, kind: str, config_id: str, change: list[str]) -> None:
+    """Add (`+id`) or remove (`-id`) specialists in one profile."""
+    path = root / kind / f"{config_id}.json"
+    data = json.loads(path.read_text())
+    for c in change:
+        agent_id = c[1:]
+        if c.startswith("+"):
+            data["specialists"].append(agent_id)
+        else:
+            data["specialists"].remove(agent_id)
+    path.write_text(json.dumps(data))
+
+
+def test_required_workflow_step_needs_a_loaded_agent(tmp_config: Path) -> None:
+    """Config B's place_order step is order.replenish: without the planner it cannot order."""
+    _edit_specialists(tmp_config, "retailer_profiles", "grocery_chain", ["-replenishment-planner"])
+    loader = ConfigLoader(tmp_config)
+    with pytest.raises(ConfigError, match=r"'place_order' step 'order\.replenish'.*replenishment"):
+        resolve_active_config("r", loader.load_preset("B").refs, loader)
+    assert any("presets/B.json" in p and "order.replenish" in p for p in loader.validate_all())
+
+
+def test_workflow_step_offered_twice_is_ambiguous(tmp_config: Path) -> None:
+    """Two graders loaded for A: grade.* would match both, and the Orchestrator needs one."""
+    _edit_specialists(tmp_config, "business_profiles", "handmade_gifts", ["+label-checker"])
+    loader = ConfigLoader(tmp_config)
+    with pytest.raises(ConfigError, match=r"'grade\.\*': ambiguous"):
+        resolve_active_config("r", loader.load_preset("A").refs, loader)
+
+
+def test_optional_workflow_step_may_be_missing(tmp_config: Path) -> None:
+    _edit_specialists(tmp_config, "retailer_profiles", "gifting", ["-listing-enricher"])
+    loader = ConfigLoader(tmp_config)
+    active = resolve_active_config("r", loader.load_preset("A").refs, loader)
+    assert "listing-enricher" not in active.specialists
 
 
 def test_id_must_match_filename(tmp_config: Path) -> None:

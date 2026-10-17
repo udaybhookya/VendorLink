@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterator
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -12,7 +13,18 @@ from agents.registry import AgentRegistry, RegistryError
 from tests.conftest import CONFIG_DIR, ROOT
 from vl_core.config import ConfigLoader, resolve_active_config
 from vl_core.registry import capability_matches
-from vl_core.schemas import ActiveConfig, AgentCard, AgentEntry, ListingStepIn, ListingStepOut
+from vl_core.schemas import (
+    ActiveConfig,
+    AgentCard,
+    AgentEntry,
+    DemandLine,
+    Listing,
+    ListingStepIn,
+    ListingStepOut,
+    OrderPlanIn,
+    PlanOrdersIn,
+    PlanOrdersOut,
+)
 from vl_core.settings import Settings
 
 SETTINGS = Settings(vl_config_dir=CONFIG_DIR)
@@ -45,6 +57,61 @@ def test_grade_wildcard_follows_active_config() -> None:
     assert registry.find("grade.*", active("B")).agent_id == "label-checker"
     with pytest.raises(RegistryError):
         registry.find("compliance.check", active("A"))
+
+
+@pytest.mark.parametrize("preset", ["A", "B"])
+def test_every_workflow_of_a_preset_resolves_on_the_retailer(preset: str) -> None:
+    """What the config check promises is what the Orchestrator finds at run time."""
+    from agents.core.orchestrator.agent import Orchestrator
+
+    registry = AgentRegistry.load(SETTINGS, host="retailer-svc")
+    orchestrator = registry.agent("orchestrator")
+    assert isinstance(orchestrator, Orchestrator)
+    config = active(preset)
+    for workflow in config.workflows.workflows:
+        required = [s.capability for s in workflow.steps if not s.optional]
+        resolved = [cap for _, cap in orchestrator.steps(config, workflow.job_type)]
+        assert set(required) <= set(resolved), workflow.job_type
+
+
+async def test_config_b_plans_replenishment_orders() -> None:
+    """Config B orders by replenishment (order.replenish), in its own currency."""
+    b = active("B")
+    listing = Listing.model_validate(
+        {
+            "id": "lst-sara-crisps",
+            "vendor_id": "vendor:sara",
+            "sku_name": "cassava crisps",
+            "category": "snacks",
+            "unit": "pack",
+            "price": "12000",
+            "currency": "IDR",
+            "qty": "100",
+            "status": "published",
+        }
+    )
+    plan_in = OrderPlanIn(
+        retailer_id="retailer:demo",
+        vendor_id="vendor:sara",
+        store_id="store:hub-7",
+        for_date=date(2026, 10, 20),
+        listings=[listing],
+        country_pack=b.country_pack,
+        terms_version=b.retailer_profile.term_templates[0].id,
+        payment_days=b.retailer_profile.term_templates[0].payment_days,
+        demand_override=[
+            DemandLine(sku="cassava crisps", qty=30, unit="pack", pickup_local="10:00")
+        ],
+    )
+    registry = AgentRegistry.load(SETTINGS, host="retailer-svc")
+    out = await registry.call(
+        "orchestrator.plan_orders",
+        PlanOrdersIn(active_config=b, plan_in=plan_in),
+        PlanOrdersOut,
+    )
+    assert out.ran == ["replenishment-planner"]
+    [proposal] = out.plan.proposals
+    assert proposal.currency == "IDR" and proposal.lines[0].qty == 30
 
 
 def test_hosts_decide_where_agents_run() -> None:

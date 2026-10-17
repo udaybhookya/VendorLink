@@ -10,6 +10,7 @@ from typing import Any, Protocol, cast
 from pydantic import BaseModel, ValidationError
 
 from vl_core.crypto import hash_obj
+from vl_core.registry import capability_matches
 from vl_core.schemas import (
     ActiveConfig,
     AgentCard,
@@ -125,9 +126,13 @@ class ConfigLoader:
         for path in sorted((self.root / "presets").glob("*.json")):
             try:
                 preset = self._validate(ConfigPreset, path)
-                resolve_active_config("validate", preset.refs, self)
             except ConfigError as exc:
                 problems.append(str(exc))
+                continue
+            try:
+                resolve_active_config("validate", preset.refs, self)
+            except ConfigError as exc:
+                problems.append(f"{path}: {exc}")
         try:
             self.trust_scoring()
         except ConfigError as exc:
@@ -141,6 +146,39 @@ class ConfigLoader:
 
 def _load_ref(loader: ConfigSource, kind: ConfigKind, ref: ConfigRef) -> BaseModel:
     return loader.load(kind, ref.id, ref.version)
+
+
+def check_workflows(workflows: WorkflowSet, specialists: list[str], cards: list[AgentCard]) -> None:
+    """Every workflow step must resolve the way the Orchestrator will resolve it: a required
+    step to exactly one agent, an optional step to at most one. Core and channel agents always
+    count; a specialist counts only when the config loads it. Checked when a config is resolved,
+    so a config that cannot run one of its own jobs is refused at activation, not at run time."""
+    loaded = [c for c in cards if c.kind != "specialist" or c.agent_id in specialists]
+    problems: list[str] = []
+    for workflow in workflows.workflows:
+        for step in workflow.steps:
+            found = [
+                c.agent_id
+                for c in loaded
+                if any(capability_matches(step.capability, cap) for cap in c.capabilities)
+            ]
+            where = f"workflow {workflow.job_type!r} step {step.capability!r}"
+            if not found and not step.optional:
+                offered_by = [
+                    c.agent_id
+                    for c in cards
+                    if any(capability_matches(step.capability, cap) for cap in c.capabilities)
+                ]
+                hint = (
+                    f"; load one of {offered_by} in the retailer or business profile"
+                    if offered_by
+                    else "; no agent in agents.json offers it"
+                )
+                problems.append(f"{where}: no loaded agent offers it{hint}")
+            elif len(found) > 1:
+                problems.append(f"{where}: ambiguous, offered by {found}")
+    if problems:
+        raise ConfigError(f"workflow set {workflows.id!r}: " + " · ".join(problems))
 
 
 def resolve_active_config(
@@ -163,10 +201,12 @@ def resolve_active_config(
     wf = cast(WorkflowSet, _load_ref(loader, "workflows", wf_ref))
 
     specialists = list(dict.fromkeys([*rp.specialists, *bp.specialists]))
-    known = {card.agent_id for card in loader.load_cards() if card.kind == "specialist"}
+    cards = loader.load_cards()
+    known = {card.agent_id for card in cards if card.kind == "specialist"}
     missing = [agent_id for agent_id in specialists if agent_id not in known]
     if missing:
         raise ConfigError(f"not registered (or disabled) specialists in agents.json: {missing}")
+    check_workflows(wf, specialists, cards)
 
     pinned = ConfigRefs(
         business_profile=ConfigRef(id=bp.id, version=bp.version),

@@ -47,7 +47,8 @@
     "onboarding-verifier",
     "catalogue-builder",
     "terms-agent",
-    "compliance-auditor"
+    "compliance-auditor",
+    "replenishment-planner"
   ],
   "claims_requiring_proof": [
     "organic",
