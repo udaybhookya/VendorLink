@@ -12,6 +12,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 
+from vl_core.loopbound import LoopBound
 from vl_core.settings import Settings, get_settings
 
 
@@ -103,6 +104,12 @@ def kms_key_id(namespace: str, key_id: str) -> str:
     return f"{readable[:52]}-{hashlib.sha256(key_id.encode()).hexdigest()[:10]}"
 
 
+def _kms_client() -> Any:
+    from google.cloud import kms
+
+    return kms.KeyManagementServiceAsyncClient()
+
+
 def _version_no(name: str) -> int:
     return int(name.rsplit("/", 1)[1])
 
@@ -126,12 +133,14 @@ class KmsSigner:
             )
         self.keyring = ring
         self.namespace = namespace
-        if client is None:
-            from google.cloud import kms
-
-            client = kms.KeyManagementServiceAsyncClient()
-        self._client = client
+        self._clients: LoopBound[Any] = LoopBound(
+            lambda: client if client is not None else _kms_client()
+        )
         self._public: dict[str, bytes] = {}  # version name → raw public key
+
+    @property
+    def _client(self) -> Any:
+        return self._clients.get()
 
     def _key_name(self, key_id: str) -> str:
         return f"{self.keyring}/cryptoKeys/{kms_key_id(self.namespace, key_id)}"

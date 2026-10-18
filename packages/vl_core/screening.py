@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterator
 from typing import Any, Protocol
 
+from vl_core.loopbound import LoopBound
 from vl_core.settings import Settings
 
 INJECTION_PATTERNS: dict[str, re.Pattern[str]] = {
@@ -106,13 +107,21 @@ class ModelArmorScreener(HeuristicScreener):
                 f"/templates/{template}"
             )
         self.template = template
-        if client is None:
+
+        def make() -> Any:
+            if client is not None:
+                return client
             from google.cloud import modelarmor_v1
 
-            client = modelarmor_v1.ModelArmorAsyncClient(
+            return modelarmor_v1.ModelArmorAsyncClient(
                 client_options={"api_endpoint": f"modelarmor.{location}.rep.googleapis.com"}
             )
-        self._client = client
+
+        self._clients: LoopBound[Any] = LoopBound(make)
+
+    @property
+    def _client(self) -> Any:
+        return self._clients.get()
 
     async def scan_text(self, text: str) -> list[str]:
         findings = heuristic_findings(text)
