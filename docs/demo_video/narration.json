@@ -1,0 +1,96 @@
+{
+ "_note": "One entry per beat. 'text' is spoken (macOS say) and shown as captions; write numbers the way they should be read. scripts/record_demo.py times every click against these lines.",
+ "voice_rate": 188,
+ "beats": [
+  {
+   "id": "title",
+   "chip": "VendorLink",
+   "text": "VendorLink. AI agents that let small makers sell to modern retailers: in their own language, within rules they set, with every action provable."
+  },
+  {
+   "id": "problem",
+   "chip": "The problem",
+   "text": "Both sides want the sale. Home makers make what local shoppers search for, but retail runs on English forms, catalogue standards and fine print. And a maker who supplies forty a day costs a buyer as much work as a big distributor, so the sale never happens."
+  },
+  {
+   "id": "architecture",
+   "chip": "The idea",
+   "text": "VendorLink gives every maker an agent, and keeps every agent honest. Maya's Concierge talks with her, and her Guardian, plain code with no model, is the only one that signs. FreshCart's orchestrator hands work to specialist agents. Between them, a trust gateway checks identity, permission and content, and keeps a tamper-evident log."
+  },
+  {
+   "id": "listing",
+   "chip": "1 · Photo to listing",
+   "text": "Meet Maya. She pours candles at home in Hyderabad. To list a product, she sends a phone photo and a few words: forty lavender candles at two hundred and twenty rupees."
+  },
+  {
+   "id": "enrich",
+   "chip": "1 · Product enrichment",
+   "text": "The retailer's agents check the photo against catalogue standards: too small, cluttered background. They make an auto-enhanced version and two AI versions of her own photo, and write the title and description from her words, each fact with its source. Her Guardian never approves an AI photo for her, so she picks one."
+  },
+  {
+   "id": "publish",
+   "chip": "1 · A person approves",
+   "text": "FreshCart's policy sends AI photos to a person. The category manager sees her photo beside the AI one, with every flag in words, and publishes it, the AI photo disclosed."
+  },
+  {
+   "id": "rules",
+   "chip": "2 · Her rules",
+   "text": "Maya set her rules once: at least one hundred and eighty rupees a candle, forty a day, pickup after ten, paid within fifteen days. Her Guardian keeps them as her signed standing mandate."
+  },
+  {
+   "id": "place",
+   "chip": "3 · An order arrives",
+   "text": "FreshCart's gifting desk orders fifty candles at two hundred and twenty rupees, pickup at eight in the morning, paid in forty-five days."
+  },
+  {
+   "id": "counter",
+   "chip": "3 · Guardian counters",
+   "text": "Her Guardian checks it in plain code, in under a millisecond. Red: too many, too early, paid too late. It counters inside her rules: forty candles, ten a.m., fifteen days."
+  },
+  {
+   "id": "inbox",
+   "chip": "4 · People in the loop",
+   "text": "The counter changes the order value by twenty percent, and FreshCart auto-accepts only ten. So the buyer is asked, with the reasons in words, here and on Slack. Whichever answer comes first closes the other. The buyer accepts."
+  },
+  {
+   "id": "consent",
+   "chip": "5 · Her yes",
+   "text": "The deal is amber: inside her rules, but over her auto-accept limit, so it waits for Maya. Her app and read-backs work in Telugu or Bahasa Indonesia; we show English here. Her own yes is the consent, bound to the hash of this exact version."
+  },
+  {
+   "id": "signed",
+   "chip": "5 · Signed",
+   "text": "Her Guardian signs, FreshCart countersigns, and the gateway files the order mandate. No model decided or signed anything."
+  },
+  {
+   "id": "observe",
+   "chip": "6 · Observability",
+   "text": "Operators see every agent: who talks to whom, trust scores, every decision, and how long each step takes and how many tokens it used. Any agent can be suspended, quarantined or revoked."
+  },
+  {
+   "id": "attack",
+   "chip": "7 · Under attack",
+   "text": "Now an attack: an impostor without Maya's key, and a document with hidden instructions for the model. The gateway blocks both and quarantines the uploader. Maya's real agent is untouched."
+  },
+  {
+   "id": "config_b",
+   "chip": "8 · New market, no code",
+   "text": "A new market is configuration, not code. One click switches FreshCart to packaged food in Indonesia: Bahasa, rupiah, local food-safety permits, and different specialist agents."
+  },
+  {
+   "id": "sara",
+   "chip": "8 · Label check",
+   "text": "Sara's cassava chips label has no P-IRT registration number, so the Label Checker flags it before anything is listed."
+  },
+  {
+   "id": "audit",
+   "chip": "9 · Provable",
+   "text": "And everything is provable. Verify replays the audit chain: intact. Tamper with one record, and it breaks at exactly that entry."
+  },
+  {
+   "id": "close",
+   "chip": "VendorLink",
+   "text": "VendorLink. Agents for small makers: in their language, inside their rules, with trust you can verify. Built with Gemini, the Agent Development Kit, A2A and MCP."
+  }
+ ]
+}

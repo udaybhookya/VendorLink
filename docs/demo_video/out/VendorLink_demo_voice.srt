@@ -1,0 +1,183 @@
+1
+00:00:00,350 --> 00:00:01,034
+VendorLink.
+
+2
+00:00:01,034 --> 00:00:09,183
+AI agents that let small makers sell to modern retailers: in their own language, within rules they set, with every action provable.
+
+3
+00:00:09,721 --> 00:00:11,097
+Both sides want the sale.
+
+4
+00:00:11,097 --> 00:00:17,592
+Home makers make what local shoppers search for, but retail runs on English forms, catalogue standards and fine print.
+
+5
+00:00:17,592 --> 00:00:23,756
+And a maker who supplies forty a day costs a buyer as much work as a big distributor, so the sale never happens.
+
+6
+00:00:26,066 --> 00:00:30,061
+VendorLink gives every maker an agent, and keeps every agent honest.
+
+7
+00:00:30,061 --> 00:00:36,170
+Maya's Concierge talks with her, and her Guardian, plain code with no model, is the only one that signs.
+
+8
+00:00:36,170 --> 00:00:39,519
+FreshCart's orchestrator hands work to specialist agents.
+
+9
+00:00:39,519 --> 00:00:45,511
+Between them, a trust gateway checks identity, permission and content, and keeps a tamper-evident log.
+
+10
+00:00:47,825 --> 00:00:48,387
+Meet Maya.
+
+11
+00:00:48,387 --> 00:00:50,578
+She pours candles at home in Hyderabad.
+
+12
+00:00:50,578 --> 00:00:57,095
+To list a product, she sends a phone photo and a few words: forty lavender candles at two hundred and twenty rupees.
+
+13
+00:00:59,235 --> 00:01:04,693
+The retailer's agents check the photo against catalogue standards: too small, cluttered background.
+
+14
+00:01:04,693 --> 00:01:13,018
+They make an auto-enhanced version and two AI versions of her own photo, and write the title and description from her words, each fact with its source.
+
+15
+00:01:13,018 --> 00:01:16,656
+Her Guardian never approves an AI photo for her, so she picks one.
+
+16
+00:01:18,514 --> 00:01:21,449
+FreshCart's policy sends AI photos to a person.
+
+17
+00:01:21,449 --> 00:01:29,068
+The category manager sees her photo beside the AI one, with every flag in words, and publishes it, the AI photo disclosed.
+
+18
+00:01:30,736 --> 00:01:37,798
+Maya set her rules once: at least one hundred and eighty rupees a candle, forty a day, pickup after ten, paid within fifteen days.
+
+19
+00:01:37,798 --> 00:01:40,786
+Her Guardian keeps them as her signed standing mandate.
+
+20
+00:01:43,986 --> 00:01:50,823
+FreshCart's gifting desk orders fifty candles at two hundred and twenty rupees, pickup at eight in the morning, paid in forty-five days.
+
+21
+00:01:52,545 --> 00:01:56,546
+Her Guardian checks it in plain code, in under a millisecond.
+
+22
+00:01:56,546 --> 00:01:59,169
+Red: too many, too early, paid too late.
+
+23
+00:01:59,169 --> 00:02:03,628
+It counters inside her rules: forty candles, ten a.m., fifteen days.
+
+24
+00:02:04,918 --> 00:02:10,230
+The counter changes the order value by twenty percent, and FreshCart auto-accepts only ten.
+
+25
+00:02:10,230 --> 00:02:14,199
+So the buyer is asked, with the reasons in words, here and on Slack.
+
+26
+00:02:14,199 --> 00:02:16,884
+Whichever answer comes first closes the other.
+
+27
+00:02:16,884 --> 00:02:17,934
+The buyer accepts.
+
+28
+00:02:19,436 --> 00:02:24,964
+The deal is amber: inside her rules, but over her auto-accept limit, so it waits for Maya.
+
+29
+00:02:24,964 --> 00:02:29,877
+Her app and read-backs work in Telugu or Bahasa Indonesia; we show English here.
+
+30
+00:02:29,877 --> 00:02:34,053
+Her own yes is the consent, bound to the hash of this exact version.
+
+31
+00:02:34,931 --> 00:02:39,773
+Her Guardian signs, FreshCart countersigns, and the gateway files the order mandate.
+
+32
+00:02:39,773 --> 00:02:41,849
+No model decided or signed anything.
+
+33
+00:02:43,542 --> 00:02:52,060
+Operators see every agent: who talks to whom, trust scores, every decision, and how long each step takes and how many tokens it used.
+
+34
+00:02:52,060 --> 00:02:55,326
+Any agent can be suspended, quarantined or revoked.
+
+35
+00:02:56,504 --> 00:03:02,343
+Now an attack: an impostor without Maya's key, and a document with hidden instructions for the model.
+
+36
+00:03:02,343 --> 00:03:05,408
+The gateway blocks both and quarantines the uploader.
+
+37
+00:03:05,408 --> 00:03:07,200
+Maya's real agent is untouched.
+
+38
+00:03:08,039 --> 00:03:10,530
+A new market is configuration, not code.
+
+39
+00:03:10,530 --> 00:03:18,936
+One click switches FreshCart to packaged food in Indonesia: Bahasa, rupiah, local food-safety permits, and different specialist agents.
+
+40
+00:03:20,420 --> 00:03:26,221
+Sara's cassava chips label has no P-IRT registration number, so the Label Checker flags it before anything is listed.
+
+41
+00:03:28,474 --> 00:03:30,122
+And everything is provable.
+
+42
+00:03:30,122 --> 00:03:32,501
+Verify replays the audit chain: intact.
+
+43
+00:03:32,501 --> 00:03:36,162
+Tamper with one record, and it breaks at exactly that entry.
+
+44
+00:03:36,997 --> 00:03:37,812
+VendorLink.
+
+45
+00:03:37,812 --> 00:03:44,482
+Agents for small makers: in their language, inside their rules, with trust you can verify.
+
+46
+00:03:44,482 --> 00:03:48,780
+Built with Gemini, the Agent Development Kit, A2A and MCP.
