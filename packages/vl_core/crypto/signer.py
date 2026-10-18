@@ -146,10 +146,16 @@ class KmsSigner:
         return f"{self.keyring}/cryptoKeys/{kms_key_id(self.namespace, key_id)}"
 
     async def _enabled_versions(self, key_name: str) -> list[str]:
-        pager = await self._client.list_crypto_key_versions(
-            request={"parent": key_name, "filter": "state=ENABLED"}
-        )
-        return sorted([v.name async for v in pager], key=_version_no)
+        try:
+            pager = await self._client.list_crypto_key_versions(
+                request={"parent": key_name, "filter": "state=ENABLED"}
+            )
+            names = [v.name async for v in pager]
+        except Exception as exc:  # a key that was never created: KMS answers 404
+            if type(exc).__name__ != "NotFound":
+                raise
+            return []
+        return sorted(names, key=_version_no)
 
     async def _wait_enabled(self, version: str) -> None:
         for _ in range(60):  # Ed25519 generation takes a few seconds at most

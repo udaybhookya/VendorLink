@@ -71,6 +71,10 @@ class Version:
     key: Ed25519PrivateKey = field(default_factory=Ed25519PrivateKey.generate)
 
 
+class NotFound(Exception):  # the name google.api_core.exceptions uses for a 404
+    pass
+
+
 class FakeKms:
     """Just enough of KeyManagementServiceAsyncClient. New versions start PENDING_GENERATION."""
 
@@ -111,7 +115,9 @@ class FakeKms:
 
     async def list_crypto_key_versions(self, request: dict[str, Any]) -> AsyncIterator[Version]:
         assert request["filter"] == "state=ENABLED"
-        found = [v for v in self.keys.get(request["parent"], []) if v.state == "ENABLED"]
+        if request["parent"] not in self.keys:
+            raise NotFound(f"404 CryptoKey {request['parent']} not found.")
+        found = [v for v in self.keys[request["parent"]] if v.state == "ENABLED"]
 
         async def pager() -> AsyncIterator[Version]:
             for v in found:
