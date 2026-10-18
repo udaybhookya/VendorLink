@@ -122,4 +122,4 @@ else
   echo "   firebase CLI not found: npm i -g firebase-tools, then: firebase projects:addfirebase $P"
 fi
 
-echo "bootstrap done. Next: export CLOUDSQL_INSTANCE=${P}:${REGION}:${SQL_INSTANCE}"
+echo "bootstrap done. Next: docs/DEPLOY.md step 2"

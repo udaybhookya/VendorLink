@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Deploy the hosted demo to Cloud Run: the four services plus the Slack MCP server.
 # Requires: infra/bootstrap.sh run once, images built (infra/cloudbuild.yaml), gcloud auth,
-# GOOGLE_CLOUD_PROJECT, TAG, CLOUDSQL_INSTANCE. Optional: infra/deploy.env (who is asked on Slack).
+# GOOGLE_CLOUD_PROJECT, TAG. Optional: CLOUDSQL_INSTANCE (default <project>:<region>:vl-jobs),
+# infra/deploy.env (who is asked on Slack).
 # Secrets (tokens, model names) come from Secret Manager, never from this file. docs/DEPLOY.md.
 set -euo pipefail
-: "${GOOGLE_CLOUD_PROJECT:?}" "${TAG:?}" "${CLOUDSQL_INSTANCE:?set CLOUDSQL_INSTANCE (project:region:instance)}"
+: "${GOOGLE_CLOUD_PROJECT:?}" "${TAG:?}"
 cd "$(dirname "$0")/.."
 REGION=${REGION:-asia-south1}
+CLOUDSQL_INSTANCE=${CLOUDSQL_INSTANCE:-${GOOGLE_CLOUD_PROJECT}:${REGION}:vl-jobs}
 # Vertex AI location for the models (Live and image models are not offered in every region).
 MODEL_LOCATION=${MODEL_LOCATION:-us-central1}
 ARMOR_LOCATION=${ARMOR_LOCATION:-us-central1}

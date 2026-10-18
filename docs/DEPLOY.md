@@ -60,13 +60,13 @@ commands: zsh does not treat `#` as a comment when you paste, so it would pass t
 
 ```bash
 export TAG=$(git rev-parse --short HEAD)
-export CLOUDSQL_INSTANCE=$GOOGLE_CLOUD_PROJECT:asia-south1:vl-jobs
 gcloud builds submit --config infra/cloudbuild.yaml --substitutions=_TAG=$TAG
 ./infra/deploy.sh
 firebase login && ./infra/deploy_web.sh
 ```
 
-`TAG` is the current commit, so commit first. `gcloud builds submit` runs the tests, then builds
+`TAG` is the current commit, so commit first. `deploy.sh` finds the Cloud SQL instance itself
+(`<PROJECT_ID>:asia-south1:vl-jobs`); set `CLOUDSQL_INSTANCE` only if yours has another name. `gcloud builds submit` runs the tests, then builds
 the 5 images.
 
 If the web app is not on `https://<PROJECT_ID>.web.app`, set `WEB_ORIGIN` before `deploy.sh`.
