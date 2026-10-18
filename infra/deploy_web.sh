@@ -14,7 +14,8 @@ for u in "$VITE_VENDOR_URL" "$VITE_RETAILER_URL" "$VITE_GATEWAY_URL"; do
   [ -n "$u" ] || { echo "a service has no URL yet: run infra/deploy.sh first" >&2; exit 1; }
 done
 export VITE_VENDOR_URL VITE_RETAILER_URL VITE_GATEWAY_URL VITE_HOSTED=true
-firebase hosting:sites:list --project "$GOOGLE_CLOUD_PROJECT" | grep -q "$GOOGLE_CLOUD_PROJECT" || {
+sites=$(firebase hosting:sites:list --project "$GOOGLE_CLOUD_PROJECT" 2>/dev/null || true)
+grep -q "$GOOGLE_CLOUD_PROJECT" <<<"$sites" || {
   echo "no Firebase Hosting site: firebase projects:addfirebase $GOOGLE_CLOUD_PROJECT" >&2; exit 1; }
 (cd web && npm ci && npm run build)
 firebase deploy --only hosting --project "$GOOGLE_CLOUD_PROJECT"
