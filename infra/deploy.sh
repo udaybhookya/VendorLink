@@ -2,7 +2,7 @@
 # Deploy the hosted demo to Cloud Run: the four services plus the Slack MCP server.
 # Requires: infra/bootstrap.sh run once, images built (infra/cloudbuild.yaml), gcloud auth,
 # GOOGLE_CLOUD_PROJECT, TAG. Optional: CLOUDSQL_INSTANCE (default <project>:<region>:vl-jobs),
-# infra/deploy.env (who is asked on Slack).
+# FIREBASE_SITE (the web app's Hosting site), infra/deploy.env (who is asked on Slack).
 # Secrets (tokens, model names) come from Secret Manager, never from this file. docs/DEPLOY.md.
 set -euo pipefail
 : "${GOOGLE_CLOUD_PROJECT:?}" "${TAG:?}"
@@ -30,7 +30,7 @@ ring() { echo "projects/${P}/locations/${REGION}/keyRings/$1"; }
 
 # The hosted web app (infra/deploy_web.sh): the only browser origin the APIs accept, and the base
 # of links sent in Slack/Gmail messages. One origin (gcloud splits env values on commas).
-WEB_ORIGIN=${WEB_ORIGIN:-https://${P}.web.app}
+WEB_ORIGIN=${WEB_ORIGIN:-https://${FIREBASE_SITE:-${P}}.web.app}
 cloud="GOOGLE_CLOUD_PROJECT=${P},VL_CORS_ORIGINS=${WEB_ORIGIN},VL_PUBLIC_URL=${WEB_ORIGIN}"
 # Hosted demo: /dev/reset|tick|tamper only with the admin token (tamper: operator), ADR 0014.
 demo="VL_DEV_ENDPOINTS=false,VL_DEMO_ENDPOINTS=true"

@@ -13,7 +13,7 @@ services and the web app on Firebase Hosting. The design decisions are in ADR 00
 | Signing keys, photos | Cloud KMS keyrings and GCS buckets: one per tenant |
 | Screening | Model Armor template `vl-screen` (`us-central1`) |
 | Models | Vertex AI in `MODEL_LOCATION` (default `us-central1`) |
-| Web app | Firebase Hosting, `https://<PROJECT_ID>.web.app` |
+| Web app | Firebase Hosting, `https://<FIREBASE_SITE>.web.app` (default: `<PROJECT_ID>`) |
 
 You need: a GCP project with billing, the `gcloud` and `firebase` CLIs (`npm i -g firebase-tools`),
 the Slack app from `docs/LOCAL_SETUP.md` C1 (bot token and team id), and model names that exist
@@ -42,16 +42,26 @@ are generated and never printed. Re-running it is safe and never rotates an exis
 To change a value later: `printf '%s' "<value>" | gcloud secrets versions add <secret> --data-file=-`,
 then redeploy (each service reads `latest` when it starts).
 
-## 2. Who is asked on Slack
+## 2. Web address and who is asked on Slack
 
 ```bash
 cp infra/deploy.env.example infra/deploy.env
 ```
 
-`infra/deploy.env` is never committed.
+`infra/deploy.env` is never committed. Both deploy scripts read it.
 
-Fill in the Slack channel or user ids for the buyer, the category manager, the category lead and
-ops. In Slack, invite the VendorLink bot to each of those channels (`/invite @VendorLink`).
+- **Web address (optional).** By default the app is on `https://<PROJECT_ID>.web.app`. For a
+  nicer name, create a Hosting site once and put its name in `FIREBASE_SITE`:
+
+  ```bash
+  firebase hosting:sites:create vendorlink-app --project $GOOGLE_CLOUD_PROJECT
+  ```
+
+  Site names are global across Firebase; the command says if one is taken. The hosted demo
+  uses `vendorlink-app` (<https://vendorlink-app.web.app>).
+- **Slack.** Fill in the Slack channel or user ids for the buyer, the category manager, the
+  category lead and ops. In Slack, invite the VendorLink bot to each of those channels
+  (`/invite @VendorLink`).
 
 ## 3. Build and deploy
 
@@ -69,8 +79,9 @@ firebase login && ./infra/deploy_web.sh
 (`<PROJECT_ID>:asia-south1:vl-jobs`); set `CLOUDSQL_INSTANCE` only if yours has another name. `gcloud builds submit` runs the tests, then builds
 the 5 images.
 
-If the web app is not on `https://<PROJECT_ID>.web.app`, set `WEB_ORIGIN` before `deploy.sh`.
-It is the only browser origin the APIs accept, and the base of links in Slack messages.
+`deploy.sh` takes the web address from `FIREBASE_SITE`: it is the only browser origin the APIs
+accept, and the base of links in Slack messages. On a custom domain, set `WEB_ORIGIN` instead.
+After changing `FIREBASE_SITE`, run `deploy.sh` and then `deploy_web.sh` again (no rebuild).
 
 ## 4. Seed and smoke test
 
@@ -81,7 +92,7 @@ for s in $TRUST_GATEWAY_URL $VENDOR_SVC_URL $RETAILER_SVC_URL; do curl -s $s/hea
 curl -s -o /dev/null -w '%{http_code}\n' -X POST $RETAILER_SVC_URL/dev/tick
 uv run python scripts/attack_impostor.py --live
 uv run python scripts/attack_injected_doc.py --live
-uv run python scripts/ui_check.py --web https://$GOOGLE_CLOUD_PROJECT.web.app
+uv run python scripts/ui_check.py --web https://vendorlink-app.web.app
 uv run python scripts/demo_reset.py
 ```
 
@@ -133,5 +144,5 @@ delete the whole project.
 | `VL_DEMO_ENDPOINTS=true`, `VL_DEV_ENDPOINTS=false` | `deploy.sh`; `/dev/*` only with the admin token (ADR 0014) |
 | `MCP_SLACK_URL`, `vl-mcp-slack-headers` | `deploy.sh` from the `slack-mcp` service; bearer token from `bootstrap.sh` |
 | `FRESHCART_*_SLACK`, `FRESHCART_*_EMAIL` | `infra/deploy.env` |
-| `VL_CORS_ORIGINS`, `VL_PUBLIC_URL` | set by `deploy.sh` from `WEB_ORIGIN` |
+| `VL_CORS_ORIGINS`, `VL_PUBLIC_URL` | set by `deploy.sh` from `FIREBASE_SITE` (or `WEB_ORIGIN`) |
 | `REGION`, `MODEL_LOCATION`, `ARMOR_LOCATION` | optional overrides for both scripts |

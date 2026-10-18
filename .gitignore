@@ -50,5 +50,6 @@ scripts/build_demo_video.py
 # Superseded by docs/PLAN.md
 docs/vendorlink_coding_plan.md
 
-# Firebase deploy cache
+# Firebase deploy cache and target mapping (infra/deploy_web.sh writes it)
 .firebase/
+.firebaserc

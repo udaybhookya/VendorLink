@@ -11,6 +11,10 @@ handled automatically; anything outside them is countered, or brought back to he
 Built for the **AI Builder Cup 2026 (Retail & Commerce)**. All vendors, retailers and registries
 in this repository are synthetic or simulated.
 
+**Live demo:** [vendor app (Maya)](https://vendorlink-app.web.app/vendor/?vendor=vendor:maya) ·
+[retailer console](https://vendorlink-app.web.app/retailer/), hosted on Google Cloud
+([docs/DEPLOY.md](docs/DEPLOY.md)).
+
 ## Contents
 
 - [Highlights](#highlights)
