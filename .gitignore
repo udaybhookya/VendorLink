@@ -49,3 +49,6 @@ scripts/build_demo_video.py
 
 # Superseded by docs/PLAN.md
 docs/vendorlink_coding_plan.md
+
+# Firebase deploy cache
+.firebase/

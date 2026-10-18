@@ -22,7 +22,7 @@ from vl_core.obs import get_logger, party_var, service_var, trace_id_var
 from vl_core.settings import Settings, get_settings
 
 _configured = False
-QUIET_PATHS = frozenset({"/healthz"})
+QUIET_PATHS = frozenset({"/healthz", "/health"})
 _READS = frozenset({"GET", "HEAD", "OPTIONS"})
 # Platform plumbing: registration and telemetry. Logged at DEBUG unless they fail.
 PLUMBING = ("/credentials", "/events", "/agents/hosted")

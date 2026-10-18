@@ -102,9 +102,10 @@ async def test_sqlite_namespaces_use_separate_files(tmp_path: Path) -> None:
 
 
 class _Snap:
-    def __init__(self, data: dict | None) -> None:  # type: ignore[type-arg]
+    def __init__(self, data: dict | None, reference: _Doc | None = None) -> None:  # type: ignore[type-arg]
         self._data = data
         self.exists = data is not None
+        self.reference = reference
 
     def to_dict(self) -> dict:  # type: ignore[type-arg]
         return dict(self._data or {})
@@ -121,9 +122,21 @@ class _Doc:
         self.store[self.key] = data
 
 
+class _Batch:
+    def __init__(self) -> None:
+        self.deletes: list[_Doc] = []
+
+    def delete(self, doc: _Doc) -> None:
+        self.deletes.append(doc)
+
+    async def commit(self) -> None:
+        for doc in self.deletes:
+            doc.store.pop(doc.key, None)
+
+
 class _Query:
-    def __init__(self, store: dict, filters: list | None = None) -> None:  # type: ignore[type-arg]
-        self.store, self.filters = store, filters or []
+    def __init__(self, store: dict, filters: list | None = None, n: int | None = None) -> None:  # type: ignore[type-arg]
+        self.store, self.filters, self.n = store, filters or [], n
 
     def document(self, key: str) -> _Doc:
         return _Doc(self.store, key)
@@ -131,10 +144,17 @@ class _Query:
     def where(self, *, filter: object) -> _Query:
         return _Query(self.store, [*self.filters, filter])
 
+    def limit(self, n: int) -> _Query:
+        return _Query(self.store, self.filters, n)
+
     async def stream(self):  # type: ignore[no-untyped-def]
-        for data in self.store.values():
-            if all(data.get(f.field_path) == f.value for f in self.filters):  # type: ignore[attr-defined]
-                yield _Snap(data)
+        hits = [
+            (key, data)
+            for key, data in self.store.items()
+            if all(data.get(f.field_path) == f.value for f in self.filters)  # type: ignore[attr-defined]
+        ]
+        for key, data in hits[: self.n]:
+            yield _Snap(data, _Doc(self.store, key))
 
 
 class _Client:
@@ -143,6 +163,9 @@ class _Client:
 
     def collection(self, name: str) -> _Query:
         return _Query(self.collections.setdefault(name, {}))
+
+    def batch(self) -> _Batch:
+        return _Batch()
 
 
 class _FieldFilter:
@@ -176,3 +199,25 @@ async def test_firestore_repo_roundtrip(monkeypatch: pytest.MonkeyPatch) -> None
     assert [d.id for d in await repo.query(day=date(2026, 10, 15))] == ["a"]
     assert await repo.query(day=date(2026, 10, 16)) == []
     assert await repo.get("missing") is None
+
+
+async def test_firestore_clear_only_on_a_hosted_demo() -> None:
+    from vl_core.settings import Settings
+    from vl_core.store import FirestoreRepo
+    from vl_core.store import repo as repo_module
+
+    class Row(BaseModel):
+        id: str
+
+    client = _Client()
+    locked = FirestoreRepo(Row, "gw.rows", Settings(), client=client)
+    await locked.put("a", Row(id="a"))
+    with pytest.raises(RuntimeError):
+        await locked.clear()
+    assert len(client.collections["gw.rows"]) == 1
+
+    demo = FirestoreRepo(Row, "gw.rows", Settings(vl_demo_endpoints=True), client=client)
+    for i in range(repo_module._CLEAR_BATCH + 5):  # more than one batch
+        await demo.put(f"r{i}", Row(id=f"r{i}"))
+    await demo.clear()
+    assert client.collections["gw.rows"] == {}

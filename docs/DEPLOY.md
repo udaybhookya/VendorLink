@@ -77,7 +77,7 @@ It is the only browser origin the APIs accept, and the base of links in Slack me
 ```bash
 source infra/cloud_env.sh
 uv run python scripts/demo_reset.py
-for s in $TRUST_GATEWAY_URL $VENDOR_SVC_URL $RETAILER_SVC_URL; do curl -s $s/healthz; echo; done
+for s in $TRUST_GATEWAY_URL $VENDOR_SVC_URL $RETAILER_SVC_URL; do curl -s $s/health; echo; done
 curl -s -o /dev/null -w '%{http_code}\n' -X POST $RETAILER_SVC_URL/dev/tick
 uv run python scripts/attack_impostor.py --live
 uv run python scripts/attack_injected_doc.py --live
@@ -85,6 +85,7 @@ uv run python scripts/ui_check.py --web https://$GOOGLE_CLOUD_PROJECT.web.app
 uv run python scripts/demo_reset.py
 ```
 
+Use `/health` on Cloud Run: it reserves paths ending in `z`, so `/healthz` gets Google's 404 page.
 In order: `cloud_env.sh` loads the service URLs and the admin token, so the scripts now target
 the cloud. The first `demo_reset.py` gives a clean config A. `/dev/tick` must return `404`, since
 no token was sent. Both attack scripts must print `BLOCKED` (the injected document is caught by

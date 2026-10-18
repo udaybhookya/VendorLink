@@ -95,6 +95,7 @@ async def journey(s: Settings, operator_token: str) -> None:
     # health and public reads
     for base in (gw, vs, rs, mk):
         await call(base, "GET", "/healthz")
+        await call(base, "GET", "/health")
     await call(gw, "GET", "/.well-known/gateway-key")
     await reset(s, "A")  # POST /dev/reset on each service; services register agents
 

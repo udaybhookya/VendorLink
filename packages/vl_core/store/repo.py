@@ -197,6 +197,9 @@ def _firestore_id(doc_id: str) -> str:
     return doc_id.replace("%", "%25").replace("/", "%2F")
 
 
+_CLEAR_BATCH = 400  # Firestore allows at most 500 writes per batch
+
+
 class FirestoreRepo[T: BaseModel]:
     """Cloud Firestore. Documents are the model's JSON form; equality filters run server-side."""
 
@@ -205,6 +208,7 @@ class FirestoreRepo[T: BaseModel]:
         self.collection = collection
         self._client = client if client is not None else _firestore(settings)
         self._fanout: _Fanout[T] = _Fanout()
+        self._may_clear = settings.vl_demo_endpoints
 
     def _col(self) -> Any:
         return self._client.collection(self.collection)
@@ -228,7 +232,17 @@ class FirestoreRepo[T: BaseModel]:
         return [self.model.model_validate(snap.to_dict()) async for snap in query.stream()]
 
     async def clear(self) -> None:
-        raise RuntimeError("refusing to bulk-delete a Firestore collection from a dev reset")
+        """Demo reset only: a hosted demo of synthetic data (VL_DEMO_ENDPOINTS, ADR 0014)."""
+        if not self._may_clear:
+            raise RuntimeError("refusing to bulk-delete a Firestore collection from a dev reset")
+        while True:
+            snaps = [snap async for snap in self._col().limit(_CLEAR_BATCH).stream()]
+            if not snaps:
+                return
+            batch = self._client.batch()
+            for snap in snaps:
+                batch.delete(snap.reference)
+            await batch.commit()
 
     def watch(self) -> AsyncIterator[T]:
         return self._fanout.watch()

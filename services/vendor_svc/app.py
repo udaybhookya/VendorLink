@@ -127,6 +127,7 @@ def create_app(settings: Settings | None = None, signer: Signer | None = None) -
     )
 
     @app.get("/healthz")
+    @app.get("/health")  # Cloud Run reserves paths ending in "z"; /healthz never reaches us there
     async def healthz() -> dict[str, str]:
         return {"service": SERVICE, "store": settings.vl_store, "signer": settings.vl_signer}
 
