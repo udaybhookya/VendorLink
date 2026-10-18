@@ -1,4 +1,4 @@
-.PHONY: demo-video install dev check lint fmt typecheck test schemas web-install web-check e2e attacks evals reset api-check ui-check diagrams
+.PHONY: install dev check lint fmt typecheck test schemas web-install web-check e2e attacks evals reset api-check ui-check diagrams
 
 install:
 	uv sync
@@ -51,7 +51,3 @@ reset:
 
 diagrams:  # docs/diagrams/*.mmd → PNG
 	./scripts/render_diagrams.sh
-
-demo-video:  # needs `make dev` running
-	uv run python scripts/record_demo.py
-	uv run python scripts/build_demo_video.py  # needs ffmpeg (brew install ffmpeg)

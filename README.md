@@ -220,7 +220,7 @@ VendorLink/
 ├── agents/              # core agents (Guardian, Concierge, Orchestrator, Liaison), channels, specialists
 ├── config/              # all behaviour: profiles, country packs, policies, workflows, presets, i18n, prompts
 ├── docs/                # setup, demo script, architecture, plan, deploy guide, ADRs
-├── infra/               # Cloud Run / Cloud Build deployment
+├── infra/               # Google Cloud deployment: bootstrap, Cloud Build, Cloud Run, Firebase Hosting
 ├── packages/vl_core/    # shared library: schemas, config, crypto, store, LLM, A2A, observability
 ├── scripts/             # dev stack, demo reset and scenes, end-to-end and attack checks
 ├── seed/                # synthetic vendors, retailer, documents and demo photos
@@ -237,7 +237,7 @@ VendorLink/
 
 The vendor and retailer services never call each other directly; every message between them
 goes through the trust gateway. A Human Liaison on each side asks people for decisions in the
-app, on Slack or by email. 17 agents are configured in `config/agents.json` and called by
+app, on Slack or by email. 18 agents are configured in `config/agents.json` and called by
 capability. Every cloud dependency (Firestore, Cloud Storage, KMS, Model Armor) has a local
 fallback, so nothing cloud-based is needed to run it.
 
@@ -292,7 +292,9 @@ More fixes, including Gemini, Slack and Gmail errors, are in
 | [docs/PLAN.md](docs/PLAN.md) | Modules, data model and build plan |
 | [docs/adr/](docs/adr/) | Architecture decision records |
 | [agents/README.md](agents/README.md) | How agents work and how to add one |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploying to Google Cloud Run (optional) |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Deploying the hosted demo: Cloud Run, Firestore, KMS, Model Armor, Firebase Hosting (optional) |
+| [docs/solution_approach_v1.docx](docs/solution_approach_v1.docx) | The solution approach: problem, design and why |
+| [docs/VendorLink_Evaluation_Report.xlsx](docs/VendorLink_Evaluation_Report.xlsx) | Evaluation report |
 | [CLAUDE.md](CLAUDE.md) | Project rules and code conventions |
 
 ## Contributing
@@ -311,7 +313,7 @@ This is a competition prototype, and some parts are deliberately limited:
 
 - Registries, payments and logistics are simulated, and the UI says so.
 - The Gmail channel only sends; replies come through the app or Slack.
-- Cloud adapters (Firestore, Cloud Storage, KMS, Model Armor) are implemented and tested, but the
-  demo runs locally.
+- Cloud adapters (Firestore, Cloud Storage, KMS, Model Armor) are implemented and tested. The same
+  code runs locally with no cloud services, or hosted on Cloud Run ([docs/DEPLOY.md](docs/DEPLOY.md)).
 - Not in scope: WhatsApp or phone channels, real registry integrations, payments, routing and
   analytics.

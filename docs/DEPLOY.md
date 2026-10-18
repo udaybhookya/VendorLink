@@ -45,21 +45,29 @@ then redeploy (each service reads `latest` when it starts).
 ## 2. Who is asked on Slack
 
 ```bash
-cp infra/deploy.env.example infra/deploy.env     # never committed
+cp infra/deploy.env.example infra/deploy.env
 ```
+
+`infra/deploy.env` is never committed.
 
 Fill in the Slack channel or user ids for the buyer, the category manager, the category lead and
 ops. In Slack, invite the VendorLink bot to each of those channels (`/invite @VendorLink`).
 
 ## 3. Build and deploy
 
+Run these one at a time; each needs the one before it to succeed. (Comments are kept out of the
+commands: zsh does not treat `#` as a comment when you paste, so it would pass them as arguments.)
+
 ```bash
-export TAG=$(git rev-parse --short HEAD)                        # deploy a committed tree
+export TAG=$(git rev-parse --short HEAD)
 export CLOUDSQL_INSTANCE=$GOOGLE_CLOUD_PROJECT:asia-south1:vl-jobs
-gcloud builds submit --config infra/cloudbuild.yaml --substitutions=_TAG=$TAG   # tests, then 5 images
+gcloud builds submit --config infra/cloudbuild.yaml --substitutions=_TAG=$TAG
 ./infra/deploy.sh
 firebase login && ./infra/deploy_web.sh
 ```
+
+`TAG` is the current commit, so commit first. `gcloud builds submit` runs the tests, then builds
+the 5 images.
 
 If the web app is not on `https://<PROJECT_ID>.web.app`, set `WEB_ORIGIN` before `deploy.sh`.
 It is the only browser origin the APIs accept, and the base of links in Slack messages.
@@ -67,15 +75,20 @@ It is the only browser origin the APIs accept, and the base of links in Slack me
 ## 4. Seed and smoke test
 
 ```bash
-source infra/cloud_env.sh                 # service URLs + admin token; scripts now target the cloud
-uv run python scripts/demo_reset.py       # clean config A
+source infra/cloud_env.sh
+uv run python scripts/demo_reset.py
 for s in $TRUST_GATEWAY_URL $VENDOR_SVC_URL $RETAILER_SVC_URL; do curl -s $s/healthz; echo; done
-curl -s -o /dev/null -w '%{http_code}\n' -X POST $RETAILER_SVC_URL/dev/tick   # 404: no token
-uv run python scripts/attack_impostor.py --live          # BLOCKED
-uv run python scripts/attack_injected_doc.py --live      # BLOCKED (Model Armor)
+curl -s -o /dev/null -w '%{http_code}\n' -X POST $RETAILER_SVC_URL/dev/tick
+uv run python scripts/attack_impostor.py --live
+uv run python scripts/attack_injected_doc.py --live
 uv run python scripts/ui_check.py --web https://$GOOGLE_CLOUD_PROJECT.web.app
-uv run python scripts/demo_reset.py       # reset after the checks
+uv run python scripts/demo_reset.py
 ```
+
+In order: `cloud_env.sh` loads the service URLs and the admin token, so the scripts now target
+the cloud. The first `demo_reset.py` gives a clean config A. `/dev/tick` must return `404`, since
+no token was sent. Both attack scripts must print `BLOCKED` (the injected document is caught by
+Model Armor). The last `demo_reset.py` resets the state after the checks.
 
 Then run the hero flow by hand (docs/DEMO.md), with the buyer replying **on Slack**. The
 `e2e_order_loop.py --live` script answers through the dev outbox, which the hosted demo does not
