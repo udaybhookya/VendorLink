@@ -16,7 +16,9 @@ COPY seed ./seed
 RUN uv sync --frozen --no-dev --extra gcp
 
 ARG SERVICE
-ENV SERVICE=${SERVICE} PORT=8080 VL_CONFIG_DIR=/app/config VL_DATA_DIR=/tmp/vl_data
-RUN useradd --uid 10001 app && chown -R app /app
+ENV SERVICE=${SERVICE} PORT=8080 VL_CONFIG_DIR=/app/config VL_DATA_DIR=/tmp/vl_data \
+    PATH=/app/.venv/bin:$PATH
+RUN useradd --uid 10001 --create-home app && chown -R app /app
 USER app
-CMD ["sh", "-c", "uv run --no-sync uvicorn ${SERVICE}.app:app --host 0.0.0.0 --port ${PORT} --no-access-log --timeout-graceful-shutdown 5"]
+# Run from the venv directly: `uv run` would need a writable cache dir at startup.
+CMD ["sh", "-c", "exec uvicorn ${SERVICE}.app:app --host 0.0.0.0 --port ${PORT} --no-access-log --timeout-graceful-shutdown 5"]
