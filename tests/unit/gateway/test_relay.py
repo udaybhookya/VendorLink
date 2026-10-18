@@ -143,6 +143,27 @@ async def test_injection_in_relayed_message_is_blocked(env: Env) -> None:
     assert "injection" in await events(env)
 
 
+async def test_screening_outage_refuses_without_revoking(
+    env: Env, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    async def down(text: str) -> list[str]:
+        return ["screening:unavailable"]
+
+    monkeypatch.setattr(env.gateway.screener, "scan_text", down)
+    with pytest.raises(GatewayError) as err:
+        await env.retailer.relay(
+            MAYA,
+            "order.propose",
+            order(),
+            on_behalf_of="retailer:freshcart",
+            response_model=Decision,
+        )
+    assert err.value.code == "screening_unavailable"
+    assert env.received == [] and await events(env) == []
+    cred = await env.gateway.store.credentials.get(FRESHCART)
+    assert cred is not None and cred.status == "active"
+
+
 async def test_direct_call_bypassing_gateway_is_refused(env: Env) -> None:
     envelope = make_envelope(
         skill="order.propose",

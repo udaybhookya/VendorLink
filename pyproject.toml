@@ -89,7 +89,7 @@ module = ["vl_core.*", "agents.base", "agents.registry", "agents.host"]
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["google.*", "opentelemetry.exporter.*", "langgraph.checkpoint.postgres.*"]
+module = ["google.*", "opentelemetry.exporter.*", "langgraph.checkpoint.postgres.*", "psycopg.*", "psycopg_pool.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

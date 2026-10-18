@@ -36,7 +36,19 @@ async def open_checkpointer(settings: Settings | None = None) -> AsyncIterator[A
         if not settings.vl_checkpoint_dsn:
             raise RuntimeError("VL_CHECKPOINTS=postgres needs VL_CHECKPOINT_DSN")
         from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+        from psycopg.rows import dict_row
+        from psycopg_pool import AsyncConnectionPool
 
-        async with AsyncPostgresSaver.from_conn_string(settings.vl_checkpoint_dsn) as saver:
+        # A pool that checks each connection before use: the service runs for days, and one
+        # long-lived connection dropped by Cloud SQL (maintenance, network) would fail every job.
+        async with AsyncConnectionPool(
+            settings.vl_checkpoint_dsn,
+            min_size=1,
+            max_size=4,
+            open=False,
+            check=AsyncConnectionPool.check_connection,
+            kwargs={"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row},
+        ) as pool:
+            saver = AsyncPostgresSaver(pool)
             await saver.setup()
             yield saver

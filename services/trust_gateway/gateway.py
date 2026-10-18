@@ -60,7 +60,7 @@ from vl_core.schemas import (
     TokenRequest,
     TokenResponse,
 )
-from vl_core.screening import get_screener, iter_strings
+from vl_core.screening import UNAVAILABLE, body_text, get_screener
 from vl_core.settings import Settings
 from vl_core.store import Repo, get_repo
 
@@ -473,9 +473,9 @@ class Gateway:
             )
         await self._business_policy(skill, message, cred, target)
 
-        findings = [
-            f for text in iter_strings(envelope.body) for f in await self.screener.scan_text(text)
-        ]
+        findings = await self.screener.scan_text(body_text(envelope.body))
+        if findings == [UNAVAILABLE]:  # fail closed, but an outage is not the sender's attack
+            raise Denied(503, "screening_unavailable", "screening could not run; try again")
         if findings:
             raise Denied(
                 403, "injection", ",".join(sorted(set(findings))), event="injection", revoke=True

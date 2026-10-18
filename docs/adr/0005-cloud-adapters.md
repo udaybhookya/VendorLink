@@ -25,8 +25,10 @@ in the `gcp` extra and imported lazily; tests drive every adapter through a fake
 3. **`ModelArmorScreener`**: `sanitize_user_prompt` against a template; any filter whose result
    is `MATCH_FOUND` becomes a `model_armor:<filter>` finding. It runs **in addition to** the
    heuristic patterns, which also cover our Telugu and Bahasa phrasings. It **fails closed**:
-   an unreachable Model Armor yields `screening:unavailable`, which the gateway treats like any
-   finding (blocked). `Screener.scan_text` became `async` so the gateway's event loop never
+   an unreachable Model Armor yields `screening:unavailable`, and the gateway refuses the relay
+   (503 `screening_unavailable`) without revoking the sender: an outage is not an attack. A
+   relayed body is screened as one text (its `*_b64` binary fields are left to `/screen`), in
+   10,000-character parts for Model Armor. `Screener.scan_text` became `async` so the gateway's event loop never
    blocks on the network. Text extraction and image checks stay local. The Liaison's answer check
    (`screen_text`) stays heuristic and synchronous: answers are short and parsed
    deterministically anyway.

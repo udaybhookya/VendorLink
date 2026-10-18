@@ -267,3 +267,18 @@ async def test_model_armor_clean_text_and_empty_text() -> None:
 async def test_model_armor_fails_closed() -> None:
     screener = ModelArmorScreener(ARMOR, client=FakeArmor(ConnectionError("down")))
     assert await screener.scan_text("hello") == ["screening:unavailable"]
+
+
+async def test_model_armor_screens_long_text_in_parts() -> None:
+    fake = FakeArmor({"filter_match_state": "NO_MATCH_FOUND", "filter_results": {}})
+    screener = ModelArmorScreener(ARMOR, client=fake)
+    assert await screener.scan_text("spinach " * 3000) == []  # 24,000 characters
+    assert len(fake.requests) == 3
+    assert all(len(r["user_prompt_data"]["text"]) <= 10_000 for r in fake.requests)
+
+
+def test_body_text_skips_binary_fields() -> None:
+    from vl_core.screening import body_text
+
+    body = {"title": "Lavender candle", "photo_b64": "QUJD" * 50_000, "notes": ["", "soy wax"]}
+    assert body_text(body) == "Lavender candle\nsoy wax"

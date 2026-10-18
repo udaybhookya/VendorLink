@@ -27,17 +27,28 @@ INJECTION_PATTERNS: dict[str, re.Pattern[str]] = {
 }
 
 EDITING_SOFTWARE = (b"Photoshop", b"GIMP", b"Snapseed", b"PicsArt")
+UNAVAILABLE = "screening:unavailable"
+# Characters per Model Armor call; a long document is screened in parts.
+_ARMOR_CHUNK = 10_000
 
 
 def iter_strings(value: Any) -> Iterator[str]:
+    """Every text value in a JSON body. `*_b64` fields are binary (photos, audio): they are
+    screened as files through the gateway's /screen, not as text."""
     if isinstance(value, str):
         yield value
     elif isinstance(value, dict):
-        for item in value.values():
-            yield from iter_strings(item)
+        for key, item in value.items():
+            if not (isinstance(key, str) and key.endswith("_b64")):
+                yield from iter_strings(item)
     elif isinstance(value, list):
         for item in value:
             yield from iter_strings(item)
+
+
+def body_text(value: Any) -> str:
+    """A body's text as one string to screen, one value per line (patterns stay within a line)."""
+    return "\n".join(s for s in iter_strings(value) if s.strip())
 
 
 class Screener(Protocol):
@@ -127,15 +138,19 @@ class ModelArmorScreener(HeuristicScreener):
         findings = heuristic_findings(text)
         if not text.strip():
             return findings
-        try:
-            response = await self._client.sanitize_user_prompt(
-                request={"name": self.template, "user_prompt_data": {"text": text}}
-            )
-        except Exception:
-            return [*findings, "screening:unavailable"]
-        result = getattr(response, "sanitization_result", response)
-        as_dict = result if isinstance(result, dict) else type(result).to_dict(result)
-        return findings + [f"model_armor:{name}" for name in _matched_filters(as_dict)]
+        for start in range(0, len(text), _ARMOR_CHUNK):
+            part = text[start : start + _ARMOR_CHUNK]
+            try:
+                response = await self._client.sanitize_user_prompt(
+                    request={"name": self.template, "user_prompt_data": {"text": part}}
+                )
+            except Exception:
+                return [*findings, UNAVAILABLE]
+            result = getattr(response, "sanitization_result", response)
+            as_dict = result if isinstance(result, dict) else type(result).to_dict(result)
+            matched = [f"model_armor:{name}" for name in _matched_filters(as_dict)]
+            findings += [f for f in matched if f not in findings]
+        return findings
 
 
 def get_screener(settings: Settings) -> Screener:
